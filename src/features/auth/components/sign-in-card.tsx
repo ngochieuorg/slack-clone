@@ -1,4 +1,5 @@
 import { FcGoogle } from "react-icons/fc";
+import { TriangleAlert } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -23,9 +24,25 @@ const SignInCard = ({ setState }: SignInCardProps) => {
   const { signIn } = useAuthActions();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [pending, setPending] = useState(false);
+
+  const onPasswordSignin = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    setPending(true);
+    signIn("password", { email, password, flow: "signIn" })
+      .catch(() => {
+        setError("Invalid email or password");
+      })
+      .finally(() => {
+        setPending(false);
+      });
+  };
 
   const handleProviderSignin = (value: "github" | "google") => {
-    signIn(value);
+    setPending(false);
+    signIn(value).finally(() => setPending(false));
   };
 
   return (
@@ -36,11 +53,16 @@ const SignInCard = ({ setState }: SignInCardProps) => {
           Use your email or another service to continue
         </CardDescription>
       </CardHeader>
-
+      {!!error && (
+        <div className=" bg-destructive/15 p-3 rounded-md flex items-center gap-x-2 text-sm text-destructive mb-6">
+          <TriangleAlert className="size-4" />
+          <p>{error}</p>
+        </div>
+      )}
       <CardContent className="space-y-5 px-0 pb-0">
-        <form className="space-y-2.5">
+        <form onSubmit={onPasswordSignin} className="space-y-2.5">
           <Input
-            disabled={false}
+            disabled={pending}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -48,22 +70,27 @@ const SignInCard = ({ setState }: SignInCardProps) => {
             required
           />
           <Input
-            disabled={false}
+            disabled={pending}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
             type="password"
             required
           />
-          <Button type="submit" className="w-full" size={"lg"} disabled={false}>
+          <Button
+            type="submit"
+            className="w-full"
+            size={"lg"}
+            disabled={pending}
+          >
             Continue
           </Button>
         </form>
         <Separator />
         <div className="flex flex-col gap-y-2.5">
           <Button
-            disabled={false}
-            onClick={() => {}}
+            disabled={pending}
+            onClick={() => handleProviderSignin("google")}
             variant={"outline"}
             size={"lg"}
             className="w-full relative"
@@ -72,7 +99,7 @@ const SignInCard = ({ setState }: SignInCardProps) => {
             Continue with Google
           </Button>
           <Button
-            disabled={false}
+            disabled={pending}
             onClick={() => handleProviderSignin("github")}
             variant={"outline"}
             size={"lg"}
@@ -85,7 +112,7 @@ const SignInCard = ({ setState }: SignInCardProps) => {
         <p className="text-xs text-muted-foreground">
           Don&apos;t have an account?{" "}
           <span
-            onClick={() => setState("signup")}
+            onClick={() => setState("signUp")}
             className="text-sky-700 hover:underline cursor-pointer"
           >
             Sign up

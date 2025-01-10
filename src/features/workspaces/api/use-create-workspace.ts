@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMutation } from "convex/react";
 
 import { api } from "../../../../convex/_generated/api";
@@ -16,16 +15,11 @@ type Options = {
 };
 
 export const useCreateWorkspace = () => {
-  const [data, setData] = useState<RequestType>(null);
+  const [data, setData] = useState<RequestType | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [status, setStatus] = useState<
     "success" | "error" | "settled" | "pending" | null
   >(null);
-
-  //   const [isPending, setIsPending] = useState(false);
-  //   const [isSuccess, setIsSuccess] = useState(false);
-  //   const [isError, setIsError] = useState(false);
-  //   const [isSettled, setIsSettled] = useState(false);
 
   const isPending = useMemo(() => status === "pending", [status]);
   const isSuccess = useMemo(() => status === "success", [status]);

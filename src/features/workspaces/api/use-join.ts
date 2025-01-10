@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMutation } from "convex/react";
 
 import { api } from "../../../../convex/_generated/api";
@@ -16,7 +15,7 @@ type Options = {
 };
 
 export const useJoin = () => {
-  const [data, setData] = useState<RequestType>(null);
+  const [data, setData] = useState<RequestType | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [status, setStatus] = useState<
     "success" | "error" | "settled" | "pending" | null

@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useRemoveChannel } from "@/features/channels/api/use-remove-channel";
 import { useUpdateChannel } from "@/features/channels/api/use-update-channel";
-import { useCurrentMember } from "@/features/members/api/use-curent-member";
+import { useCurrentMember } from "@/features/members/api/use-current-member";
 import { useChannelId } from "@/hooks/use-channel-id";
 import useConfirm from "@/hooks/use-confirm";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
@@ -44,7 +44,7 @@ const Header = ({ title }: HeaderProps) => {
 
   const handleEditOpen = (value: boolean) => {
     if (member?.role !== "admin") return;
-    setEditOpen(true);
+    setEditOpen(value);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

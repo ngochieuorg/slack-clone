@@ -8,6 +8,7 @@ import { MdSend } from "react-icons/md";
 import { ImageIcon, Smile } from "lucide-react";
 import Hint from "./hint";
 import { cn } from "@/lib/utils";
+import EmojiPopover from "./emoji-popover";
 
 type EditorValue = {
   image: File | null;
@@ -125,6 +126,12 @@ const Editor = ({
     }
   };
 
+  const emojiSelect = (emoji: any) => {
+    const quill = quillRef.current;
+
+    quill?.insertText(quill?.getSelection()?.index || 0, emoji.native);
+  };
+
   const isEmpty = text.replace(/<(.|\n)*?>/g, "").trim().length === 0;
 
   return (
@@ -142,16 +149,11 @@ const Editor = ({
               <PiTextAa className="size-4" />
             </Button>
           </Hint>
-          <Hint label="Emoji">
-            <Button
-              className=""
-              disabled={disabled}
-              variant={"ghost"}
-              onClick={() => {}}
-            >
+          <EmojiPopover onEmojiSelect={emojiSelect}>
+            <Button className="" disabled={disabled} variant={"ghost"}>
               <Smile className="size-4" />
             </Button>
-          </Hint>
+          </EmojiPopover>
           {variant === "create" && (
             <Hint label="Image">
               <Button
@@ -201,11 +203,18 @@ const Editor = ({
           )}
         </div>
       </div>
-      <div className="p-2 text-[10px] text-muted-foreground flex justify-end">
-        <p>
-          <strong>Shift + Rerturn</strong> to add new line
-        </p>
-      </div>
+      {variant === "create" && (
+        <div
+          className={cn(
+            "p-2 text-[10px] text-muted-foreground flex justify-end opacity-0 transition",
+            !isEmpty && "opacity-100"
+          )}
+        >
+          <p>
+            <strong>Shift + Rerturn</strong> to add new line
+          </p>
+        </div>
+      )}
     </div>
   );
 };

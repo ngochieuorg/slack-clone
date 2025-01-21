@@ -7,12 +7,13 @@ import { Id } from "../../convex/_generated/dataModel";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { useCurrentMember } from "@/features/members/api/use-current-member";
 import { Loader } from "lucide-react";
+import ConversationHero from "./conversation-hero";
 
 const TIME_THRESHHOLD = 5;
 
 interface MessageListProps {
   channelName?: string;
-  channelCreationTime: number;
+  channelCreationTime?: number;
   memberImage?: string;
   data: GetMessageReturnType | undefined;
   loadMore: () => void;
@@ -60,12 +61,12 @@ const MessageList = ({
   );
 
   return (
-    <div className="flex-1 flex flex-col-reverse pb-4 overflow-y-auto messages-scrollbar">
+    <div className='flex-1 flex flex-col-reverse pb-4 overflow-y-auto messages-scrollbar'>
       {Object.entries(groupedMessage || {}).map(([dateKey, messages]) => (
         <div key={dateKey}>
-          <div className="text-center my-2 relative">
-            <hr className="absolute top-1/2 left-0 right-0 border-t border-gray-300" />
-            <span className="relative inline-block bg-white px-4 py-1 rounded-full text-xs border border-gray-300 shadow-sm">
+          <div className='text-center my-2 relative'>
+            <hr className='absolute top-1/2 left-0 right-0 border-t border-gray-300' />
+            <span className='relative inline-block bg-white px-4 py-1 rounded-full text-xs border border-gray-300 shadow-sm'>
               {formatDateLabel(dateKey)}
             </span>
           </div>
@@ -104,7 +105,7 @@ const MessageList = ({
         </div>
       ))}
       <div
-        className="h-1"
+        className='h-1'
         ref={(el) => {
           if (el) {
             const observer = new IntersectionObserver(
@@ -119,18 +120,26 @@ const MessageList = ({
             observer.observe(el);
             return () => observer.disconnect();
           }
-        }}
-      ></div>
+        }}></div>
       {isLoadingMore && (
-        <div className="text-center my-2 relative">
-          <hr className="absolute top-1/2 left-0 right-0 border-t border-gray-300" />
-          <span className="relative inline-block bg-white px-4 py-1 rounded-full text-xs border border-gray-300 shadow-sm">
-            <Loader className="size-4 animate-spin" />
+        <div className='text-center my-2 relative'>
+          <hr className='absolute top-1/2 left-0 right-0 border-t border-gray-300' />
+          <span className='relative inline-block bg-white px-4 py-1 rounded-full text-xs border border-gray-300 shadow-sm'>
+            <Loader className='size-4 animate-spin' />
           </span>
         </div>
       )}
       {variant === "channel" && channelName && channelCreationTime && (
-        <ChannelHero name={channelName} creationTime={channelCreationTime} />
+        <ChannelHero
+          name={channelName}
+          creationTime={channelCreationTime}
+        />
+      )}
+      {variant === "conversation" && (
+        <ConversationHero
+          name={memberName}
+          image={memberImage}
+        />
       )}
     </div>
   );

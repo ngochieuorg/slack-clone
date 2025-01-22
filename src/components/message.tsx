@@ -15,6 +15,7 @@ import useConfirm from "@/hooks/use-confirm";
 import { useToggleReaction } from "@/features/reactions/api/use-toggle-reaction";
 import Reactions from "./reactions";
 import { usePanel } from "@/hooks/use-panel";
+import ThreadBar from "./thread-bar";
 
 const Renderer = dynamic(() => import("@/components/renderer"), { ssr: true });
 const Editor = dynamic(() => import("@/components/editor"), { ssr: false });
@@ -41,6 +42,7 @@ interface MessageProps {
   hideThreadButton?: boolean;
   threadCount?: number;
   threadImage?: string;
+  threadName?: string;
   threadTimestamp?: number;
 }
 
@@ -66,6 +68,7 @@ const Message = ({
   threadCount,
   threadImage,
   threadTimestamp,
+  threadName,
 }: MessageProps) => {
   const { parentMessageId, onOpenMessage, onClose } = usePanel();
   const [ConfirmDialog, confirm] = useConfirm(
@@ -73,12 +76,9 @@ const Message = ({
     "Are you sure want to delete this message"
   );
 
-  const { mutate: updateMessage, isPending: isUpdatingMessage } =
-    useUpdateMessage();
-  const { mutate: removeMessage, isPending: isRemovingMessage } =
-    useRemoveMessage();
-  const { mutate: toggleReaction, isPending: isTogglingMessage } =
-    useToggleReaction();
+  const { mutate: updateMessage, isPending: isUpdatingMessage } = useUpdateMessage();
+  const { mutate: removeMessage, isPending: isRemovingMessage } = useRemoveMessage();
+  const { mutate: toggleReaction, isPending: isTogglingMessage } = useToggleReaction();
 
   const isPending = isUpdatingMessage;
 
@@ -140,34 +140,39 @@ const Message = ({
             isEditing && "bg-[#f2c74433] hover:bg-[#f2c74433]",
             isRemovingMessage &&
               "bg-rose-500/50 transform transition-all scale-y-0 origin-bottom duration-200"
-          )}
-        >
-          <div className="flex items-start gap-2">
+          )}>
+          <div className='flex items-start gap-2'>
             <Hint label={formatFulltime(new Date(createdAt))}>
-              <button className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 w-[40px] leading-[22px] text-center hover:underline">
+              <button className='text-xs text-muted-foreground opacity-0 group-hover:opacity-100 w-[40px] leading-[22px] text-center hover:underline'>
                 {format(new Date(createdAt), "hh:mm")}
               </button>
             </Hint>
             {isEditing ? (
-              <div className="w-full h-full">
+              <div className='w-full h-full'>
                 <Editor
                   onSubmit={handleUpdate}
                   disabled={isPending}
                   defaultValue={JSON.parse(body)}
                   onCancel={() => setEditingId(null)}
-                  variant="update"
+                  variant='update'
                 />
               </div>
             ) : (
-              <div className="flex  flex-col w-full">
+              <div className='flex  flex-col w-full'>
                 <Renderer value={body} />
                 <Thumbnail url={image} />
-                {updatedAt ? (
-                  <span className="text-xs text-muted-foreground">
-                    (edited)
-                  </span>
-                ) : null}
-                <Reactions data={reactions} onChange={handleReaction} />
+                {updatedAt ? <span className='text-xs text-muted-foreground'>(edited)</span> : null}
+                <Reactions
+                  data={reactions}
+                  onChange={handleReaction}
+                />
+                <ThreadBar
+                  count={threadCount}
+                  image={threadImage}
+                  timstamp={threadTimestamp}
+                  onClick={() => onOpenMessage(id)}
+                  name={threadName}
+                />
               </div>
             )}
           </div>
@@ -197,47 +202,52 @@ const Message = ({
           isEditing && "bg-[#f2c74433] hover:bg-[#f2c74433]",
           isRemovingMessage &&
             "bg-rose-500/50 transform transition-all scale-y-0 origin-bottom duration-200"
-        )}
-      >
-        <div className="flex items-start gap-2">
+        )}>
+        <div className='flex items-start gap-2'>
           <button>
             <Avatar>
               <AvatarImage
-                className="bg-sky-500 text-white"
+                className='bg-sky-500 text-white'
                 src={authorImage}
               />
               <AvatarFallback>{avatarFallback}</AvatarFallback>
             </Avatar>
           </button>
           {isEditing ? (
-            <div className="w-full h-full">
+            <div className='w-full h-full'>
               <Editor
                 onSubmit={handleUpdate}
                 disabled={isPending}
                 defaultValue={JSON.parse(body)}
                 onCancel={() => setEditingId(null)}
-                variant="update"
+                variant='update'
               />
             </div>
           ) : (
-            <div className="flex flex-col w-full overflow-hidden">
-              <div className="text-sm">
-                <button className="font-bold text-primary hover:underline">
-                  {authorName}
-                </button>
+            <div className='flex flex-col w-full overflow-hidden'>
+              <div className='text-sm'>
+                <button className='font-bold text-primary hover:underline'>{authorName}</button>
                 <span>&nbsp;&nbsp;</span>
                 <Hint label={formatFulltime(new Date(createdAt))}>
-                  <button className="text-xs text-muted-foreground hover:underline">
+                  <button className='text-xs text-muted-foreground hover:underline'>
                     {format(new Date(createdAt), "h:mm a")}
                   </button>
                 </Hint>
               </div>
               <Renderer value={body} />
               <Thumbnail url={image} />
-              {updatedAt ? (
-                <span className="text-xs text-muted-foreground">(edited)</span>
-              ) : null}
-              <Reactions data={reactions} onChange={handleReaction} />
+              {updatedAt ? <span className='text-xs text-muted-foreground'>(edited)</span> : null}
+              <Reactions
+                data={reactions}
+                onChange={handleReaction}
+              />
+              <ThreadBar
+                count={threadCount}
+                image={threadImage}
+                timstamp={threadTimestamp}
+                onClick={() => onOpenMessage(id)}
+                name={threadName}
+              />
             </div>
           )}
         </div>

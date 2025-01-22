@@ -7,9 +7,7 @@ import { paginationOptsValidator } from "convex/server";
 const populateThread = async (ctx: QueryCtx, messageId: Id<"messages">) => {
   const messages = await ctx.db
     .query("messages")
-    .withIndex("by_parent_message_id", (q) =>
-      q.eq("parentMessageId", messageId)
-    )
+    .withIndex("by_parent_message_id", (q) => q.eq("parentMessageId", messageId))
     .collect();
 
   if (messages.length === 0) {
@@ -17,6 +15,7 @@ const populateThread = async (ctx: QueryCtx, messageId: Id<"messages">) => {
       count: 0,
       image: undefined,
       timeStamp: 0,
+      name: "",
     };
   }
 
@@ -28,6 +27,7 @@ const populateThread = async (ctx: QueryCtx, messageId: Id<"messages">) => {
       count: 0,
       image: undefined,
       timeStamp: 0,
+      name: "",
     };
   }
 
@@ -37,6 +37,7 @@ const populateThread = async (ctx: QueryCtx, messageId: Id<"messages">) => {
     count: messages.length,
     image: lastMessageUser?.image,
     timeStamp: lastMessage._creationTime,
+    name: lastMessageUser?.name,
   };
 };
 
@@ -55,11 +56,7 @@ const populateMember = (ctx: QueryCtx, memberId: Id<"members">) => {
   return ctx.db.get(memberId);
 };
 
-const getMember = async (
-  ctx: QueryCtx,
-  workspaceId: Id<"workspaces">,
-  userId: Id<"users">
-) => {
+const getMember = async (ctx: QueryCtx, workspaceId: Id<"workspaces">, userId: Id<"users">) => {
   return await ctx.db
     .query("members")
     .withIndex("by_workspace_id_user_id", (q) =>
@@ -115,23 +112,18 @@ export const get = query({
 
             const reactions = await populateReactions(ctx, message._id);
             const thread = await populateThread(ctx, message._id);
-            const image = message.image
-              ? await ctx.storage.getUrl(message.image)
-              : undefined;
+            const image = message.image ? await ctx.storage.getUrl(message.image) : undefined;
 
             const reactionsWithCounts = reactions.map((reaction) => {
               return {
                 ...reaction,
-                count: reactions.filter((r) => r.value === reaction.value)
-                  .length,
+                count: reactions.filter((r) => r.value === reaction.value).length,
               };
             });
 
             const dedupedReactions = reactionsWithCounts.reduce(
               (acc, reaction) => {
-                const existingReaction = acc.find(
-                  (r) => r.value === reaction.value
-                );
+                const existingReaction = acc.find((r) => r.value === reaction.value);
 
                 if (existingReaction) {
                   existingReaction.memberIds = Array.from(
@@ -165,13 +157,12 @@ export const get = query({
               reactions: reactionWithoutMemberIdProperty,
               threadCount: thread.count,
               threadImage: thread.image,
+              threadName: thread.name,
               threadTimestamp: thread.timeStamp,
             };
           })
         )
-      ).filter(
-        (message): message is NonNullable<typeof message> => message !== null
-      ),
+      ).filter((message): message is NonNullable<typeof message> => message !== null),
     };
   },
 });
@@ -249,9 +240,7 @@ export const getById = query({
 
     return {
       ...message,
-      image: message.image
-        ? await ctx.storage.getUrl(message.image)
-        : undefined,
+      image: message.image ? await ctx.storage.getUrl(message.image) : undefined,
       user,
       member,
       reactions: reactionWithoutMemberIdProperty,

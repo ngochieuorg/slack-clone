@@ -63,13 +63,7 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
   const canLoadMore = status === "CanLoadMore";
   const isLoadingMore = status === "LoadingMore";
 
-  const handleSubmit = async ({
-    body,
-    image,
-  }: {
-    body: string;
-    image: File | null;
-  }) => {
+  const handleSubmit = async ({ body, image }: { body: string; image: File | null }) => {
     try {
       setIsPending(true);
       editorRef?.current?.enable(false);
@@ -127,15 +121,18 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
 
   if (loadingMessage || status === "LoadingFirstPage") {
     return (
-      <div className="h-full flex flex-col">
-        <div className="h-[49px] flex justify-between items-center px-4 border-b">
-          <p className="text-lg font-bold">Thread</p>
-          <Button onClick={onClose} size={"iconSm"} variant={"ghost"}>
-            <XIcon className="size-5 stroke-[1.5]" />
+      <div className='h-full flex flex-col'>
+        <div className='h-[49px] flex justify-between items-center px-4 border-b'>
+          <p className='text-lg font-bold'>Thread</p>
+          <Button
+            onClick={onClose}
+            size={"iconSm"}
+            variant={"ghost"}>
+            <XIcon className='size-5 stroke-[1.5]' />
           </Button>
         </div>
-        <div className="flex flex-col gap-y-2 h-full items-center justify-center">
-          <Loader className="size-5 animate-spin text-muted-foreground" />
+        <div className='flex flex-col gap-y-2 h-full items-center justify-center'>
+          <Loader className='size-5 animate-spin text-muted-foreground' />
         </div>
       </div>
     );
@@ -143,35 +140,41 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
 
   if (!message) {
     return (
-      <div className="h-full flex flex-col">
-        <div className="h-[49px] flex justify-between items-center px-4 border-b">
-          <p className="text-lg font-bold">Thread</p>
-          <Button onClick={onClose} size={"iconSm"} variant={"ghost"}>
-            <XIcon className="size-5 stroke-[1.5]" />
+      <div className='h-full flex flex-col'>
+        <div className='h-[49px] flex justify-between items-center px-4 border-b'>
+          <p className='text-lg font-bold'>Thread</p>
+          <Button
+            onClick={onClose}
+            size={"iconSm"}
+            variant={"ghost"}>
+            <XIcon className='size-5 stroke-[1.5]' />
           </Button>
         </div>
-        <div className="flex flex-col gap-y-2 h-full items-center justify-center">
-          <AlertTriangle className="size-5 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">Message not found</p>
+        <div className='flex flex-col gap-y-2 h-full items-center justify-center'>
+          <AlertTriangle className='size-5 text-muted-foreground' />
+          <p className='text-sm text-muted-foreground'>Message not found</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="h-[49px] flex justify-between items-center px-4 border-b">
-        <p className="text-lg font-bold">Thread</p>
-        <Button onClick={onClose} size={"iconSm"} variant={"ghost"}>
-          <XIcon className="size-5 stroke-[1.5]" />
+    <div className='h-full flex flex-col'>
+      <div className='h-[49px] flex justify-between items-center px-4 border-b'>
+        <p className='text-lg font-bold'>Thread</p>
+        <Button
+          onClick={onClose}
+          size={"iconSm"}
+          variant={"ghost"}>
+          <XIcon className='size-5 stroke-[1.5]' />
         </Button>
       </div>
-      <div className="flex-1 flex flex-col-reverse pb-4 overflow-y-auto messages-scrollbar">
+      <div className='flex-1 flex flex-col-reverse pb-4 overflow-y-auto messages-scrollbar'>
         {Object.entries(groupedMessage || {}).map(([dateKey, messages]) => (
           <div key={dateKey}>
-            <div className="text-center my-2 relative">
-              <hr className="absolute top-1/2 left-0 right-0 border-t border-gray-300" />
-              <span className="relative inline-block bg-white px-4 py-1 rounded-full text-xs border border-gray-300 shadow-sm">
+            <div className='text-center my-2 relative'>
+              <hr className='absolute top-1/2 left-0 right-0 border-t border-gray-300' />
+              <span className='relative inline-block bg-white px-4 py-1 rounded-full text-xs border border-gray-300 shadow-sm'>
                 {formatDateLabel(dateKey)}
               </span>
             </div>
@@ -204,13 +207,14 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
                   threadCount={message.threadCount}
                   threadImage={message.threadImage}
                   threadTimestamp={message.threadTimestamp}
+                  threadName={message.threadName}
                 />
               );
             })}
           </div>
         ))}
         <div
-          className="h-1"
+          className='h-1'
           ref={(el) => {
             if (el) {
               const observer = new IntersectionObserver(
@@ -228,10 +232,10 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
           }}
         />
         {isLoadingMore && (
-          <div className="text-center my-2 relative">
-            <hr className="absolute top-1/2 left-0 right-0 border-t border-gray-300" />
-            <span className="relative inline-block bg-white px-4 py-1 rounded-full text-xs border border-gray-300 shadow-sm">
-              <Loader className="size-4 animate-spin" />
+          <div className='text-center my-2 relative'>
+            <hr className='absolute top-1/2 left-0 right-0 border-t border-gray-300' />
+            <span className='relative inline-block bg-white px-4 py-1 rounded-full text-xs border border-gray-300 shadow-sm'>
+              <Loader className='size-4 animate-spin' />
             </span>
           </div>
         )}
@@ -251,13 +255,13 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
           setEditingId={setEditingId}
         />
       </div>
-      <div className="px-4">
+      <div className='px-4'>
         <Editor
           key={editorKey}
           onSubmit={handleSubmit}
           innerRef={editorRef}
           disabled={isPending}
-          placeholder="Reply..."
+          placeholder='Reply...'
         />
       </div>
     </div>

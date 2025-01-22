@@ -3,25 +3,22 @@
 import { Sidebar } from "./sidebar";
 import Toolbar from "./toolbar";
 
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import WorkSpaceSidebar from "./work-space-sidebar";
 import { usePanel } from "@/hooks/use-panel";
 import { Loader } from "lucide-react";
 import { Id } from "../../../../convex/_generated/dataModel";
 import Thread from "@/features/messages/components/thread";
+import Profile from "@/features/members/components/profile";
 
 interface WorkspaceIdLayoutProps {
   children: React.ReactNode;
 }
 
 const WorkspaceLayout = ({ children }: WorkspaceIdLayoutProps) => {
-  const { parentMessageId, onClose } = usePanel();
+  const { parentMessageId, profileMemberId, onClose } = usePanel();
 
-  const showPanel = !!parentMessageId;
+  const showPanel = !!parentMessageId || !!profileMemberId;
 
   return (
     <div className="h-full ">
@@ -30,13 +27,11 @@ const WorkspaceLayout = ({ children }: WorkspaceIdLayoutProps) => {
         <Sidebar />
         <ResizablePanelGroup
           direction="horizontal"
-          autoSaveId={"ca-workspace-layout"}
-        >
+          autoSaveId={"ca-workspace-layout"}>
           <ResizablePanel
             defaultSize={20}
             minSize={11}
-            className="bg-[#5E2C5F]"
-          >
+            className="bg-[#5E2C5F]">
             <WorkSpaceSidebar />
           </ResizablePanel>
           <ResizableHandle withHandle />
@@ -44,10 +39,17 @@ const WorkspaceLayout = ({ children }: WorkspaceIdLayoutProps) => {
           {showPanel && (
             <>
               <ResizableHandle withHandle />
-              <ResizablePanel minSize={20} defaultSize={29}>
+              <ResizablePanel
+                minSize={20}
+                defaultSize={29}>
                 {parentMessageId ? (
                   <Thread
                     messageId={parentMessageId as Id<"messages">}
+                    onClose={onClose}
+                  />
+                ) : profileMemberId ? (
+                  <Profile
+                    memberId={profileMemberId as Id<"members">}
                     onClose={onClose}
                   />
                 ) : (

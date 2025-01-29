@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -47,10 +46,14 @@ const useConfirm = (
           <DialogDescription>{message}</DialogDescription>
         </DialogHeader>
         <DialogFooter className="pt-2">
-          <Button onClick={handleCancel} variant={"outline"}>
+          <Button
+            onClick={handleCancel}
+            variant={"outline"}>
             Cancel
           </Button>
-          <Button onClick={handleConfirm} variant={"outline"}>
+          <Button
+            onClick={handleConfirm}
+            variant={"outline"}>
             Confirm
           </Button>
         </DialogFooter>

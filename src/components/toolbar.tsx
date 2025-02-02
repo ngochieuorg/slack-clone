@@ -28,9 +28,11 @@ const Toolbar = ({
       <div className="group-hover:opacity-100 opacity-0 transition-opacity border bg-white rounded-md shadow-sm">
         <EmojiPopover
           hint="Add reaction"
-          onEmojiSelect={(emoji) => handleReaction(emoji.native)}
-        >
-          <Button variant={"ghost"} size={"sm"} disabled={isPending}>
+          onEmojiSelect={(emoji) => handleReaction(emoji.native)}>
+          <Button
+            variant={"ghost"}
+            size={"sm"}
+            disabled={isPending}>
             <Smile className="size-4" />
           </Button>
         </EmojiPopover>
@@ -40,8 +42,7 @@ const Toolbar = ({
               variant={"ghost"}
               size={"sm"}
               disabled={isPending}
-              onClick={handleThread}
-            >
+              onClick={handleThread}>
               <MessageSquareTextIcon className="size-4" />
             </Button>
           </Hint>
@@ -53,8 +54,7 @@ const Toolbar = ({
                 variant={"ghost"}
                 size={"sm"}
                 disabled={isPending}
-                onClick={handleEdit}
-              >
+                onClick={handleEdit}>
                 <Pencil className="size-4" />
               </Button>
             </Hint>
@@ -63,8 +63,7 @@ const Toolbar = ({
                 variant={"ghost"}
                 size={"sm"}
                 disabled={isPending}
-                onClick={handleDelete}
-              >
+                onClick={handleDelete}>
                 <Trash className="size-4" />
               </Button>
             </Hint>

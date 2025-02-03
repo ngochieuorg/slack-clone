@@ -26,9 +26,10 @@ interface SidebarItemProps {
   id: string;
   icon: LucideIcon | IconType;
   variant?: VariantProps<typeof sidebarItemVariants>["variant"];
+  countNotifs?: number;
 }
 
-const SidebarItem = ({ label, id, icon: Icon, variant }: SidebarItemProps) => {
+const SidebarItem = ({ label, id, icon: Icon, variant, countNotifs }: SidebarItemProps) => {
   const workspaceId = useWorkspaceId();
 
   return (
@@ -36,11 +37,20 @@ const SidebarItem = ({ label, id, icon: Icon, variant }: SidebarItemProps) => {
       variant={"transparent"}
       size={"sm"}
       className={cn(sidebarItemVariants({ variant: variant }))}
-      asChild
-    >
+      asChild>
       <Link href={`/workspace/${workspaceId}/channel/${id}`}>
-        <Icon className="size-3.5 mt-1 shrink-0" />
-        <span className="text-sm truncate">{label}</span>
+        <div className="flex items-center w-full">
+          <Icon className="size-3.5 mr-1 shrink-0" />
+          <span
+            className={cn("text-sm truncate", Number(countNotifs) > 0 && "font-bold text-white")}>
+            {label}
+          </span>
+          {Number(countNotifs) > 0 && (
+            <span className="ml-auto h-5 w-6 bg-[#EFB8FB] rounded-lg flex items-center justify-center text-[#481349] font-semibold text-sm">
+              {countNotifs}
+            </span>
+          )}
+        </div>
       </Link>
     </Button>
   );

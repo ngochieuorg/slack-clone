@@ -12,6 +12,9 @@ import UserItem from "./user-item";
 import { useCreateChannelModal } from "@/features/channels/store/use-create-channel-modal";
 import { useChannelId } from "@/hooks/use-channel-id";
 import { useMemberId } from "@/hooks/use-member-id";
+import { useGetNotifications } from "@/features/notifications/api/use-get-notifications";
+import { useMarkAsReadNotifications } from "@/features/notifications/api/use-mark-as-read-notifications";
+import { Id } from "../../../../convex/_generated/dataModel";
 
 const WorkSpaceSidebar = () => {
   const memberId = useMemberId();
@@ -32,6 +35,15 @@ const WorkSpaceSidebar = () => {
   const { data: members, isLoading: membersLoading } = useGetMembers({
     workspaceId,
   });
+  const { data: notifications, isLoading: notificationsLoading } = useGetNotifications({
+    workspaceId,
+  });
+
+  const { mutate: markAsReadChannelNoti } = useMarkAsReadNotifications();
+
+  const markAsReadChannel = (channelId: Id<"channels">) => {
+    markAsReadChannelNoti({ channelId, workspaceId }, {});
+  };
 
   if (memberLoading || workspaceLoading) {
     return (
@@ -72,29 +84,38 @@ const WorkSpaceSidebar = () => {
         label="Channels"
         hint="New channel"
         onNew={member.role === "admin" ? () => setOpen(true) : undefined}>
-        {channels?.map((item) => (
-          <SidebarItem
-            key={item._id}
-            icon={HashIcon}
-            label={item.name}
-            id={item._id}
-            variant={channelId === item._id ? "active" : "default"}
-          />
-        ))}
+        {channels?.map((item) => {
+          const countNotifs = notifications?.filter((noti) => noti.channelId === item._id).length;
+          return (
+            <div
+              onClick={() => markAsReadChannel(item._id)}
+              key={item._id}>
+              <SidebarItem
+                icon={HashIcon}
+                label={item.name}
+                id={item._id}
+                variant={channelId === item._id ? "active" : "default"}
+                countNotifs={countNotifs}
+              />
+            </div>
+          );
+        })}
       </WorkspaceSection>
       <WorkspaceSection
         label="Direct Message"
         hint="New message"
         onNew={() => {}}>
-        {members?.map((item) => (
-          <UserItem
-            key={item._id}
-            id={item._id}
-            label={item.user.name}
-            image={item.user.image}
-            variant={item._id === memberId ? "active" : "default"}
-          />
-        ))}
+        {members?.map((item) => {
+          return (
+            <UserItem
+              key={item._id}
+              id={item._id}
+              label={item.user.name}
+              image={item.user.image}
+              variant={item._id === memberId ? "active" : "default"}
+            />
+          );
+        })}
       </WorkspaceSection>
     </div>
   );

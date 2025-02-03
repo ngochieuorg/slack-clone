@@ -289,6 +289,27 @@ export const create = mutation({
       conversationId: _conversationId,
     });
 
+    const members = await ctx.db
+      .query("members")
+      .filter((q) =>
+        q.and(q.eq(q.field("workspaceId"), args.workspaceId), q.neq(q.field("userId"), userId))
+      )
+      .collect();
+
+    await Promise.all(
+      members.map(async (member) => {
+        await ctx.db.insert("notifications", {
+          channelId: args.channelId,
+          conversationId: _conversationId,
+          userId: member.userId,
+          messageId: messageId,
+          type: "direct",
+          status: "unread",
+          content: "Noti",
+        });
+      })
+    );
+
     return messageId;
   },
 });

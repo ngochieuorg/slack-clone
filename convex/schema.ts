@@ -55,6 +55,36 @@ const schema = defineSchema({
     .index("by_workspace_id", ["workspaceId"])
     .index("by_message_id", ["messageId"])
     .index("by_member_id", ["memberId"]),
+  notifications: defineTable({
+    userId: v.id("users"),
+    channelId: v.optional(v.id("channels")),
+    conversationId: v.optional(v.id("conversations")),
+    messageId: v.optional(v.id("messages")),
+    type: v.union(
+      v.literal("mention"),
+      v.literal("keyword"),
+      v.literal("direct"),
+      v.literal("reply"),
+      v.literal("reaction")
+    ),
+    status: v.union(v.literal("read"), v.literal("unread")),
+    content: v.string(),
+  })
+    .index("by_user_status", ["userId", "status"])
+    .index("by_channel", ["channelId"]),
+  notificationPreferences: defineTable({
+    userId: v.id("users"),
+    workspaceId: v.id("workspaces"),
+    channelId: v.optional(v.id("channels")),
+    muteUntil: v.optional(v.number()),
+    enableSound: v.boolean(),
+    desktopNotifications: v.union(v.literal("all"), v.literal("mentions"), v.literal("none")),
+    mobileNotifications: v.union(v.literal("all"), v.literal("mentions"), v.literal("none")),
+    emailNotifications: v.boolean(),
+    updatedAt: v.number(),
+  })
+    .index("by_user_workspace", ["userId", "workspaceId"])
+    .index("by_user_channel", ["userId", "channelId"]),
 });
 
 export default schema;

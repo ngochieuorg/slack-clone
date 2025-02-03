@@ -7,13 +7,29 @@ import Header from "./header";
 import ChatInput from "./chat-input";
 import { useGetMessages } from "@/features/messages/api/use-get-messages";
 import MessageList from "@/components/message-list";
+import { useEffect } from "react";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { useGetWorkspace } from "@/features/workspaces/api/use-get-workspace";
 
 const ChannelIdPage = () => {
   const channelId = useChannelId();
+  const workspaceId = useWorkspaceId();
 
   const { data: channel, isLoading: channelLoading } = useGetChannel({
     id: channelId,
   });
+  const { data: workspace } = useGetWorkspace({
+    id: workspaceId,
+  });
+
+  useEffect(() => {
+    if (channel?.name) {
+      document.title = `${channel?.name} (Channel) - ${workspace?.name || ""}`;
+    } else {
+      document.title = "Loading ...";
+    }
+  }, [channel?.name, workspace?.name]);
+
   const { results, status, loadMore } = useGetMessages({ channelId });
 
   if (channelLoading || status === "LoadingFirstPage") {

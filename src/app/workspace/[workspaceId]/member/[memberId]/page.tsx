@@ -35,17 +35,17 @@ const MemberIdPage = () => {
 
   if (isPending) {
     return (
-      <div className='h-full flex items-center justify-center'>
-        <Loader className='size-6 animate-spin text-muted-foreground' />
+      <div className="h-full flex items-center justify-center">
+        <Loader className="size-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
   if (!conversationId) {
     return (
-      <div className='h-full flex flex-col gap-y-2 items-center justify-center'>
-        <AlertCircle className='size-6  text-muted-foreground' />
-        <span className='text-sm text-muted-foreground'>Conversation not found</span>
+      <div className="h-full flex flex-col gap-y-2 items-center justify-center">
+        <AlertCircle className="size-6  text-muted-foreground" />
+        <span className="text-sm text-muted-foreground">Conversation not found</span>
       </div>
     );
   }

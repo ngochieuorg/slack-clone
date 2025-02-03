@@ -8,6 +8,7 @@ import Header from "./header";
 import ChatInput from "./chat-input";
 import MessageList from "@/components/message-list";
 import { usePanel } from "@/hooks/use-panel";
+import { useEffect } from "react";
 
 interface ConversationProps {
   id: Id<"conversations">;
@@ -20,6 +21,14 @@ const Conversation = ({ id }: ConversationProps) => {
 
   const { data: member, isLoading: memberLoading } = useGetMember({ id: memberId });
   const { results, status, loadMore } = useGetMessages({ conversationId: id });
+
+  useEffect(() => {
+    if (member?.user.name) {
+      document.title = `${member?.user.name} (DM)`;
+    } else {
+      document.title = "Loading ...";
+    }
+  }, [member?.user.name]);
 
   if (memberLoading || status === "LoadingFirstPage") {
     return (

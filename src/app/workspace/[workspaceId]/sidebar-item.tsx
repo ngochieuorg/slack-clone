@@ -46,7 +46,7 @@ const SidebarItem = ({ label, id, icon: Icon, variant, countNotifs }: SidebarIte
             {label}
           </span>
           {Number(countNotifs) > 0 && (
-            <span className="ml-auto h-5 w-6 bg-[#EFB8FB] rounded-lg flex items-center justify-center text-[#481349] font-semibold text-sm">
+            <span className="ml-auto h-5 w-6 bg-[#EFB8FB] rounded-lg flex items-center justify-center text-[#481349] font-semibold text-xs">
               {countNotifs}
             </span>
           )}

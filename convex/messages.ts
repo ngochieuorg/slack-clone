@@ -256,6 +256,13 @@ export const create = mutation({
     channelId: v.optional(v.id("channels")),
     parentMessageId: v.optional(v.id("messages")),
     conversationId: v.optional(v.id("conversations")),
+    type: v.union(
+      v.literal("mention"),
+      v.literal("keyword"),
+      v.literal("direct"),
+      v.literal("reply"),
+      v.literal("reaction")
+    ),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -289,11 +296,29 @@ export const create = mutation({
       conversationId: _conversationId,
     });
 
+    const conversation = await ctx.db
+      .query("conversations")
+      .filter((q) => q.eq(q.field("_id"), args.conversationId))
+      .unique();
+
+    let memberInConversation: Id<"members">;
+    if (member._id === conversation?.memberOneId) {
+      memberInConversation = conversation?.memberTwoId;
+    }
+    if (member._id === conversation?.memberTwoId) {
+      memberInConversation = conversation?.memberOneId;
+    }
+
     const members = await ctx.db
       .query("members")
       .filter((q) =>
         q.and(q.eq(q.field("workspaceId"), args.workspaceId), q.neq(q.field("userId"), userId))
       )
+      .filter((q) => {
+        if (args.conversationId) {
+          return q.eq(q.field("_id"), memberInConversation);
+        } else return false;
+      })
       .collect();
 
     await Promise.all(
@@ -303,7 +328,7 @@ export const create = mutation({
           conversationId: _conversationId,
           userId: member.userId,
           messageId: messageId,
-          type: "direct",
+          type: args.type,
           status: "unread",
           content: "Noti",
         });

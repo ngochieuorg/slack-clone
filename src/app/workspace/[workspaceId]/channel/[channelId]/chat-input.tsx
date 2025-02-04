@@ -20,6 +20,7 @@ type CreateMesageValues = {
   workspaceId: Id<"workspaces">;
   body: string;
   image: Id<"_storage"> | undefined;
+  type: "mention" | "keyword" | "direct" | "reply";
 };
 
 const ChatInput = ({ placeholder }: ChatInputProps) => {
@@ -33,13 +34,7 @@ const ChatInput = ({ placeholder }: ChatInputProps) => {
   const { mutate: createMessage } = useCreateMessage();
   const { mutate: generateUploadUrl } = useGenerateUploadUrl();
 
-  const handleSubmit = async ({
-    body,
-    image,
-  }: {
-    body: string;
-    image: File | null;
-  }) => {
+  const handleSubmit = async ({ body, image }: { body: string; image: File | null }) => {
     try {
       setIsPending(true);
       editorRef?.current?.enable(false);
@@ -49,6 +44,7 @@ const ChatInput = ({ placeholder }: ChatInputProps) => {
         workspaceId,
         body,
         image: undefined,
+        type: "direct",
       };
 
       if (image) {

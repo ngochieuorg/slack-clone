@@ -27,9 +27,11 @@ interface UserItemProps {
   label?: string;
   image?: string;
   variant?: VariantProps<typeof userItemVariants>["variant"];
+  countNotifs?: number;
+  isYou?: boolean;
 }
 
-const UserItem = ({ id, label = "Member", image, variant }: UserItemProps) => {
+const UserItem = ({ id, label = "Member", image, variant, countNotifs, isYou }: UserItemProps) => {
   const workspaceId = useWorkspaceId();
   const avatarFallback = label.charAt(0).toUpperCase();
 
@@ -38,17 +40,27 @@ const UserItem = ({ id, label = "Member", image, variant }: UserItemProps) => {
       variant={"transparent"}
       className={cn(userItemVariants({ variant: variant }))}
       size={"sm"}
-      asChild
-    >
+      asChild>
       <Link href={`/workspace/${workspaceId}/member/${id}`}>
-        <Avatar className="size-5 rounded-md mr-1">
-          <AvatarImage
-            className="rounded-md bg-sky-500 text-white"
-            src={image}
-          />
-          <AvatarFallback>{avatarFallback}</AvatarFallback>
-        </Avatar>
-        <span className="text-sm truncate">{label}</span>
+        <div className="flex items-center w-full">
+          <Avatar className="size-5 rounded-md mr-1">
+            <AvatarImage
+              className="rounded-md bg-sky-500 text-white"
+              src={image}
+            />
+            <AvatarFallback>{avatarFallback}</AvatarFallback>
+          </Avatar>
+          <span
+            className={cn("text-sm truncate", Number(countNotifs) > 0 && "font-bold text-white")}>
+            {label}
+            {isYou ? " (You)" : ""}
+          </span>
+          {Number(countNotifs) > 0 && (
+            <span className="ml-auto h-5 w-6 bg-[#EFB8FB] rounded-lg flex items-center justify-center text-[#481349] font-semibold text-xs">
+              {countNotifs}
+            </span>
+          )}
+        </div>
       </Link>
     </Button>
   );

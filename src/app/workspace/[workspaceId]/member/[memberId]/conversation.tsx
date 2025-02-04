@@ -22,8 +22,6 @@ const Conversation = ({ id }: ConversationProps) => {
   const { data: member, isLoading: memberLoading } = useGetMember({ id: memberId });
   const { results, status, loadMore } = useGetMessages({ conversationId: id });
 
-  console.log(results);
-
   useEffect(() => {
     if (member?.user.name) {
       document.title = `${member?.user.name} (DM)`;

@@ -73,9 +73,16 @@ export const markAsRead = mutation({
       .filter((q) =>
         q.and(
           q.eq(q.field("userId"), userId),
+          q.eq(q.field("status"), "unread"),
           q.or(
-            q.eq(q.field("channelId"), args.channelId),
-            q.eq(q.field("conversationId"), args.conversationId)
+            q.and(
+              q.neq(q.field("channelId"), undefined),
+              q.eq(q.field("channelId"), args.channelId)
+            ),
+            q.and(
+              q.neq(q.field("conversationId"), undefined),
+              q.eq(q.field("conversationId"), args.conversationId)
+            )
           )
         )
       )

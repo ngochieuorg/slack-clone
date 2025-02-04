@@ -11,6 +11,7 @@ type RequestType = {
   channelId?: Id<"channels">;
   parentMessageId?: Id<"messages">;
   conversationId?: Id<"conversations">;
+  type: "mention" | "keyword" | "direct" | "reply" | "reaction";
 };
 type ResponseType = Id<"messages"> | null;
 
@@ -24,9 +25,7 @@ type Options = {
 export const useCreateMessage = () => {
   const [data, setData] = useState<RequestType | null>(null);
   const [error, setError] = useState<Error | null>(null);
-  const [status, setStatus] = useState<
-    "success" | "error" | "settled" | "pending" | null
-  >(null);
+  const [status, setStatus] = useState<"success" | "error" | "settled" | "pending" | null>(null);
 
   const isPending = useMemo(() => status === "pending", [status]);
   const isSuccess = useMemo(() => status === "success", [status]);

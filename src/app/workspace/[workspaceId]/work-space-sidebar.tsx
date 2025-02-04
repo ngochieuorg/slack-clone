@@ -15,6 +15,8 @@ import { useMemberId } from "@/hooks/use-member-id";
 import { useGetNotifications } from "@/features/notifications/api/use-get-notifications";
 import { useMarkAsReadNotifications } from "@/features/notifications/api/use-mark-as-read-notifications";
 import { Id } from "../../../../convex/_generated/dataModel";
+import { useGetConversations } from "@/features/conversations/api/use-get-conversations";
+import { useCurrentUser } from "@/features/auth/api/use-current-user";
 
 const WorkSpaceSidebar = () => {
   const memberId = useMemberId();
@@ -22,6 +24,8 @@ const WorkSpaceSidebar = () => {
   const channelId = useChannelId();
 
   const [_open, setOpen] = useCreateChannelModal();
+
+  const { data: currentUser } = useCurrentUser();
 
   const { data: member, isLoading: memberLoading } = useCurrentMember({
     workspaceId,
@@ -35,14 +39,21 @@ const WorkSpaceSidebar = () => {
   const { data: members, isLoading: membersLoading } = useGetMembers({
     workspaceId,
   });
+  const { data: conversations, isLoading: conversationsLoading } = useGetConversations({
+    workspaceId,
+  });
   const { data: notifications, isLoading: notificationsLoading } = useGetNotifications({
     workspaceId,
   });
 
-  const { mutate: markAsReadChannelNoti } = useMarkAsReadNotifications();
+  const { mutate: markAsReadNoti } = useMarkAsReadNotifications();
 
   const markAsReadChannel = (channelId: Id<"channels">) => {
-    markAsReadChannelNoti({ channelId, workspaceId }, {});
+    markAsReadNoti({ channelId, workspaceId }, {});
+  };
+
+  const markAsReadConversation = (conversationId: Id<"conversations">) => {
+    markAsReadNoti({ conversationId, workspaceId }, {});
   };
 
   if (memberLoading || workspaceLoading) {
@@ -105,15 +116,36 @@ const WorkSpaceSidebar = () => {
         label="Direct Message"
         hint="New message"
         onNew={() => {}}>
-        {members?.map((item) => {
+        {members?.map((member) => {
+          let conversationId: Id<"conversations">;
+          const countNotifs = notifications?.filter((noti) => {
+            return conversations?.find((conversation) => {
+              const isMatch =
+                conversation._id === noti.conversationId &&
+                currentUser?._id !== member.userId &&
+                (conversation.memberOneId === member._id ||
+                  conversation.memberTwoId === member._id);
+              if (isMatch) conversationId = conversation._id;
+              return isMatch;
+            });
+          }).length;
+
           return (
-            <UserItem
-              key={item._id}
-              id={item._id}
-              label={item.user.name}
-              image={item.user.image}
-              variant={item._id === memberId ? "active" : "default"}
-            />
+            <div
+              onClick={() => {
+                markAsReadConversation(conversationId);
+              }}
+              key={member._id}>
+              <UserItem
+                key={member._id}
+                id={member._id}
+                label={member.user.name}
+                image={member.user.image}
+                variant={member._id === memberId ? "active" : "default"}
+                countNotifs={countNotifs}
+                isYou={member.userId === currentUser?._id}
+              />
+            </div>
           );
         })}
       </WorkspaceSection>

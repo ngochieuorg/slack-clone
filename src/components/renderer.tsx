@@ -1,5 +1,5 @@
-import Quill from "quill";
-import { useEffect, useRef, useState } from "react";
+import Quill from 'quill';
+import { useEffect, useRef, useState } from 'react';
 
 interface RendererProps {
   value: string;
@@ -14,8 +14,8 @@ const Renderer = ({ value }: RendererProps) => {
 
     const container = rendererRef.current;
 
-    const quill = new Quill(document.createElement("div"), {
-      theme: "snow",
+    const quill = new Quill(document.createElement('div'), {
+      theme: 'snow',
     });
 
     quill.enable(false);
@@ -26,7 +26,7 @@ const Renderer = ({ value }: RendererProps) => {
     const isEmpty =
       quill
         .getText()
-        .replace(/<(.|\n)*?>/g, "")
+        .replace(/<(.|\n)*?>/g, '')
         .trim().length === 0;
 
     setIsEmpty(isEmpty);
@@ -35,7 +35,7 @@ const Renderer = ({ value }: RendererProps) => {
 
     return () => {
       if (container) {
-        container.innerHTML = "";
+        container.innerHTML = '';
       }
     };
   }, [value]);

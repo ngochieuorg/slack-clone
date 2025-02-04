@@ -1,17 +1,17 @@
-import { useMemberId } from "@/hooks/use-member-id";
-import { Id } from "../../../../../../convex/_generated/dataModel";
-import { useGetMember } from "@/features/members/api/use-get-member";
+import { useMemberId } from '@/hooks/use-member-id';
+import { Id } from '../../../../../../convex/_generated/dataModel';
+import { useGetMember } from '@/features/members/api/use-get-member';
 
-import { useGetMessages } from "@/features/messages/api/use-get-messages";
-import { Loader } from "lucide-react";
-import Header from "./header";
-import ChatInput from "./chat-input";
-import MessageList from "@/components/message-list";
-import { usePanel } from "@/hooks/use-panel";
-import { useEffect } from "react";
+import { useGetMessages } from '@/features/messages/api/use-get-messages';
+import { Loader } from 'lucide-react';
+import Header from './header';
+import ChatInput from './chat-input';
+import MessageList from '@/components/message-list';
+import { usePanel } from '@/hooks/use-panel';
+import { useEffect } from 'react';
 
 interface ConversationProps {
-  id: Id<"conversations">;
+  id: Id<'conversations'>;
 }
 
 const Conversation = ({ id }: ConversationProps) => {
@@ -19,18 +19,20 @@ const Conversation = ({ id }: ConversationProps) => {
 
   const { onOpenProfileMember } = usePanel();
 
-  const { data: member, isLoading: memberLoading } = useGetMember({ id: memberId });
+  const { data: member, isLoading: memberLoading } = useGetMember({
+    id: memberId,
+  });
   const { results, status, loadMore } = useGetMessages({ conversationId: id });
 
   useEffect(() => {
     if (member?.user.name) {
       document.title = `${member?.user.name} (DM)`;
     } else {
-      document.title = "Loading ...";
+      document.title = 'Loading ...';
     }
   }, [member?.user.name]);
 
-  if (memberLoading || status === "LoadingFirstPage") {
+  if (memberLoading || status === 'LoadingFirstPage') {
     return (
       <div className="h-full flex items-center justify-center">
         <Loader className="size-6 animate-spin text-muted-foreground" />
@@ -51,8 +53,8 @@ const Conversation = ({ id }: ConversationProps) => {
         memberName={member?.user.name}
         memberImage={member?.user.image}
         loadMore={loadMore}
-        isLoadingMore={status === "LoadingMore"}
-        canLoadMore={status === "CanLoadMore"}
+        isLoadingMore={status === 'LoadingMore'}
+        canLoadMore={status === 'CanLoadMore'}
       />
       <ChatInput
         placeholder={`Message ${member?.user.name}`}

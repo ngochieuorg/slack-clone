@@ -1,22 +1,28 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useCurrentMember } from "@/features/members/api/use-current-member";
-import { useGetWorkspace } from "@/features/workspaces/api/use-get-workspace";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { AlertTriangle, HashIcon, Loader, MessageSquareText, SendHorizontal } from "lucide-react";
-import WorkspaceHeader from "./workspace-header";
-import SidebarItem from "./sidebar-item";
-import { useGetChannels } from "@/features/channels/api/use-get-channels";
-import WorkspaceSection from "./workspace-section";
-import { useGetMembers } from "@/features/members/api/use-get-members";
-import UserItem from "./user-item";
-import { useCreateChannelModal } from "@/features/channels/store/use-create-channel-modal";
-import { useChannelId } from "@/hooks/use-channel-id";
-import { useMemberId } from "@/hooks/use-member-id";
-import { useGetNotifications } from "@/features/notifications/api/use-get-notifications";
-import { useMarkAsReadNotifications } from "@/features/notifications/api/use-mark-as-read-notifications";
-import { Id } from "../../../../convex/_generated/dataModel";
-import { useGetConversations } from "@/features/conversations/api/use-get-conversations";
-import { useCurrentUser } from "@/features/auth/api/use-current-user";
+import { useCurrentMember } from '@/features/members/api/use-current-member';
+import { useGetWorkspace } from '@/features/workspaces/api/use-get-workspace';
+import { useWorkspaceId } from '@/hooks/use-workspace-id';
+import {
+  AlertTriangle,
+  HashIcon,
+  Loader,
+  MessageSquareText,
+  SendHorizontal,
+} from 'lucide-react';
+import WorkspaceHeader from './workspace-header';
+import SidebarItem from './sidebar-item';
+import { useGetChannels } from '@/features/channels/api/use-get-channels';
+import WorkspaceSection from './workspace-section';
+import { useGetMembers } from '@/features/members/api/use-get-members';
+import UserItem from './user-item';
+import { useCreateChannelModal } from '@/features/channels/store/use-create-channel-modal';
+import { useChannelId } from '@/hooks/use-channel-id';
+import { useMemberId } from '@/hooks/use-member-id';
+import { useGetNotifications } from '@/features/notifications/api/use-get-notifications';
+import { useMarkAsReadNotifications } from '@/features/notifications/api/use-mark-as-read-notifications';
+import { Id } from '../../../../convex/_generated/dataModel';
+import { useGetConversations } from '@/features/conversations/api/use-get-conversations';
+import { useCurrentUser } from '@/features/auth/api/use-current-user';
 
 const WorkSpaceSidebar = () => {
   const memberId = useMemberId();
@@ -39,20 +45,22 @@ const WorkSpaceSidebar = () => {
   const { data: members, isLoading: membersLoading } = useGetMembers({
     workspaceId,
   });
-  const { data: conversations, isLoading: conversationsLoading } = useGetConversations({
-    workspaceId,
-  });
-  const { data: notifications, isLoading: notificationsLoading } = useGetNotifications({
-    workspaceId,
-  });
+  const { data: conversations, isLoading: conversationsLoading } =
+    useGetConversations({
+      workspaceId,
+    });
+  const { data: notifications, isLoading: notificationsLoading } =
+    useGetNotifications({
+      workspaceId,
+    });
 
   const { mutate: markAsReadNoti } = useMarkAsReadNotifications();
 
-  const markAsReadChannel = (channelId: Id<"channels">) => {
+  const markAsReadChannel = (channelId: Id<'channels'>) => {
     markAsReadNoti({ channelId, workspaceId }, {});
   };
 
-  const markAsReadConversation = (conversationId: Id<"conversations">) => {
+  const markAsReadConversation = (conversationId: Id<'conversations'>) => {
     markAsReadNoti({ conversationId, workspaceId }, {});
   };
 
@@ -77,35 +85,28 @@ const WorkSpaceSidebar = () => {
     <div className="flex flex-col bg-[#5E2C5F] h-full ">
       <WorkspaceHeader
         workspace={workspace}
-        isAdmin={member.role === "admin"}
+        isAdmin={member.role === 'admin'}
       />
       <div className="flex flex-col px-2 mt-3">
-        <SidebarItem
-          label="Threads"
-          icon={MessageSquareText}
-          id="threads"
-        />
-        <SidebarItem
-          label="Drafts & Sent"
-          icon={SendHorizontal}
-          id="sent"
-        />
+        <SidebarItem label="Threads" icon={MessageSquareText} id="threads" />
+        <SidebarItem label="Drafts & Sent" icon={SendHorizontal} id="sent" />
       </div>
       <WorkspaceSection
         label="Channels"
         hint="New channel"
-        onNew={member.role === "admin" ? () => setOpen(true) : undefined}>
+        onNew={member.role === 'admin' ? () => setOpen(true) : undefined}
+      >
         {channels?.map((item) => {
-          const countNotifs = notifications?.filter((noti) => noti.channelId === item._id).length;
+          const countNotifs = notifications?.filter(
+            (noti) => noti.channelId === item._id
+          ).length;
           return (
-            <div
-              onClick={() => markAsReadChannel(item._id)}
-              key={item._id}>
+            <div onClick={() => markAsReadChannel(item._id)} key={item._id}>
               <SidebarItem
                 icon={HashIcon}
                 label={item.name}
                 id={item._id}
-                variant={channelId === item._id ? "active" : "default"}
+                variant={channelId === item._id ? 'active' : 'default'}
                 countNotifs={countNotifs}
               />
             </div>
@@ -115,9 +116,10 @@ const WorkSpaceSidebar = () => {
       <WorkspaceSection
         label="Direct Message"
         hint="New message"
-        onNew={() => {}}>
+        onNew={() => {}}
+      >
         {members?.map((member) => {
-          let conversationId: Id<"conversations">;
+          let conversationId: Id<'conversations'>;
           const countNotifs = notifications?.filter((noti) => {
             return conversations?.find((conversation) => {
               const isMatch =
@@ -135,13 +137,14 @@ const WorkSpaceSidebar = () => {
               onClick={() => {
                 markAsReadConversation(conversationId);
               }}
-              key={member._id}>
+              key={member._id}
+            >
               <UserItem
                 key={member._id}
                 id={member._id}
                 label={member.user.name}
                 image={member.user.image}
-                variant={member._id === memberId ? "active" : "default"}
+                variant={member._id === memberId ? 'active' : 'default'}
                 countNotifs={countNotifs}
                 isYou={member.userId === currentUser?._id}
               />

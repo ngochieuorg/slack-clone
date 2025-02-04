@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "./ui/tooltip";
+} from './ui/tooltip';
 
 interface HintProps {
   label: string;
   children: React.ReactNode;
-  side?: "top" | "right" | "bottom" | "left";
-  align?: "start" | "center" | "end";
+  side?: 'top' | 'right' | 'bottom' | 'left';
+  align?: 'start' | 'center' | 'end';
 }
 
 const Hint = ({ label, children, side, align }: HintProps) => {

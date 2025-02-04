@@ -1,4 +1,7 @@
-export function arrayToHash<T, K extends keyof T>(array: T[], key: K): Record<string, T> {
+export function arrayToHash<T, K extends keyof T>(
+  array: T[],
+  key: K
+): Record<string, T> {
   return array.reduce(
     (hash, item) => {
       // Use the value of the specified key as the hash key

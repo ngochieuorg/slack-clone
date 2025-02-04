@@ -1,7 +1,7 @@
-import { Button } from "@/components/ui/button";
-import { useGetWorkspace } from "@/features/workspaces/api/use-get-workspace";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { Info, Search } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { useGetWorkspace } from '@/features/workspaces/api/use-get-workspace';
+import { useWorkspaceId } from '@/hooks/use-workspace-id';
+import { Info, Search } from 'lucide-react';
 
 import {
   CommandDialog,
@@ -9,11 +9,11 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command";
-import { useState } from "react";
-import { useGetChannels } from "@/features/channels/api/use-get-channels";
-import { useGetMembers } from "@/features/members/api/use-get-members";
-import { useRouter } from "next/navigation";
+} from '@/components/ui/command';
+import { useState } from 'react';
+import { useGetChannels } from '@/features/channels/api/use-get-channels';
+import { useGetMembers } from '@/features/members/api/use-get-members';
+import { useRouter } from 'next/navigation';
 
 const Toolbar = () => {
   const router = useRouter();
@@ -42,14 +42,13 @@ const Toolbar = () => {
       <div className="min-w-[280px] max-[642px] grow-[2] shrink">
         <Button
           onClick={() => setOpen(true)}
-          size={"sm"}
-          className="bg-accent/25 hover:bg-accent-25 w-full justify-start h-7 px-2">
+          size={'sm'}
+          className="bg-accent/25 hover:bg-accent-25 w-full justify-start h-7 px-2"
+        >
           <Search className="size-4 text-white mr-2" />
           <span className="text-white text-xs">Search {data?.name}</span>
         </Button>
-        <CommandDialog
-          open={open}
-          onOpenChange={setOpen}>
+        <CommandDialog open={open} onOpenChange={setOpen}>
           <CommandInput placeholder="Type a command or search..." />
           <CommandList>
             <CommandGroup heading="Channels">
@@ -57,7 +56,8 @@ const Toolbar = () => {
                 <CommandItem
                   key={channel._id}
                   onClick={() => onChanelClick(channel._id)}
-                  asChild>
+                  asChild
+                >
                   {channel.name}
                 </CommandItem>
               ))}
@@ -67,7 +67,8 @@ const Toolbar = () => {
                 <CommandItem
                   onClick={() => onMemberClick(member._id)}
                   key={member._id}
-                  asChild>
+                  asChild
+                >
                   {member.user.name}
                 </CommandItem>
               ))}
@@ -76,9 +77,7 @@ const Toolbar = () => {
         </CommandDialog>
       </div>
       <div className="ml-auto flex-1 flex items-center justify-end">
-        <Button
-          variant={"transparent"}
-          size={"iconSm"}>
+        <Button variant={'transparent'} size={'iconSm'}>
           <Info className="size-5 text-white" />
         </Button>
       </div>

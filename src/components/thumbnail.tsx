@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "./ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from './ui/dialog';
 
 /* eslint-disable @next/next/no-img-element */
 interface ThumbnailProps {

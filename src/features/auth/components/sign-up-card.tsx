@@ -1,20 +1,20 @@
-import { FcGoogle } from "react-icons/fc";
-import { TriangleAlert } from "lucide-react";
+import { FcGoogle } from 'react-icons/fc';
+import { TriangleAlert } from 'lucide-react';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { FaGithub } from "react-icons/fa";
-import { SignInFlow } from "../type";
-import { useState } from "react";
-import { useAuthActions } from "@convex-dev/auth/react";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
+import { FaGithub } from 'react-icons/fa';
+import { SignInFlow } from '../type';
+import { useState } from 'react';
+import { useAuthActions } from '@convex-dev/auth/react';
 
 interface SignUpCardProps {
   setState: (state: SignInFlow) => void;
@@ -23,32 +23,32 @@ interface SignUpCardProps {
 const SignUpCard = ({ setState }: SignUpCardProps) => {
   const { signIn } = useAuthActions();
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
   const [pending, setPending] = useState(false);
 
   const onPasswordSignup = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError('Passwords do not match');
       return;
     }
 
     setPending(true);
-    signIn("password", { email, password, name, flow: "signUp" })
+    signIn('password', { email, password, name, flow: 'signUp' })
       .catch(() => {
-        setError("Something went wrong");
+        setError('Something went wrong');
       })
       .finally(() => {
         setPending(false);
       });
   };
 
-  const handleProviderSignup = (value: "github" | "google") => {
+  const handleProviderSignup = (value: 'github' | 'google') => {
     setPending(false);
     signIn(value).finally(() => setPending(false));
   };
@@ -100,7 +100,7 @@ const SignUpCard = ({ setState }: SignUpCardProps) => {
             type="password"
             required
           />
-          <Button type="submit" className="w-full" size={"lg"} disabled={false}>
+          <Button type="submit" className="w-full" size={'lg'} disabled={false}>
             Continue
           </Button>
         </form>
@@ -108,9 +108,9 @@ const SignUpCard = ({ setState }: SignUpCardProps) => {
         <div className="flex flex-col gap-y-2.5">
           <Button
             disabled={pending}
-            onClick={() => handleProviderSignup("google")}
-            variant={"outline"}
-            size={"lg"}
+            onClick={() => handleProviderSignup('google')}
+            variant={'outline'}
+            size={'lg'}
             className="w-full relative"
           >
             <FcGoogle className="size-5 absolute left-2.5" />
@@ -118,9 +118,9 @@ const SignUpCard = ({ setState }: SignUpCardProps) => {
           </Button>
           <Button
             disabled={pending}
-            onClick={() => handleProviderSignup("github")}
-            variant={"outline"}
-            size={"lg"}
+            onClick={() => handleProviderSignup('github')}
+            variant={'outline'}
+            size={'lg'}
             className="w-full relative"
           >
             <FaGithub className="size-5 absolute left-2.5" />
@@ -128,9 +128,9 @@ const SignUpCard = ({ setState }: SignUpCardProps) => {
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">
-          Already have an account?{" "}
+          Already have an account?{' '}
           <span
-            onClick={() => setState("signIn")}
+            onClick={() => setState('signIn')}
             className="text-sky-700 hover:underline cursor-pointer"
           >
             Sign in

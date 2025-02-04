@@ -1,8 +1,8 @@
-import React from "react";
-import { Button } from "./ui/button";
-import { MessageSquareTextIcon, Pencil, Smile, Trash } from "lucide-react";
-import Hint from "./hint";
-import EmojiPopover from "./emoji-popover";
+import React from 'react';
+import { Button } from './ui/button';
+import { MessageSquareTextIcon, Pencil, Smile, Trash } from 'lucide-react';
+import Hint from './hint';
+import EmojiPopover from './emoji-popover';
 
 interface ToolbarProps {
   isAuthor: boolean;
@@ -28,21 +28,20 @@ const Toolbar = ({
       <div className="group-hover:opacity-100 opacity-0 transition-opacity border bg-white rounded-md shadow-sm">
         <EmojiPopover
           hint="Add reaction"
-          onEmojiSelect={(emoji) => handleReaction(emoji.native)}>
-          <Button
-            variant={"ghost"}
-            size={"sm"}
-            disabled={isPending}>
+          onEmojiSelect={(emoji) => handleReaction(emoji.native)}
+        >
+          <Button variant={'ghost'} size={'sm'} disabled={isPending}>
             <Smile className="size-4" />
           </Button>
         </EmojiPopover>
         {!hideThreadButton && (
           <Hint label="Reply in thread">
             <Button
-              variant={"ghost"}
-              size={"sm"}
+              variant={'ghost'}
+              size={'sm'}
               disabled={isPending}
-              onClick={handleThread}>
+              onClick={handleThread}
+            >
               <MessageSquareTextIcon className="size-4" />
             </Button>
           </Hint>
@@ -51,19 +50,21 @@ const Toolbar = ({
           <>
             <Hint label="Edit message">
               <Button
-                variant={"ghost"}
-                size={"sm"}
+                variant={'ghost'}
+                size={'sm'}
                 disabled={isPending}
-                onClick={handleEdit}>
+                onClick={handleEdit}
+              >
                 <Pencil className="size-4" />
               </Button>
             </Hint>
             <Hint label="Remove this message">
               <Button
-                variant={"ghost"}
-                size={"sm"}
+                variant={'ghost'}
+                size={'sm'}
                 disabled={isPending}
-                onClick={handleDelete}>
+                onClick={handleDelete}
+              >
                 <Trash className="size-4" />
               </Button>
             </Hint>

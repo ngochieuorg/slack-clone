@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { useGetChannel } from "@/features/channels/api/use-get-channel";
-import { useChannelId } from "@/hooks/use-channel-id";
-import { Loader, TriangleAlert } from "lucide-react";
-import Header from "./header";
-import ChatInput from "./chat-input";
-import { useGetMessages } from "@/features/messages/api/use-get-messages";
-import MessageList from "@/components/message-list";
-import { useEffect } from "react";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { useGetWorkspace } from "@/features/workspaces/api/use-get-workspace";
+import { useGetChannel } from '@/features/channels/api/use-get-channel';
+import { useChannelId } from '@/hooks/use-channel-id';
+import { Loader, TriangleAlert } from 'lucide-react';
+import Header from './header';
+import ChatInput from './chat-input';
+import { useGetMessages } from '@/features/messages/api/use-get-messages';
+import MessageList from '@/components/message-list';
+import { useEffect } from 'react';
+import { useWorkspaceId } from '@/hooks/use-workspace-id';
+import { useGetWorkspace } from '@/features/workspaces/api/use-get-workspace';
 
 const ChannelIdPage = () => {
   const channelId = useChannelId();
@@ -24,15 +24,15 @@ const ChannelIdPage = () => {
 
   useEffect(() => {
     if (channel?.name) {
-      document.title = `${channel?.name} (Channel) - ${workspace?.name || ""}`;
+      document.title = `${channel?.name} (Channel) - ${workspace?.name || ''}`;
     } else {
-      document.title = "Loading ...";
+      document.title = 'Loading ...';
     }
   }, [channel?.name, workspace?.name]);
 
   const { results, status, loadMore } = useGetMessages({ channelId });
 
-  if (channelLoading || status === "LoadingFirstPage") {
+  if (channelLoading || status === 'LoadingFirstPage') {
     return (
       <div className="h-full flex-1 flex items-center justify-center">
         <Loader className="animate-spin size-5 text-muted-foreground" />
@@ -57,8 +57,8 @@ const ChannelIdPage = () => {
         channelCreationTime={channel._creationTime}
         data={results}
         loadMore={loadMore}
-        isLoadingMore={status === "LoadingMore"}
-        canLoadMore={status === "CanLoadMore"}
+        isLoadingMore={status === 'LoadingMore'}
+        canLoadMore={status === 'CanLoadMore'}
       />
       <ChatInput placeholder={`Message # ${channel.name}`} />
     </div>

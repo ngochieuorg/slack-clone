@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogClose,
@@ -7,19 +7,19 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { useRemoveChannel } from "@/features/channels/api/use-remove-channel";
-import { useUpdateChannel } from "@/features/channels/api/use-update-channel";
-import { useCurrentMember } from "@/features/members/api/use-current-member";
-import { useChannelId } from "@/hooks/use-channel-id";
-import useConfirm from "@/hooks/use-confirm";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { TrashIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { FaChevronDown } from "react-icons/fa";
-import { toast } from "sonner";
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { useRemoveChannel } from '@/features/channels/api/use-remove-channel';
+import { useUpdateChannel } from '@/features/channels/api/use-update-channel';
+import { useCurrentMember } from '@/features/members/api/use-current-member';
+import { useChannelId } from '@/hooks/use-channel-id';
+import useConfirm from '@/hooks/use-confirm';
+import { useWorkspaceId } from '@/hooks/use-workspace-id';
+import { TrashIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { FaChevronDown } from 'react-icons/fa';
+import { toast } from 'sonner';
 
 interface HeaderProps {
   title: string;
@@ -32,8 +32,8 @@ const Header = ({ title }: HeaderProps) => {
   const [value, setValue] = useState(title);
   const [editOpen, setEditOpen] = useState(false);
   const [ConfirmDialog, confirm] = useConfirm(
-    "Delete this channel?",
-    "You are about to delete this channel. This action is irreversible"
+    'Delete this channel?',
+    'You are about to delete this channel. This action is irreversible'
   );
 
   const { data: member } = useCurrentMember({ workspaceId });
@@ -43,12 +43,12 @@ const Header = ({ title }: HeaderProps) => {
     useRemoveChannel();
 
   const handleEditOpen = (value: boolean) => {
-    if (member?.role !== "admin") return;
+    if (member?.role !== 'admin') return;
     setEditOpen(value);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\s+/g, "-").toLowerCase();
+    const value = e.target.value.replace(/\s+/g, '-').toLowerCase();
     setValue(value);
   };
 
@@ -61,11 +61,11 @@ const Header = ({ title }: HeaderProps) => {
       { id: channelId },
       {
         onSuccess: () => {
-          toast.success("Channel Deleted");
+          toast.success('Channel Deleted');
           router.push(`/workspace/${workspaceId}`);
         },
         onError: () => {
-          toast.error("Failed to delete channel");
+          toast.error('Failed to delete channel');
         },
       }
     );
@@ -81,11 +81,11 @@ const Header = ({ title }: HeaderProps) => {
       },
       {
         onSuccess: () => {
-          toast.success("Channel updated");
+          toast.success('Channel updated');
           setEditOpen(false);
         },
         onError: () => {
-          toast.error("Failed to update channel");
+          toast.error('Failed to update channel');
         },
       }
     );
@@ -97,9 +97,9 @@ const Header = ({ title }: HeaderProps) => {
       <Dialog>
         <DialogTrigger asChild>
           <Button
-            variant={"ghost"}
+            variant={'ghost'}
             className="text-lg font-semibold px-2 overflow-hidden w-auto"
-            size={"sm"}
+            size={'sm'}
           >
             <span className="truncate"># {title}</span>
             <FaChevronDown className="size-2.5 ml-2" />
@@ -137,7 +137,7 @@ const Header = ({ title }: HeaderProps) => {
                     />
                     <DialogFooter>
                       <DialogClose asChild>
-                        <Button variant={"outline"} disabled={updatingChannel}>
+                        <Button variant={'outline'} disabled={updatingChannel}>
                           Cancel
                         </Button>
                       </DialogClose>
@@ -146,7 +146,7 @@ const Header = ({ title }: HeaderProps) => {
                   </form>
                 </DialogContent>
               </Dialog>
-              {member?.role === "admin" && (
+              {member?.role === 'admin' && (
                 <button
                   onClick={handleDelete}
                   disabled={isRemovingChannel}

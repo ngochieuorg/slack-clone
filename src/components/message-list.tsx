@@ -1,13 +1,13 @@
-import { GetMessageReturnType } from "@/features/messages/api/use-get-messages";
-import { differenceInMinutes, format, isToday, isYesterday } from "date-fns";
-import Message from "./message";
-import ChannelHero from "./channel-hero";
-import { useState } from "react";
-import { Id } from "../../convex/_generated/dataModel";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { useCurrentMember } from "@/features/members/api/use-current-member";
-import { Loader } from "lucide-react";
-import ConversationHero from "./conversation-hero";
+import { GetMessageReturnType } from '@/features/messages/api/use-get-messages';
+import { differenceInMinutes, format, isToday, isYesterday } from 'date-fns';
+import Message from './message';
+import ChannelHero from './channel-hero';
+import { useState } from 'react';
+import { Id } from '../../convex/_generated/dataModel';
+import { useWorkspaceId } from '@/hooks/use-workspace-id';
+import { useCurrentMember } from '@/features/members/api/use-current-member';
+import { Loader } from 'lucide-react';
+import ConversationHero from './conversation-hero';
 
 const TIME_THRESHHOLD = 5;
 
@@ -19,15 +19,15 @@ interface MessageListProps {
   loadMore: () => void;
   isLoadingMore: boolean;
   canLoadMore: boolean;
-  variant?: "channel" | "thread" | "conversation";
+  variant?: 'channel' | 'thread' | 'conversation';
   memberName?: string;
 }
 
 const formatDateLabel = (dateStr: string) => {
   const date = new Date(dateStr);
-  if (isToday(date)) return "Today";
-  if (isYesterday(date)) return "Yesterday";
-  return format(date, "EEEE, MMMM d");
+  if (isToday(date)) return 'Today';
+  if (isYesterday(date)) return 'Yesterday';
+  return format(date, 'EEEE, MMMM d');
 };
 
 const MessageList = ({
@@ -38,18 +38,18 @@ const MessageList = ({
   loadMore,
   isLoadingMore,
   canLoadMore,
-  variant = "channel",
+  variant = 'channel',
   memberName,
 }: MessageListProps) => {
   const workspaceId = useWorkspaceId();
   const { data: currentMember } = useCurrentMember({ workspaceId });
 
-  const [editingId, setEditingId] = useState<Id<"messages"> | null>(null);
+  const [editingId, setEditingId] = useState<Id<'messages'> | null>(null);
 
   const groupedMessage = data?.reduce(
     (groups, message) => {
       const date = new Date(message._creationTime);
-      const dateKey = format(date, "yyyy-MM-dd");
+      const dateKey = format(date, 'yyyy-MM-dd');
 
       if (!groups[dateKey]) {
         groups[dateKey] = [];
@@ -61,12 +61,12 @@ const MessageList = ({
   );
 
   return (
-    <div className='flex-1 flex flex-col-reverse pb-4 overflow-y-auto messages-scrollbar'>
+    <div className="flex-1 flex flex-col-reverse pb-4 overflow-y-auto messages-scrollbar">
       {Object.entries(groupedMessage || {}).map(([dateKey, messages]) => (
         <div key={dateKey}>
-          <div className='text-center my-2 relative'>
-            <hr className='absolute top-1/2 left-0 right-0 border-t border-gray-300' />
-            <span className='relative inline-block bg-white px-4 py-1 rounded-full text-xs border border-gray-300 shadow-sm'>
+          <div className="text-center my-2 relative">
+            <hr className="absolute top-1/2 left-0 right-0 border-t border-gray-300" />
+            <span className="relative inline-block bg-white px-4 py-1 rounded-full text-xs border border-gray-300 shadow-sm">
               {formatDateLabel(dateKey)}
             </span>
           </div>
@@ -95,7 +95,7 @@ const MessageList = ({
                 isEditing={editingId === message._id}
                 setEditingId={setEditingId}
                 isCompact={isCompact}
-                hideThreadButton={variant === "thread"}
+                hideThreadButton={variant === 'thread'}
                 threadCount={message.threadCount}
                 threadImage={message.threadImage}
                 threadTimestamp={message.threadTimestamp}
@@ -106,7 +106,7 @@ const MessageList = ({
         </div>
       ))}
       <div
-        className='h-1'
+        className="h-1"
         ref={(el) => {
           if (el) {
             const observer = new IntersectionObserver(
@@ -121,26 +121,21 @@ const MessageList = ({
             observer.observe(el);
             return () => observer.disconnect();
           }
-        }}></div>
+        }}
+      ></div>
       {isLoadingMore && (
-        <div className='text-center my-2 relative'>
-          <hr className='absolute top-1/2 left-0 right-0 border-t border-gray-300' />
-          <span className='relative inline-block bg-white px-4 py-1 rounded-full text-xs border border-gray-300 shadow-sm'>
-            <Loader className='size-4 animate-spin' />
+        <div className="text-center my-2 relative">
+          <hr className="absolute top-1/2 left-0 right-0 border-t border-gray-300" />
+          <span className="relative inline-block bg-white px-4 py-1 rounded-full text-xs border border-gray-300 shadow-sm">
+            <Loader className="size-4 animate-spin" />
           </span>
         </div>
       )}
-      {variant === "channel" && channelName && channelCreationTime && (
-        <ChannelHero
-          name={channelName}
-          creationTime={channelCreationTime}
-        />
+      {variant === 'channel' && channelName && channelCreationTime && (
+        <ChannelHero name={channelName} creationTime={channelCreationTime} />
       )}
-      {variant === "conversation" && (
-        <ConversationHero
-          name={memberName}
-          image={memberImage}
-        />
+      {variant === 'conversation' && (
+        <ConversationHero name={memberName} image={memberImage} />
       )}
     </div>
   );

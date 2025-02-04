@@ -1,50 +1,50 @@
-import dynamic from "next/dynamic";
-import { Button } from "@/components/ui/button";
-import { Id } from "../../../../convex/_generated/dataModel";
-import { AlertTriangle, Loader, XIcon } from "lucide-react";
-import { useGetMessage } from "../api/use-get-message";
-import Message from "@/components/message";
-import { useCurrentMember } from "@/features/members/api/use-current-member";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { useRef, useState } from "react";
-import Quill from "quill";
-import { useCreateMessage } from "../api/use-create-message";
-import { useGenerateUploadUrl } from "@/features/upload/api/use-generate-upload-url";
-import { useChannelId } from "@/hooks/use-channel-id";
-import { toast } from "sonner";
-import { useGetMessages } from "../api/use-get-messages";
-import { differenceInMinutes, format, isToday, isYesterday } from "date-fns";
+import dynamic from 'next/dynamic';
+import { Button } from '@/components/ui/button';
+import { Id } from '../../../../convex/_generated/dataModel';
+import { AlertTriangle, Loader, XIcon } from 'lucide-react';
+import { useGetMessage } from '../api/use-get-message';
+import Message from '@/components/message';
+import { useCurrentMember } from '@/features/members/api/use-current-member';
+import { useWorkspaceId } from '@/hooks/use-workspace-id';
+import { useRef, useState } from 'react';
+import Quill from 'quill';
+import { useCreateMessage } from '../api/use-create-message';
+import { useGenerateUploadUrl } from '@/features/upload/api/use-generate-upload-url';
+import { useChannelId } from '@/hooks/use-channel-id';
+import { toast } from 'sonner';
+import { useGetMessages } from '../api/use-get-messages';
+import { differenceInMinutes, format, isToday, isYesterday } from 'date-fns';
 
-const Editor = dynamic(() => import("@/components/editor"), { ssr: true });
+const Editor = dynamic(() => import('@/components/editor'), { ssr: true });
 
 const TIME_THRESHHOLD = 5;
 
 interface ThreadProps {
-  messageId: Id<"messages">;
+  messageId: Id<'messages'>;
   onClose: () => void;
 }
 
 type CreateMesageValues = {
-  channelId: Id<"channels">;
-  workspaceId: Id<"workspaces">;
-  parentMessageId: Id<"messages">;
+  channelId: Id<'channels'>;
+  workspaceId: Id<'workspaces'>;
+  parentMessageId: Id<'messages'>;
   body: string;
-  image: Id<"_storage"> | undefined;
-  type: "mention" | "keyword" | "direct" | "reply";
+  image: Id<'_storage'> | undefined;
+  type: 'mention' | 'keyword' | 'direct' | 'reply';
 };
 
 const formatDateLabel = (dateStr: string) => {
   const date = new Date(dateStr);
-  if (isToday(date)) return "Today";
-  if (isYesterday(date)) return "Yesterday";
-  return format(date, "EEEE, MMMM d");
+  if (isToday(date)) return 'Today';
+  if (isYesterday(date)) return 'Yesterday';
+  return format(date, 'EEEE, MMMM d');
 };
 
 const Thread = ({ messageId, onClose }: ThreadProps) => {
   const channelId = useChannelId();
   const workspaceId = useWorkspaceId();
 
-  const [editingId, setEditingId] = useState<Id<"messages"> | null>(null);
+  const [editingId, setEditingId] = useState<Id<'messages'> | null>(null);
   const [editorKey, setEditorKey] = useState(0);
   const [isPending, setIsPending] = useState(false);
   const editorRef = useRef<Quill | null>(null);
@@ -61,10 +61,16 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
   const { mutate: createMessage } = useCreateMessage();
   const { mutate: generateUploadUrl } = useGenerateUploadUrl();
 
-  const canLoadMore = status === "CanLoadMore";
-  const isLoadingMore = status === "LoadingMore";
+  const canLoadMore = status === 'CanLoadMore';
+  const isLoadingMore = status === 'LoadingMore';
 
-  const handleSubmit = async ({ body, image }: { body: string; image: File | null }) => {
+  const handleSubmit = async ({
+    body,
+    image,
+  }: {
+    body: string;
+    image: File | null;
+  }) => {
     try {
       setIsPending(true);
       editorRef?.current?.enable(false);
@@ -75,20 +81,20 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
         body,
         image: undefined,
         parentMessageId: messageId,
-        type: "direct",
+        type: 'direct',
       };
 
       if (image) {
         const url = await generateUploadUrl({}, { throwError: true });
 
         const result = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": image.type },
+          method: 'POST',
+          headers: { 'Content-Type': image.type },
           body: image,
         });
 
         if (!result) {
-          throw new Error("Failed to upload image");
+          throw new Error('Failed to upload image');
         }
 
         const { storageId } = await result.json();
@@ -100,7 +106,7 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
       setEditorKey((prevKey) => prevKey + 1);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      toast.error("Failed to send message");
+      toast.error('Failed to send message');
     } finally {
       setIsPending(false);
       editorRef?.current?.enable(true);
@@ -110,7 +116,7 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
   const groupedMessage = results?.reduce(
     (groups, message) => {
       const date = new Date(message._creationTime);
-      const dateKey = format(date, "yyyy-MM-dd");
+      const dateKey = format(date, 'yyyy-MM-dd');
 
       if (!groups[dateKey]) {
         groups[dateKey] = [];
@@ -121,15 +127,12 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
     {} as Record<string, typeof results>
   );
 
-  if (loadingMessage || status === "LoadingFirstPage") {
+  if (loadingMessage || status === 'LoadingFirstPage') {
     return (
       <div className="h-full flex flex-col">
         <div className="h-[49px] flex justify-between items-center px-4 border-b">
           <p className="text-lg font-bold">Thread</p>
-          <Button
-            onClick={onClose}
-            size={"iconSm"}
-            variant={"ghost"}>
+          <Button onClick={onClose} size={'iconSm'} variant={'ghost'}>
             <XIcon className="size-5 stroke-[1.5]" />
           </Button>
         </div>
@@ -145,10 +148,7 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
       <div className="h-full flex flex-col">
         <div className="h-[49px] flex justify-between items-center px-4 border-b">
           <p className="text-lg font-bold">Thread</p>
-          <Button
-            onClick={onClose}
-            size={"iconSm"}
-            variant={"ghost"}>
+          <Button onClick={onClose} size={'iconSm'} variant={'ghost'}>
             <XIcon className="size-5 stroke-[1.5]" />
           </Button>
         </div>
@@ -164,10 +164,7 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
     <div className="h-full flex flex-col">
       <div className="h-[49px] flex justify-between items-center px-4 border-b">
         <p className="text-lg font-bold">Thread</p>
-        <Button
-          onClick={onClose}
-          size={"iconSm"}
-          variant={"ghost"}>
+        <Button onClick={onClose} size={'iconSm'} variant={'ghost'}>
           <XIcon className="size-5 stroke-[1.5]" />
         </Button>
       </div>

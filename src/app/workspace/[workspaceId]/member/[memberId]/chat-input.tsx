@@ -1,26 +1,26 @@
-import { useCreateMessage } from "@/features/messages/api/use-create-message";
-import { useGenerateUploadUrl } from "@/features/upload/api/use-generate-upload-url";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import dynamic from "next/dynamic";
-import Quill from "quill";
+import { useCreateMessage } from '@/features/messages/api/use-create-message';
+import { useGenerateUploadUrl } from '@/features/upload/api/use-generate-upload-url';
+import { useWorkspaceId } from '@/hooks/use-workspace-id';
+import dynamic from 'next/dynamic';
+import Quill from 'quill';
 
-const Editor = dynamic(() => import("@/components/editor"), { ssr: true });
+const Editor = dynamic(() => import('@/components/editor'), { ssr: true });
 
-import React, { useRef, useState } from "react";
-import { toast } from "sonner";
-import { Id } from "../../../../../../convex/_generated/dataModel";
+import React, { useRef, useState } from 'react';
+import { toast } from 'sonner';
+import { Id } from '../../../../../../convex/_generated/dataModel';
 
 interface ChatInputProps {
   placeholder: string;
-  conversationId: Id<"conversations">;
+  conversationId: Id<'conversations'>;
 }
 
 type CreateMesageValues = {
-  conversationId: Id<"conversations">;
-  workspaceId: Id<"workspaces">;
+  conversationId: Id<'conversations'>;
+  workspaceId: Id<'workspaces'>;
   body: string;
-  image: Id<"_storage"> | undefined;
-  type: "mention" | "keyword" | "direct" | "reply";
+  image: Id<'_storage'> | undefined;
+  type: 'mention' | 'keyword' | 'direct' | 'reply';
 };
 
 const ChatInput = ({ placeholder, conversationId }: ChatInputProps) => {
@@ -33,7 +33,13 @@ const ChatInput = ({ placeholder, conversationId }: ChatInputProps) => {
   const { mutate: createMessage } = useCreateMessage();
   const { mutate: generateUploadUrl } = useGenerateUploadUrl();
 
-  const handleSubmit = async ({ body, image }: { body: string; image: File | null }) => {
+  const handleSubmit = async ({
+    body,
+    image,
+  }: {
+    body: string;
+    image: File | null;
+  }) => {
     try {
       setIsPending(true);
       editorRef?.current?.enable(false);
@@ -43,20 +49,20 @@ const ChatInput = ({ placeholder, conversationId }: ChatInputProps) => {
         workspaceId,
         body,
         image: undefined,
-        type: "direct",
+        type: 'direct',
       };
 
       if (image) {
         const url = await generateUploadUrl({}, { throwError: true });
 
         const result = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": image.type },
+          method: 'POST',
+          headers: { 'Content-Type': image.type },
           body: image,
         });
 
         if (!result) {
-          throw new Error("Failed to upload image");
+          throw new Error('Failed to upload image');
         }
 
         const { storageId } = await result.json();
@@ -68,7 +74,7 @@ const ChatInput = ({ placeholder, conversationId }: ChatInputProps) => {
       setEditorKey((prevKey) => prevKey + 1);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      toast.error("Failed to send message");
+      toast.error('Failed to send message');
     } finally {
       setIsPending(false);
       editorRef?.current?.enable(true);

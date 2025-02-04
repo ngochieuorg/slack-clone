@@ -1,10 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import data from "@emoji-mart/data";
-import Picker from "@emoji-mart/react";
+import data from '@emoji-mart/data';
+import Picker from '@emoji-mart/react';
 
-import { useState } from "react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { useState } from 'react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from './ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 
 interface EmojiPopoverProp {
   children: React.ReactNode;
@@ -12,7 +17,11 @@ interface EmojiPopoverProp {
   onEmojiSelect: (emoji: any) => void;
 }
 
-const EmojiPopover = ({ children, hint = "Emoji", onEmojiSelect }: EmojiPopoverProp) => {
+const EmojiPopover = ({
+  children,
+  hint = 'Emoji',
+  onEmojiSelect,
+}: EmojiPopoverProp) => {
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [tooltipOpen, setTooltipOpen] = useState(false);
 
@@ -27,13 +36,12 @@ const EmojiPopover = ({ children, hint = "Emoji", onEmojiSelect }: EmojiPopoverP
 
   return (
     <TooltipProvider>
-      <Popover
-        open={popoverOpen}
-        onOpenChange={setPopoverOpen}>
+      <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
         <Tooltip
           open={tooltipOpen}
           onOpenChange={setTooltipOpen}
-          delayDuration={50}>
+          delayDuration={50}
+        >
           <PopoverTrigger asChild>
             <TooltipTrigger asChild>{children}</TooltipTrigger>
           </PopoverTrigger>
@@ -42,9 +50,7 @@ const EmojiPopover = ({ children, hint = "Emoji", onEmojiSelect }: EmojiPopoverP
           </TooltipContent>
         </Tooltip>
         <PopoverContent className="p-0 w-full border-none shadow-none">
-          <Picker
-            data={data}
-            onEmojiSelect={onSelect}></Picker>
+          <Picker data={data} onEmojiSelect={onSelect}></Picker>
         </PopoverContent>
       </Popover>
     </TooltipProvider>

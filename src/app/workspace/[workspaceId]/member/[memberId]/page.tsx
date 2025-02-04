@@ -1,19 +1,20 @@
-"use client";
+'use client';
 
-import { useCreateOrGetConversation } from "@/features/conversations/api/use-create-or-get-conversation";
-import { useMemberId } from "@/hooks/use-member-id";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { AlertCircle, Loader } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Id } from "../../../../../../convex/_generated/dataModel";
-import { toast } from "sonner";
-import Conversation from "./conversation";
+import { useCreateOrGetConversation } from '@/features/conversations/api/use-create-or-get-conversation';
+import { useMemberId } from '@/hooks/use-member-id';
+import { useWorkspaceId } from '@/hooks/use-workspace-id';
+import { AlertCircle, Loader } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Id } from '../../../../../../convex/_generated/dataModel';
+import { toast } from 'sonner';
+import Conversation from './conversation';
 
 const MemberIdPage = () => {
   const memberId = useMemberId();
   const workspaceId = useWorkspaceId();
 
-  const [conversationId, setConversationId] = useState<Id<"conversations"> | null>(null);
+  const [conversationId, setConversationId] =
+    useState<Id<'conversations'> | null>(null);
   const { mutate, isPending } = useCreateOrGetConversation();
 
   useEffect(() => {
@@ -27,7 +28,7 @@ const MemberIdPage = () => {
           setConversationId(data);
         },
         onError() {
-          toast.error("Failed to create or get conversations");
+          toast.error('Failed to create or get conversations');
         },
       }
     );
@@ -45,7 +46,9 @@ const MemberIdPage = () => {
     return (
       <div className="h-full flex flex-col gap-y-2 items-center justify-center">
         <AlertCircle className="size-6  text-muted-foreground" />
-        <span className="text-sm text-muted-foreground">Conversation not found</span>
+        <span className="text-sm text-muted-foreground">
+          Conversation not found
+        </span>
       </div>
     );
   }

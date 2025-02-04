@@ -1,29 +1,29 @@
-"use client";
+'use client';
 
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { useCreateWorkspaceModal } from "../store/use-create-workspace-modal";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useCreateWorkspace } from "../api/use-create-workspace";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+} from '@/components/ui/dialog';
+import { useCreateWorkspaceModal } from '../store/use-create-workspace-modal';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { useCreateWorkspace } from '../api/use-create-workspace';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 export const CreateWorkspaceModal = () => {
   const router = useRouter();
   const [open, setOpen] = useCreateWorkspaceModal();
-  const [name, setName] = useState("");
+  const [name, setName] = useState('');
 
   const { mutate, isPending } = useCreateWorkspace();
 
   const handleClose = () => {
     setOpen(false);
-    setName("");
+    setName('');
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -33,7 +33,7 @@ export const CreateWorkspaceModal = () => {
       { name },
       {
         onSuccess(id) {
-          toast.success("Workspace created!");
+          toast.success('Workspace created!');
           router.push(`/workspace/${id}`);
           handleClose();
         },

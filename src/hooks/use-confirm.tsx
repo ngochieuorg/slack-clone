@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -6,9 +6,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 
-import React, { JSX, useState } from "react";
+import React, { JSX, useState } from 'react';
 
 const useConfirm = (
   title: string,
@@ -46,14 +46,10 @@ const useConfirm = (
           <DialogDescription>{message}</DialogDescription>
         </DialogHeader>
         <DialogFooter className="pt-2">
-          <Button
-            onClick={handleCancel}
-            variant={"outline"}>
+          <Button onClick={handleCancel} variant={'outline'}>
             Cancel
           </Button>
-          <Button
-            onClick={handleConfirm}
-            variant={"outline"}>
+          <Button onClick={handleConfirm} variant={'outline'}>
             Confirm
           </Button>
         </DialogFooter>

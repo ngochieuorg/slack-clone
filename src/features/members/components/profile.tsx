@@ -1,28 +1,34 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Button } from "@/components/ui/button";
-import { Id } from "../../../../convex/_generated/dataModel";
-import { useGetMember } from "../api/use-get-member";
-import { AlertTriangle, ChevronDownIcon, Loader, MailIcon, XIcon } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
-import Link from "next/link";
-import { useUpdateMember } from "../api/use-update-member";
-import { useRemoveMember } from "../api/use-remove-member";
-import { useCurrentMember } from "../api/use-current-member";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { toast } from "sonner";
-import useConfirm from "@/hooks/use-confirm";
-import { useRouter } from "next/navigation";
+import { Button } from '@/components/ui/button';
+import { Id } from '../../../../convex/_generated/dataModel';
+import { useGetMember } from '../api/use-get-member';
+import {
+  AlertTriangle,
+  ChevronDownIcon,
+  Loader,
+  MailIcon,
+  XIcon,
+} from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
+import Link from 'next/link';
+import { useUpdateMember } from '../api/use-update-member';
+import { useRemoveMember } from '../api/use-remove-member';
+import { useCurrentMember } from '../api/use-current-member';
+import { useWorkspaceId } from '@/hooks/use-workspace-id';
+import { toast } from 'sonner';
+import useConfirm from '@/hooks/use-confirm';
+import { useRouter } from 'next/navigation';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { DropdownMenuRadioGroup } from "@radix-ui/react-dropdown-menu";
+} from '@/components/ui/dropdown-menu';
+import { DropdownMenuRadioGroup } from '@radix-ui/react-dropdown-menu';
 
 interface ProfileProps {
-  memberId: Id<"members">;
+  memberId: Id<'members'>;
   onClose: () => void;
 }
 
@@ -31,27 +37,32 @@ const Profile = ({ memberId, onClose }: ProfileProps) => {
   const router = useRouter();
 
   const [UpdateDialog, confirmUpdate] = useConfirm(
-    "Change role",
-    "Are you sure want to change role"
+    'Change role',
+    'Are you sure want to change role'
   );
 
   const [LeaveDialog, confirmLeave] = useConfirm(
-    "Leave workspace",
-    "Are you sure want to leave this workspace"
+    'Leave workspace',
+    'Are you sure want to leave this workspace'
   );
 
   const [RemoveDialog, confirmRemove] = useConfirm(
-    "Remove member",
-    "Are you sure want to remove this member"
+    'Remove member',
+    'Are you sure want to remove this member'
   );
 
-  const { data: currentMember, isLoading: isLoadingCurrentMember } = useCurrentMember({
-    workspaceId,
+  const { data: currentMember, isLoading: isLoadingCurrentMember } =
+    useCurrentMember({
+      workspaceId,
+    });
+  const { data: member, isLoading: isLoadingMember } = useGetMember({
+    id: memberId,
   });
-  const { data: member, isLoading: isLoadingMember } = useGetMember({ id: memberId });
 
-  const { mutate: updateMember, isPending: isUpdatingMember } = useUpdateMember();
-  const { mutate: removeMember, isPending: isRemovingMember } = useRemoveMember();
+  const { mutate: updateMember, isPending: isUpdatingMember } =
+    useUpdateMember();
+  const { mutate: removeMember, isPending: isRemovingMember } =
+    useRemoveMember();
 
   const onRemove = async () => {
     const oke = await confirmRemove();
@@ -61,11 +72,11 @@ const Profile = ({ memberId, onClose }: ProfileProps) => {
       { id: memberId },
       {
         onSuccess: () => {
-          toast.success("Remove");
+          toast.success('Remove');
           onClose();
         },
         onError: () => {
-          toast.error("fail to remove member");
+          toast.error('fail to remove member');
         },
       }
     );
@@ -79,18 +90,18 @@ const Profile = ({ memberId, onClose }: ProfileProps) => {
       { id: memberId },
       {
         onSuccess: () => {
-          router.replace("/");
-          toast.success("You left the workspace");
+          router.replace('/');
+          toast.success('You left the workspace');
           onClose();
         },
         onError: () => {
-          toast.error("fail to leave");
+          toast.error('fail to leave');
         },
       }
     );
   };
 
-  const onUpdate = async (role: "admin" | "members") => {
+  const onUpdate = async (role: 'admin' | 'members') => {
     const oke = await confirmUpdate();
 
     if (!oke) return;
@@ -98,11 +109,11 @@ const Profile = ({ memberId, onClose }: ProfileProps) => {
       { id: memberId, role },
       {
         onSuccess: () => {
-          toast.success("Role change");
+          toast.success('Role change');
           onClose();
         },
         onError: () => {
-          toast.error("Fail to change role");
+          toast.error('Fail to change role');
         },
       }
     );
@@ -113,10 +124,7 @@ const Profile = ({ memberId, onClose }: ProfileProps) => {
       <div className="h-full flex flex-col">
         <div className="h-[49px] flex justify-between items-center px-4 border-b">
           <p className="text-lg font-bold">Profile</p>
-          <Button
-            onClick={onClose}
-            size={"iconSm"}
-            variant={"ghost"}>
+          <Button onClick={onClose} size={'iconSm'} variant={'ghost'}>
             <XIcon className="size-5 stroke-[1.5]" />
           </Button>
         </div>
@@ -132,10 +140,7 @@ const Profile = ({ memberId, onClose }: ProfileProps) => {
       <div className="h-full flex flex-col">
         <div className="h-[49px] flex justify-between items-center px-4 border-b">
           <p className="text-lg font-bold">Profile</p>
-          <Button
-            onClick={onClose}
-            size={"iconSm"}
-            variant={"ghost"}>
+          <Button onClick={onClose} size={'iconSm'} variant={'ghost'}>
             <XIcon className="size-5 stroke-[1.5]" />
           </Button>
         </div>
@@ -147,7 +152,7 @@ const Profile = ({ memberId, onClose }: ProfileProps) => {
     );
   }
 
-  const avatarFallback = member.user.name?.[0] ?? "M";
+  const avatarFallback = member.user.name?.[0] ?? 'M';
   return (
     <>
       <UpdateDialog />
@@ -156,27 +161,25 @@ const Profile = ({ memberId, onClose }: ProfileProps) => {
       <div className="h-full flex flex-col">
         <div className="h-[49px] flex justify-between items-center px-4 border-b">
           <p className="text-lg font-bold">Profile</p>
-          <Button
-            onClick={onClose}
-            size={"iconSm"}
-            variant={"ghost"}>
+          <Button onClick={onClose} size={'iconSm'} variant={'ghost'}>
             <XIcon className="size-5 stroke-[1.5]" />
           </Button>
         </div>
         <div className="flex flex-col items-center justify-center p-4">
           <Avatar className="max-w-[256px] max-h-[256px] size-full">
             <AvatarImage src={member.user.image} />
-            <AvatarFallback className=" aspect-square text-6xl">{avatarFallback}</AvatarFallback>
+            <AvatarFallback className=" aspect-square text-6xl">
+              {avatarFallback}
+            </AvatarFallback>
           </Avatar>
           <div className="flex flex-col p-4">
             <p className="text-xl font-bold">{member.user.name}</p>
-            {currentMember?.role === "admin" && currentMember._id !== memberId ? (
+            {currentMember?.role === 'admin' &&
+            currentMember._id !== memberId ? (
               <div className="flex items-center gap-2 mt-4">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button
-                      variant={"outline"}
-                      className="w-full capitalize">
+                    <Button variant={'outline'} className="w-full capitalize">
                       {member.role}
                       <ChevronDownIcon className="size-4 ml-2" />
                     </Button>
@@ -184,26 +187,36 @@ const Profile = ({ memberId, onClose }: ProfileProps) => {
                   <DropdownMenuContent className="w-full">
                     <DropdownMenuRadioGroup
                       value={member.role}
-                      onValueChange={(role) => onUpdate(role as "admin" | "members")}>
-                      <DropdownMenuRadioItem value="admin">Admin</DropdownMenuRadioItem>
-                      <DropdownMenuRadioItem value="members">Member</DropdownMenuRadioItem>
+                      onValueChange={(role) =>
+                        onUpdate(role as 'admin' | 'members')
+                      }
+                    >
+                      <DropdownMenuRadioItem value="admin">
+                        Admin
+                      </DropdownMenuRadioItem>
+                      <DropdownMenuRadioItem value="members">
+                        Member
+                      </DropdownMenuRadioItem>
                     </DropdownMenuRadioGroup>
                   </DropdownMenuContent>
                 </DropdownMenu>
 
                 <Button
-                  variant={"outline"}
+                  variant={'outline'}
                   className="w-full capitalize"
-                  onClick={onRemove}>
+                  onClick={onRemove}
+                >
                   Remove
                 </Button>
               </div>
-            ) : currentMember?._id === memberId && currentMember.role !== "admin" ? (
+            ) : currentMember?._id === memberId &&
+              currentMember.role !== 'admin' ? (
               <div>
                 <Button
-                  variant={"outline"}
+                  variant={'outline'}
                   className="w-full capitalize"
-                  onClick={onLeave}>
+                  onClick={onLeave}
+                >
                   Leave
                 </Button>
               </div>
@@ -217,10 +230,13 @@ const Profile = ({ memberId, onClose }: ProfileProps) => {
                 <MailIcon className="size-4" />
               </div>
               <div className="flex flex-col">
-                <p className="text-[13px] font-semibold text-muted-foreground">Email Address</p>
+                <p className="text-[13px] font-semibold text-muted-foreground">
+                  Email Address
+                </p>
                 <Link
                   href={`mailto:${member.user.email}`}
-                  className="text-sm hover:underline text-[#1264a3]">
+                  className="text-sm hover:underline text-[#1264a3]"
+                >
                   {member.user.email}
                 </Link>
               </div>

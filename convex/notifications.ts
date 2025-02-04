@@ -1,12 +1,12 @@
-import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
+import { v } from 'convex/values';
+import { mutation, query } from './_generated/server';
+import { getAuthUserId } from '@convex-dev/auth/server';
 
 export const get = query({
   args: {
-    workspaceId: v.id("workspaces"),
-    channelId: v.optional(v.id("channels")),
-    conversationId: v.optional(v.id("conversations")),
+    workspaceId: v.id('workspaces'),
+    channelId: v.optional(v.id('channels')),
+    conversationId: v.optional(v.id('conversations')),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -16,25 +16,25 @@ export const get = query({
     }
 
     const member = await ctx.db
-      .query("members")
-      .withIndex("by_workspace_id_user_id", (q) =>
-        q.eq("workspaceId", args.workspaceId).eq("userId", userId)
+      .query('members')
+      .withIndex('by_workspace_id_user_id', (q) =>
+        q.eq('workspaceId', args.workspaceId).eq('userId', userId)
       )
       .unique();
 
     if (!member) {
-      throw Error("Unauthorized");
+      throw Error('Unauthorized');
     }
 
     const notifications = await ctx.db
-      .query("notifications")
+      .query('notifications')
       .filter((q) =>
         q.and(
-          q.eq(q.field("userId"), userId),
-          q.eq(q.field("status"), "unread"),
+          q.eq(q.field('userId'), userId),
+          q.eq(q.field('status'), 'unread'),
           q.or(
-            q.eq(q.field("channelId"), args.channelId),
-            q.eq(q.field("conversationId"), args.conversationId)
+            q.eq(q.field('channelId'), args.channelId),
+            q.eq(q.field('conversationId'), args.conversationId)
           )
         )
       )
@@ -46,9 +46,9 @@ export const get = query({
 
 export const markAsRead = mutation({
   args: {
-    workspaceId: v.id("workspaces"),
-    channelId: v.optional(v.id("channels")),
-    conversationId: v.optional(v.id("conversations")),
+    workspaceId: v.id('workspaces'),
+    channelId: v.optional(v.id('channels')),
+    conversationId: v.optional(v.id('conversations')),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -58,30 +58,30 @@ export const markAsRead = mutation({
     }
 
     const member = await ctx.db
-      .query("members")
-      .withIndex("by_workspace_id_user_id", (q) =>
-        q.eq("workspaceId", args.workspaceId).eq("userId", userId)
+      .query('members')
+      .withIndex('by_workspace_id_user_id', (q) =>
+        q.eq('workspaceId', args.workspaceId).eq('userId', userId)
       )
       .unique();
 
     if (!member) {
-      throw Error("Unauthorized");
+      throw Error('Unauthorized');
     }
 
     const notifications = await ctx.db
-      .query("notifications")
+      .query('notifications')
       .filter((q) =>
         q.and(
-          q.eq(q.field("userId"), userId),
-          q.eq(q.field("status"), "unread"),
+          q.eq(q.field('userId'), userId),
+          q.eq(q.field('status'), 'unread'),
           q.or(
             q.and(
-              q.neq(q.field("channelId"), undefined),
-              q.eq(q.field("channelId"), args.channelId)
+              q.neq(q.field('channelId'), undefined),
+              q.eq(q.field('channelId'), args.channelId)
             ),
             q.and(
-              q.neq(q.field("conversationId"), undefined),
-              q.eq(q.field("conversationId"), args.conversationId)
+              q.neq(q.field('conversationId'), undefined),
+              q.eq(q.field('conversationId'), args.conversationId)
             )
           )
         )
@@ -91,7 +91,7 @@ export const markAsRead = mutation({
     await Promise.all(
       notifications.map(async (noti) => {
         await ctx.db.patch(noti._id, {
-          status: "read",
+          status: 'read',
         });
       })
     );

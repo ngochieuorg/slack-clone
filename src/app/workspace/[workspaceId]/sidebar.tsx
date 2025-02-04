@@ -4,6 +4,13 @@ import SidebarButton from './sidebar-button';
 import { Bell, Home, MessageSquare, MoreHorizontal } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card';
+import ActivityCard from '@/features/notifications/components/activity-card';
+
 export const Sidebar = () => {
   const pathName = usePathname();
   return (
@@ -15,7 +22,14 @@ export const Sidebar = () => {
         isActive={pathName.includes('/workspace')}
       />
       <SidebarButton icon={MessageSquare} label="DMs" />
-      <SidebarButton icon={Bell} label="Activities" />
+      <HoverCard>
+        <HoverCardTrigger>
+          <SidebarButton icon={Bell} label="Activity" />
+        </HoverCardTrigger>
+        <HoverCardContent>
+          <ActivityCard />
+        </HoverCardContent>
+      </HoverCard>
       <SidebarButton icon={MoreHorizontal} label="More" />
       <div className="flex flex-col items-center justify-center gap-y-1 mt-auto">
         <UserButton />

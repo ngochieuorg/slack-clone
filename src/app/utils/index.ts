@@ -12,3 +12,10 @@ export function arrayToHash<T, K extends keyof T>(
     {} as Record<string, T>
   );
 }
+
+export function getSetByKey<T, K extends keyof T>(
+  array: T[],
+  key: K
+): Set<T[K]> {
+  return new Set(array.map((item) => item[key]));
+}

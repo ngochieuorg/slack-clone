@@ -11,7 +11,6 @@ type RequestType = {
   channelId?: Id<'channels'>;
   parentMessageId?: Id<'messages'>;
   conversationId?: Id<'conversations'>;
-  type: 'mention' | 'keyword' | 'direct' | 'reply' | 'reaction';
 };
 type ResponseType = Id<'messages'> | null;
 

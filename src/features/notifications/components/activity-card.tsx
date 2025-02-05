@@ -31,7 +31,7 @@ const ActivityCard = () => {
       {notifications?.map((noti) => {
         return (
           <div className="w-80" key={noti._id}>
-            <div className="mb-5 overflow-clip">Noti</div>
+            <div className="mb-5 overflow-clip">{noti.content}</div>
           </div>
         );
       })}

@@ -40,7 +40,20 @@ export const get = query({
       )
       .collect();
 
-    return notifications;
+    const notificationWithPopulate = await Promise.all(
+      notifications.map(async (notification) => {
+        let channelData = null;
+        if (notification.channelId) {
+          channelData = await ctx.db.get(notification.channelId); // Fetch channel data
+        }
+        return {
+          ...notification,
+          channel: channelData, // Include channel data in the response
+        };
+      })
+    );
+
+    return notificationWithPopulate;
   },
 });
 

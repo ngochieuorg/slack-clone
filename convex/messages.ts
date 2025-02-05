@@ -3,6 +3,7 @@ import { mutation, query, QueryCtx } from './_generated/server';
 import { v } from 'convex/values';
 import { Doc, Id } from './_generated/dataModel';
 import { paginationOptsValidator } from 'convex/server';
+import { getSetByKey } from '../src/app/utils/index';
 
 const populateThread = async (ctx: QueryCtx, messageId: Id<'messages'>) => {
   const messages = await ctx.db
@@ -271,13 +272,6 @@ export const create = mutation({
     channelId: v.optional(v.id('channels')),
     parentMessageId: v.optional(v.id('messages')),
     conversationId: v.optional(v.id('conversations')),
-    type: v.union(
-      v.literal('mention'),
-      v.literal('keyword'),
-      v.literal('direct'),
-      v.literal('reply'),
-      v.literal('reaction')
-    ),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -286,9 +280,10 @@ export const create = mutation({
       throw Error('Unauthorized');
     }
 
-    const member = await getMember(ctx, args.workspaceId, userId);
+    const currentMemmber = await getMember(ctx, args.workspaceId, userId);
+    const currentUser = await populateUser(ctx, userId);
 
-    if (!member) {
+    if (!currentMemmber) {
       throw Error('Unauthorized');
     }
 
@@ -302,7 +297,7 @@ export const create = mutation({
     }
 
     const messageId = await ctx.db.insert('messages', {
-      memberId: member._id,
+      memberId: currentMemmber._id,
       body: args.body,
       image: args.image,
       channelId: args.channelId,
@@ -311,47 +306,99 @@ export const create = mutation({
       conversationId: _conversationId,
     });
 
-    const conversation = await ctx.db
-      .query('conversations')
-      .filter((q) => q.eq(q.field('_id'), args.conversationId))
-      .unique();
+    const checkIsMention = true;
 
-    let memberInConversation: Id<'members'>;
-    if (member._id === conversation?.memberOneId) {
-      memberInConversation = conversation?.memberTwoId;
-    }
-    if (member._id === conversation?.memberTwoId) {
-      memberInConversation = conversation?.memberOneId;
+    let notiType = 'direct';
+    if (checkIsMention) {
+      notiType = 'reply';
+    } else if (args.parentMessageId) {
+      notiType = 'mention';
     }
 
-    const members = await ctx.db
-      .query('members')
-      .filter((q) =>
-        q.and(
-          q.eq(q.field('workspaceId'), args.workspaceId),
-          q.neq(q.field('userId'), userId)
+    if (notiType === 'reply') {
+      // tìm những member trong thread
+      const messagesByParentMessage = await ctx.db
+        .query('messages')
+        .withIndex('by_parent_message_id', (q) =>
+          q.eq('parentMessageId', args.parentMessageId)
         )
-      )
-      .filter((q) => {
-        if (args.conversationId) {
-          return q.eq(q.field('_id'), memberInConversation);
-        } else return false;
-      })
-      .collect();
+        .filter((q) => q.neq(q.field('memberId'), currentMemmber._id))
+        .collect();
 
-    await Promise.all(
-      members.map(async (member) => {
-        await ctx.db.insert('notifications', {
-          channelId: args.channelId,
-          conversationId: _conversationId,
-          userId: member.userId,
-          messageId: messageId,
-          type: args.type,
-          status: 'unread',
-          content: 'Noti',
-        });
-      })
-    );
+      const membersIdInThreads = Array.from(
+        getSetByKey(messagesByParentMessage, 'memberId')
+      );
+      const membersInTheadWithPopulate = await Promise.all(
+        membersIdInThreads.map(async (id) => {
+          const data = await ctx.db.get(id);
+          return data;
+        })
+      );
+
+      // gửi noti tơi các member trong thread
+      await Promise.all(
+        membersInTheadWithPopulate.map(async (member) => {
+          if (member) {
+            await ctx.db.insert('notifications', {
+              channelId: args.channelId,
+              conversationId: _conversationId,
+              userId: member.userId,
+              messageId: messageId,
+              type: notiType,
+              status: 'unread',
+              content: `New message in thread from ${currentUser?.name}`,
+            });
+          }
+        })
+      );
+    }
+
+    if (notiType === 'mention') {
+    }
+
+    if (notiType === 'direct') {
+      const conversation = await ctx.db
+        .query('conversations')
+        .filter((q) => q.eq(q.field('_id'), args.conversationId))
+        .unique();
+
+      let memberInConversation: Id<'members'>;
+      if (currentMemmber._id === conversation?.memberOneId) {
+        memberInConversation = conversation?.memberTwoId;
+      }
+      if (currentMemmber._id === conversation?.memberTwoId) {
+        memberInConversation = conversation?.memberOneId;
+      }
+
+      const members = await ctx.db
+        .query('members')
+        .filter((q) =>
+          q.and(
+            q.eq(q.field('workspaceId'), args.workspaceId),
+            q.neq(q.field('userId'), userId)
+          )
+        )
+        .filter((q) => {
+          if (args.conversationId) {
+            return q.eq(q.field('_id'), memberInConversation);
+          } else return true;
+        })
+        .collect();
+
+      await Promise.all(
+        members.map(async (member) => {
+          await ctx.db.insert('notifications', {
+            channelId: args.channelId,
+            conversationId: _conversationId,
+            userId: member.userId,
+            messageId: messageId,
+            type: notiType,
+            status: 'unread',
+            content: `New message from ${currentUser?.name}`,
+          });
+        })
+      );
+    }
 
     return messageId;
   },

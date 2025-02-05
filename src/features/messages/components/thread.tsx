@@ -30,7 +30,6 @@ type CreateMesageValues = {
   parentMessageId: Id<'messages'>;
   body: string;
   image: Id<'_storage'> | undefined;
-  type: 'mention' | 'keyword' | 'direct' | 'reply';
 };
 
 const formatDateLabel = (dateStr: string) => {
@@ -81,7 +80,6 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
         body,
         image: undefined,
         parentMessageId: messageId,
-        type: 'direct',
       };
 
       if (image) {

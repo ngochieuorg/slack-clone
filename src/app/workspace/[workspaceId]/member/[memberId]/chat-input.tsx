@@ -20,7 +20,6 @@ type CreateMesageValues = {
   workspaceId: Id<'workspaces'>;
   body: string;
   image: Id<'_storage'> | undefined;
-  type: 'mention' | 'keyword' | 'direct' | 'reply';
 };
 
 const ChatInput = ({ placeholder, conversationId }: ChatInputProps) => {
@@ -49,7 +48,6 @@ const ChatInput = ({ placeholder, conversationId }: ChatInputProps) => {
         workspaceId,
         body,
         image: undefined,
-        type: 'direct',
       };
 
       if (image) {

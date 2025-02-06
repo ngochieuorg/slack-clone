@@ -38,6 +38,7 @@ export const get = query({
           )
         )
       )
+      .order('desc')
       .collect();
 
     const notificationWithPopulate = await Promise.all(

@@ -26,7 +26,7 @@ export const Sidebar = () => {
         <HoverCardTrigger>
           <SidebarButton icon={Bell} label="Activity" />
         </HoverCardTrigger>
-        <HoverCardContent>
+        <HoverCardContent className="p-0">
           <ActivityCard />
         </HoverCardContent>
       </HoverCard>

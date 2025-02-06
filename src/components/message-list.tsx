@@ -1,5 +1,5 @@
 import { GetMessageReturnType } from '@/features/messages/api/use-get-messages';
-import { differenceInMinutes, format, isToday, isYesterday } from 'date-fns';
+import { differenceInMinutes, format } from 'date-fns';
 import Message from './message';
 import ChannelHero from './channel-hero';
 import { useState } from 'react';
@@ -8,6 +8,7 @@ import { useWorkspaceId } from '@/hooks/use-workspace-id';
 import { useCurrentMember } from '@/features/members/api/use-current-member';
 import { Loader } from 'lucide-react';
 import ConversationHero from './conversation-hero';
+import { formatDateLabel } from '@/app/utils/date-time';
 
 const TIME_THRESHHOLD = 5;
 
@@ -22,13 +23,6 @@ interface MessageListProps {
   variant?: 'channel' | 'thread' | 'conversation';
   memberName?: string;
 }
-
-const formatDateLabel = (dateStr: string) => {
-  const date = new Date(dateStr);
-  if (isToday(date)) return 'Today';
-  if (isYesterday(date)) return 'Yesterday';
-  return format(date, 'EEEE, MMMM d');
-};
 
 const MessageList = ({
   channelName,

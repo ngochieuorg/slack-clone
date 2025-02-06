@@ -1,6 +1,6 @@
 import dynamic from 'next/dynamic';
 import { Doc, Id } from '../../convex/_generated/dataModel';
-import { format, isToday, isYesterday } from 'date-fns';
+import { format } from 'date-fns';
 import Hint from './hint';
 import { Avatar, AvatarImage } from './ui/avatar';
 import { AvatarFallback } from '@radix-ui/react-avatar';
@@ -15,6 +15,7 @@ import { useToggleReaction } from '@/features/reactions/api/use-toggle-reaction'
 import Reactions from './reactions';
 import { usePanel } from '@/hooks/use-panel';
 import ThreadBar from './thread-bar';
+import { formatFulltime } from '@/app/utils/date-time';
 
 const Renderer = dynamic(() => import('@/components/renderer'), { ssr: true });
 const Editor = dynamic(() => import('@/components/editor'), { ssr: false });
@@ -44,10 +45,6 @@ interface MessageProps {
   threadName?: string;
   threadTimestamp?: number;
 }
-
-const formatFulltime = (date: Date) => {
-  return `${isToday(date) ? 'Today' : isYesterday(date) ? 'Yesterday' : format(date, 'MMM d, yyyy')} at ${format(date, 'h:mm:ss a')}`;
-};
 
 const Message = ({
   id,

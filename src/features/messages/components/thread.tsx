@@ -13,7 +13,8 @@ import { useGenerateUploadUrl } from '@/features/upload/api/use-generate-upload-
 import { useChannelId } from '@/hooks/use-channel-id';
 import { toast } from 'sonner';
 import { useGetMessages } from '../api/use-get-messages';
-import { differenceInMinutes, format, isToday, isYesterday } from 'date-fns';
+import { differenceInMinutes, format } from 'date-fns';
+import { formatDateLabel } from '@/app/utils/date-time';
 
 const Editor = dynamic(() => import('@/components/editor'), { ssr: true });
 
@@ -30,13 +31,6 @@ type CreateMesageValues = {
   parentMessageId: Id<'messages'>;
   body: string;
   image: Id<'_storage'> | undefined;
-};
-
-const formatDateLabel = (dateStr: string) => {
-  const date = new Date(dateStr);
-  if (isToday(date)) return 'Today';
-  if (isYesterday(date)) return 'Yesterday';
-  return format(date, 'EEEE, MMMM d');
 };
 
 const Thread = ({ messageId, onClose }: ThreadProps) => {

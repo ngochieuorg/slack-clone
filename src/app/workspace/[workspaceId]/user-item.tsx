@@ -51,12 +51,11 @@ const UserItem = ({
     >
       <Link href={`/workspace/${workspaceId}/member/${id}`}>
         <div className="flex items-center w-full">
-          <Avatar className="size-5 rounded-md mr-1">
-            <AvatarImage
-              className="rounded-md bg-sky-500 text-white"
-              src={image}
-            />
-            <AvatarFallback>{avatarFallback}</AvatarFallback>
+          <Avatar className="size-5 hover:opacity-75 transition">
+            <AvatarImage alt={'image'} src={image} />
+            <AvatarFallback className="aspect-square rounded-md bg-sky-500 text-white flex justify-center items-center">
+              {avatarFallback}
+            </AvatarFallback>
           </Avatar>
           <span
             className={cn(

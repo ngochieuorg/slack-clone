@@ -208,12 +208,11 @@ const Message = ({
       >
         <div className="flex items-start gap-2">
           <button onClick={() => onOpenProfileMember(memberId)}>
-            <Avatar>
-              <AvatarImage
-                className="bg-sky-500 text-white"
-                src={authorImage}
-              />
-              <AvatarFallback>{avatarFallback}</AvatarFallback>
+            <Avatar className="size-10 hover:opacity-75 transition">
+              <AvatarImage src={authorImage} />
+              <AvatarFallback className="aspect-square rounded-md bg-sky-500 text-white">
+                {avatarFallback}
+              </AvatarFallback>
             </Avatar>
           </button>
           {isEditing ? (

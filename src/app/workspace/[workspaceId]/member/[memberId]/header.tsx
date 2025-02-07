@@ -22,7 +22,9 @@ const Header = ({ memberName, memberImage, onclick }: HeaderProps) => {
       >
         <Avatar className="size-6 mr-2">
           <AvatarImage src={memberImage} />
-          <AvatarFallback>{avatarFallback}</AvatarFallback>
+          <AvatarFallback className="aspect-square rounded-md bg-sky-500 text-white">
+            {avatarFallback}
+          </AvatarFallback>
         </Avatar>
         <span className="truncate">{memberName}</span>
         <FaChevronDown className="mr-2 size-2.5" />

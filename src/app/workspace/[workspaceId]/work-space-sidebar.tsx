@@ -52,6 +52,7 @@ const WorkSpaceSidebar = () => {
   const { data: notifications, isLoading: notificationsLoading } =
     useGetNotifications({
       workspaceId,
+      isUnRead: true,
     });
 
   const { mutate: markAsReadNoti } = useMarkAsReadNotifications();

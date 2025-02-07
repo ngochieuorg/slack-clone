@@ -4,60 +4,12 @@ import { v } from 'convex/values';
 import { Doc, Id } from './_generated/dataModel';
 import { paginationOptsValidator } from 'convex/server';
 import { getSetByKey } from '../src/app/utils/index';
-
-const populateThread = async (ctx: QueryCtx, messageId: Id<'messages'>) => {
-  const messages = await ctx.db
-    .query('messages')
-    .withIndex('by_parent_message_id', (q) =>
-      q.eq('parentMessageId', messageId)
-    )
-    .collect();
-
-  if (messages.length === 0) {
-    return {
-      count: 0,
-      image: undefined,
-      timeStamp: 0,
-      name: '',
-    };
-  }
-
-  const lastMessage = messages[messages.length - 1];
-  const lastMessageMember = await populateMember(ctx, lastMessage.memberId);
-
-  if (!lastMessageMember) {
-    return {
-      count: 0,
-      image: undefined,
-      timeStamp: 0,
-      name: '',
-    };
-  }
-
-  const lastMessageUser = await populateUser(ctx, lastMessageMember.userId);
-
-  return {
-    count: messages.length,
-    image: lastMessageUser?.image,
-    timeStamp: lastMessage._creationTime,
-    name: lastMessageUser?.name,
-  };
-};
-
-const populateReactions = (ctx: QueryCtx, messageId: Id<'messages'>) => {
-  return ctx.db
-    .query('reactions')
-    .withIndex('by_message_id', (q) => q.eq('messageId', messageId))
-    .collect();
-};
-
-const populateUser = (ctx: QueryCtx, userId: Id<'users'>) => {
-  return ctx.db.get(userId);
-};
-
-const populateMember = (ctx: QueryCtx, memberId: Id<'members'>) => {
-  return ctx.db.get(memberId);
-};
+import {
+  populateMember,
+  populateReactions,
+  populateThread,
+  populateUser,
+} from '../src/utils/convex.utils';
 
 const getMember = async (
   ctx: QueryCtx,
@@ -319,10 +271,15 @@ export const create = mutation({
       // tìm những member trong thread
       const messagesByParentMessage = await ctx.db
         .query('messages')
-        .withIndex('by_parent_message_id', (q) =>
-          q.eq('parentMessageId', args.parentMessageId)
+        .filter((q) =>
+          q.and(
+            q.or(
+              q.eq(q.field('_id'), args.parentMessageId),
+              q.eq(q.field('parentMessageId'), args.parentMessageId)
+            ),
+            q.neq(q.field('memberId'), currentMemmber._id)
+          )
         )
-        .filter((q) => q.neq(q.field('memberId'), currentMemmber._id))
         .collect();
 
       const membersIdInThreads = Array.from(
@@ -347,6 +304,8 @@ export const create = mutation({
               type: notiType,
               status: 'unread',
               content: `New message in thread from ${currentUser?.name}`,
+              senderId: userId,
+              parentMessageId: args.parentMessageId,
             });
           }
         })
@@ -395,6 +354,7 @@ export const create = mutation({
             type: notiType,
             status: 'unread',
             content: `New message from ${currentUser?.name}`,
+            senderId: userId,
           });
         })
       );

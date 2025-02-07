@@ -61,6 +61,7 @@ const schema = defineSchema({
     userId: v.id('users'),
     channelId: v.optional(v.id('channels')),
     conversationId: v.optional(v.id('conversations')),
+    parentMessageId: v.optional(v.id('messages')),
     messageId: v.optional(v.id('messages')),
     type: v.union(
       v.literal('mention'),
@@ -70,6 +71,7 @@ const schema = defineSchema({
       v.literal('reaction')
     ),
     status: v.union(v.literal('read'), v.literal('unread')),
+    senderId: v.id('users'),
     content: v.string(),
   })
     .index('by_user_status', ['userId', 'status'])

@@ -26,8 +26,10 @@ const ThreadBar = ({
     >
       <div className="flex items-center gap-2 overflow-hidden">
         <Avatar className="size-6 shrink-0">
-          <AvatarImage className="bg-sky-500 text-white" src={image} />
-          <AvatarFallback>{avatarFallback}</AvatarFallback>
+          <AvatarImage src={image} />
+          <AvatarFallback className="rounded-md bg-sky-500 text-white flex justify-center items-center">
+            {avatarFallback}
+          </AvatarFallback>
         </Avatar>
         <span className="text-xs text-sky-700 hover:underline font-bold truncate">
           {count} {count > 1 ? 'replies' : 'reply'}

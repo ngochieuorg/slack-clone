@@ -3,9 +3,10 @@ import { useEffect, useRef, useState } from 'react';
 
 interface RendererProps {
   value: string;
+  cutWord?: number;
 }
 
-const Renderer = ({ value }: RendererProps) => {
+const Renderer = ({ value, cutWord }: RendererProps) => {
   const [isEmpty, setIsEmpty] = useState(false);
   const rendererRef = useRef<HTMLDivElement>(null);
 
@@ -21,6 +22,14 @@ const Renderer = ({ value }: RendererProps) => {
     quill.enable(false);
 
     const contents = JSON.parse(value);
+
+    if (cutWord) {
+      const text = contents?.ops?.[0].insert
+        .split(' ')
+        .splice(0, cutWord)
+        .join(' ');
+      contents.ops[0].insert = text;
+    }
     quill.setContents(contents);
 
     const isEmpty =
@@ -38,6 +47,7 @@ const Renderer = ({ value }: RendererProps) => {
         container.innerHTML = '';
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
   if (isEmpty) return null;

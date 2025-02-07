@@ -168,7 +168,7 @@ const Profile = ({ memberId, onClose }: ProfileProps) => {
         <div className="flex flex-col items-center justify-center p-4">
           <Avatar className="max-w-[256px] max-h-[256px] size-full">
             <AvatarImage src={member.user.image} />
-            <AvatarFallback className=" aspect-square text-6xl">
+            <AvatarFallback className=" aspect-square text-6xl rounded-md bg-sky-500 text-white">
               {avatarFallback}
             </AvatarFallback>
           </Avatar>

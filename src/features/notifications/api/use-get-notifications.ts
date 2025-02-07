@@ -6,6 +6,7 @@ interface UseGetNotificationProps {
   workspaceId: Id<'workspaces'>;
   channelId?: Id<'channels'>;
   conversationId?: Id<'conversations'>;
+  isUnRead?: boolean;
 }
 
 export type GetMessageReturnType =
@@ -15,11 +16,13 @@ export const useGetNotifications = ({
   workspaceId,
   channelId,
   conversationId,
+  isUnRead,
 }: UseGetNotificationProps) => {
   const data = useQuery(api.notifications.get, {
     channelId,
     conversationId,
     workspaceId,
+    isUnRead,
   });
   const isLoading = data === undefined;
 

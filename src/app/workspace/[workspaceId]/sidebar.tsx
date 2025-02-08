@@ -11,11 +11,17 @@ import {
 } from '@/components/ui/hover-card';
 import ActivityCard from '@/features/notifications/components/activity-card';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
-import { useGetActivities } from '@/features/notifications/api/use-get-activities';
+import {
+  ActivitiesReturnType,
+  useGetActivities,
+} from '@/features/notifications/api/use-get-activities';
 import { useState } from 'react';
+import { useCurrentUser } from '@/features/auth/api/use-current-user';
 
 export const Sidebar = () => {
   const workspaceId = useWorkspaceId();
+  const { data: currentUser } = useCurrentUser();
+
   const [isUnRead, setIsUnRead] = useState(false);
 
   const { data: activities, isLoading: notificationsLoading } =
@@ -23,6 +29,10 @@ export const Sidebar = () => {
       workspaceId,
       isUnRead,
     });
+
+  const countActivitiesNoti = (activities?: ActivitiesReturnType) => {
+    return (activities || []).filter((activity) => activity.unreadCount).length;
+  };
 
   const pathName = usePathname();
   return (
@@ -36,13 +46,19 @@ export const Sidebar = () => {
       <SidebarButton icon={MessageSquare} label="DMs" />
       <HoverCard>
         <HoverCardTrigger>
-          <SidebarButton icon={Bell} label="Activity" />
+          <SidebarButton
+            icon={Bell}
+            label="Activity"
+            notiCount={countActivitiesNoti(activities)}
+          />
         </HoverCardTrigger>
         <HoverCardContent className="p-0">
           <ActivityCard
             activities={activities || []}
             isLoading={notificationsLoading}
+            isUnRead={isUnRead}
             setIsUnRead={setIsUnRead}
+            currentUser={currentUser}
           />
         </HoverCardContent>
       </HoverCard>

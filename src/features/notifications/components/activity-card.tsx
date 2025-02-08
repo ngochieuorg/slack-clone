@@ -1,4 +1,4 @@
-import { Loader } from 'lucide-react';
+import { CheckCircle, Loader, MessageSquareTextIcon } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
@@ -10,113 +10,165 @@ import dynamic from 'next/dynamic';
 import { Dispatch } from 'react';
 import { SetStateAction } from 'jotai';
 import { ActivitiesReturnType } from '../api/use-get-activities';
+import { Doc } from '../../../../convex/_generated/dataModel';
 
 const Renderer = dynamic(() => import('@/components/renderer'), { ssr: true });
 
 interface ActivityCardProps {
   activities: ActivitiesReturnType;
   isLoading: boolean;
+  isUnRead: boolean;
   setIsUnRead: Dispatch<SetStateAction<boolean>>;
+  currentUser?: Doc<'users'> | null;
 }
 
 const ActivityCard = ({
   activities,
   isLoading,
+  isUnRead,
   setIsUnRead,
+  currentUser,
 }: ActivityCardProps) => {
-  if (isLoading) {
-    return (
-      <div className="flex flex-col h-full items-center justify-center">
-        <Loader className=" size-5 animate-spin text-[#5E2C5F]" />
-      </div>
-    );
-  }
+  const LoaderComponent = (
+    <div className="flex flex-col h-[480px] items-center justify-center">
+      <Loader className=" size-5 animate-spin text-[#5E2C5F]" />
+    </div>
+  );
+
+  const EmptyActivities = (
+    <div className="flex flex-col h-[480px] items-center justify-center">
+      <CheckCircle className=" size-5 text-[#5E2C5F]" />
+    </div>
+  );
+
+  console.log(activities);
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col w-96">
       <div className="flex justify-between items-center p-2">
         <span className="font-semibold">Activity</span>
         <div className="flex items-center space-x-2">
+          <Label htmlFor="status-read">Unreads</Label>
           <Switch
             id="status-read"
+            checked={isUnRead}
             onCheckedChange={(value) => setIsUnRead(value)}
           />
-          <Label htmlFor="status-read">Unreads</Label>
         </div>
       </div>
       <Separator />
-      <div className="max-h-[480px] overflow-auto">
-        {activities?.map((activity, index: number) => {
-          return (
-            <div className="p-2" key={index}>
-              <div
-                className={cn(
-                  'flex justify-between items-end',
-                  activity.unreadCount > 0 && 'font-medium text-black'
-                )}
-              >
+      {isLoading ? (
+        LoaderComponent
+      ) : (
+        <div className="max-h-[480px] overflow-auto">
+          {activities?.length === 0 && EmptyActivities}
+          {activities?.map((activity, index: number) => {
+            return (
+              <div className="p-2" key={index}>
                 <div
                   className={cn(
-                    'text-sm text-muted-foreground ',
+                    'flex justify-between items-end',
                     activity.unreadCount > 0 && 'font-medium text-black'
                   )}
                 >
-                  Thread in # {activity.threadName}
-                </div>
-                <div className="flex gap-1 ">
-                  <span>
-                    {formatDateNotiTime(
-                      new Date(activity.newestNoti._creationTime)
+                  <div
+                    className={cn(
+                      'text-sm text-muted-foreground flex gap-2 items-center',
+                      activity.unreadCount > 0 && 'font-medium text-black'
                     )}
-                  </span>
-                  <div className="w-8 h-5 bg-[#5E2C5F] flex justify-center items-center rounded-xl text-white font-normal ">
-                    {activity.unreadCount}
+                  >
+                    <MessageSquareTextIcon className="size-4" />
+                    Thread in{' '}
+                    {activity.threadName
+                      ? `# ${activity.threadName}`
+                      : 'direct message'}
                   </div>
-                </div>
-              </div>
-              <div className="flex justify-start gap-1 items-start">
-                <Avatar className="min-w-8 max-w-8 h-8 hover:opacity-75 transition rounded-md mt-1">
-                  <AvatarImage
-                    className="rounded-md"
-                    src={activity.newestNoti.sender?.image}
-                    alt={activity.newestNoti.sender?.name}
-                  />
-                  <AvatarFallback className="rounded-md bg-sky-500 text-white">
-                    {activity.newestNoti.sender?.name?.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-bold">
-                    {activity.newestNoti.sender?.name} and you
-                  </p>
-                  <div className="text-muted-foreground">
-                    {activity.newestNoti.parentMessage?.body && (
-                      <div className="flex items-center gap-1">
-                        <div className="w-max">replied to:</div>
-                        <Renderer
-                          value={activity.newestNoti.parentMessage?.body}
-                          cutWord={2}
-                        />
+                  <div className="flex gap-1 ">
+                    <span className="text-base">
+                      {formatDateNotiTime(
+                        new Date(activity.newestNoti._creationTime)
+                      )}
+                    </span>
+                    {activity.unreadCount > 0 && (
+                      <div className="w-8 h-5 bg-[#5E2C5F] flex justify-center items-center rounded-3xl text-white font-normal text-sm">
+                        {activity.unreadCount}
                       </div>
                     )}
                   </div>
-                  <div className="mb-5">
-                    {activity.thread.message?.body && (
-                      <div className="flex justify-start items-start gap-1">
-                        <div className=" whitespace-nowrap">
-                          {activity.thread.name}:
+                </div>
+                <div className="flex justify-start gap-2 items-start">
+                  <div className="relative w-10">
+                    <Avatar
+                      className={cn(
+                        'size-10 hover:opacity-75 transition rounded-md mt-1',
+                        true && 'absolute size-6'
+                      )}
+                    >
+                      <AvatarImage
+                        className="rounded-md"
+                        src={activity.newestNoti.sender?.image}
+                        alt={activity.newestNoti.sender?.name}
+                      />
+                      <AvatarFallback className="rounded-md bg-sky-500 text-white">
+                        {activity.newestNoti.sender?.name?.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <Avatar
+                      className={cn(
+                        'size-10 hover:opacity-75 transition rounded-md mt-1',
+                        true && 'absolute size-6 translate-x-3 translate-y-3'
+                      )}
+                    >
+                      <AvatarImage
+                        className="rounded-md"
+                        src={currentUser?.image}
+                        alt={currentUser?.name}
+                      />
+                      <AvatarFallback className="rounded-md bg-sky-500 text-white">
+                        {currentUser?.name?.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+
+                  <div>
+                    <p className="font-bold text-base">
+                      {activity.senders.map((sender, index) => (
+                        <span key={sender._id}>
+                          {sender.name}
+                          {index !== activity.senders.length - 1 ? ',' : ''}
+                        </span>
+                      ))}{' '}
+                      and you
+                    </p>
+                    <div className="text-muted-foreground">
+                      {activity.newestNoti.parentMessage?.body && (
+                        <div className="flex items-center gap-1">
+                          <div className="w-max">replied to:</div>
+                          <Renderer
+                            value={activity.newestNoti.parentMessage?.body}
+                            cutWord={2}
+                          />
                         </div>
-                        <Renderer value={activity.thread.message?.body} />
-                      </div>
-                    )}
+                      )}
+                    </div>
+                    <div className="mb-5">
+                      {activity.thread.message?.body && (
+                        <div className="flex justify-start items-start gap-1">
+                          <div className=" whitespace-nowrap">
+                            {activity.thread.name}:
+                          </div>
+                          <Renderer value={activity.thread.message?.body} />
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
+                <Separator />
               </div>
-              <Separator />
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };

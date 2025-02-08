@@ -7,11 +7,22 @@ interface SidebarButtonProps {
   icon: LucideIcon | IconType;
   label: string;
   isActive?: boolean;
+  notiCount?: number;
 }
 
-const SidebarButton = ({ icon: Icon, label, isActive }: SidebarButtonProps) => {
+const SidebarButton = ({
+  icon: Icon,
+  label,
+  isActive,
+  notiCount,
+}: SidebarButtonProps) => {
   return (
-    <div className="flex flex-col items-center justify-center gap-y-0.5 cursor-pointer group">
+    <div className="flex flex-col items-center justify-center gap-y-0.5 cursor-pointer group relative">
+      {Number(notiCount) > 0 && (
+        <div className="size-4 absolute top-0 -right-2 rounded-full bg-[#EFB8FB] flex justify-center items-center ">
+          <span className=" text-[11px]">{notiCount}</span>
+        </div>
+      )}
       <Button
         variant="transparent"
         className={cn(

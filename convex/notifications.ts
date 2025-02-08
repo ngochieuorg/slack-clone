@@ -238,16 +238,16 @@ export const activities = query({
 
         group.forEach((noti) => {
           threadName = noti.channel?.name;
-          threadMsgCount += 1;
           if (noti._creationTime > newestNoti._creationTime) {
             newestNoti = noti;
             thread = noti.thread;
+            threadMsgCount = noti.thread.count;
           }
           if (noti.sender && !senders[noti.senderId]) {
             senders[noti.senderId] = noti.sender;
           }
           if (noti.status === 'unread') {
-            unreadCount += 1;
+            unreadCount = unreadCount + 1;
           }
         });
         return {

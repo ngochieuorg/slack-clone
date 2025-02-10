@@ -10,7 +10,16 @@ import dynamic from 'next/dynamic';
 import { Dispatch } from 'react';
 import { SetStateAction } from 'jotai';
 import { ActivitiesReturnType } from '../api/use-get-activities';
-import { Doc } from '../../../../convex/_generated/dataModel';
+import { Doc, Id } from '../../../../convex/_generated/dataModel';
+import { groupBy } from '@/app/utils';
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card';
+import { useToggleReaction } from '@/features/reactions/api/use-toggle-reaction';
+import { toast } from 'sonner';
+import { useChannelId } from '@/hooks/use-channel-id';
 
 const Renderer = dynamic(() => import('@/components/renderer'), { ssr: true });
 
@@ -29,6 +38,9 @@ const ActivityCard = ({
   setIsUnRead,
   currentUser,
 }: ActivityCardProps) => {
+  const channelId = useChannelId();
+  const { mutate: toggleReaction } = useToggleReaction();
+
   const LoaderComponent = (
     <div className="flex flex-col h-[480px] items-center justify-center">
       <Loader className=" size-5 animate-spin text-[#5E2C5F]" />
@@ -40,6 +52,23 @@ const ActivityCard = ({
       <CheckCircle className=" size-5 text-[#5E2C5F]" />
     </div>
   );
+
+  const handleReaction = ({
+    value,
+    messageId,
+  }: {
+    value: string;
+    messageId: Id<'messages'>;
+  }) => {
+    toggleReaction(
+      { messageId, value, channelId },
+      {
+        onError: () => {
+          toast.error('Failed to toggle reaction');
+        },
+      }
+    );
+  };
 
   console.log(activities);
 
@@ -63,7 +92,7 @@ const ActivityCard = ({
         <div className="max-h-[480px] overflow-auto flex flex-col">
           {activities?.length === 0 && EmptyActivities}
           {activities?.map((activity, index: number) => {
-            const memberInActivity = () => {
+            function memberInActivity() {
               return (
                 <>
                   {activity.senders.map((sender, index) => (
@@ -74,8 +103,8 @@ const ActivityCard = ({
                   ))}
                 </>
               );
-            };
-            const activityLocate = () => {
+            }
+            function activityLocate() {
               if (activity.notiType === 'reply') {
                 return (
                   <span>
@@ -95,9 +124,9 @@ const ActivityCard = ({
                   </span>
                 );
               } else return null;
-            };
+            }
 
-            const activityContent = () => {
+            function activityContent() {
               if (activity.notiType === 'reply') {
                 return (
                   <>
@@ -113,24 +142,95 @@ const ActivityCard = ({
                   </>
                 );
               } else if (activity.notiType === 'reaction') {
+                return reactsList();
+              }
+            }
+
+            function reactsList() {
+              if (activity.notiType === 'reaction') {
+                const groupReact = groupBy(activity?.notifications, 'content');
+
+                return (
+                  <div className="flex items-center gap-1 cursor-pointer">
+                    {Object.entries(groupReact).map(([key, reacts]) => {
+                      const messageId = reacts[0].messageId;
+                      const reactBelongtoCurrentUser = reacts.find(
+                        (react) => react.senderId === currentUser?._id
+                      );
+                      return (
+                        <HoverCard key={key}>
+                          <HoverCardTrigger>
+                            <button
+                              onClick={() =>
+                                messageId &&
+                                handleReaction({ value: key, messageId })
+                              }
+                              className={cn(
+                                'h-6 px-2 rounded-full bg-slate-200/70 border border-transparent text-slate-800 flex items-center gap-x-1',
+                                reactBelongtoCurrentUser &&
+                                  'bg-blue-100/70 border-blue-500 text-white'
+                              )}
+                            >
+                              {key}
+                            </button>
+                          </HoverCardTrigger>
+                          <HoverCardContent className=" bg-zinc-900">
+                            <div className="flex justify-center items-center">
+                              <div className="size-16 bg-white rounded-2xl w-min flex items-center justify-center text-5xl">
+                                {key}
+                              </div>
+                            </div>
+
+                            <div className="text-sm font-semibold text-white">
+                              {reacts.map((user, idx) => (
+                                <span key={idx} className="">
+                                  {currentUser?._id === user.senderId
+                                    ? 'You'
+                                    : user.sender?.name}
+                                  {`${idx !== reacts.length - 1 ? ', ' : ''}`}{' '}
+                                </span>
+                              ))}
+                              <span className="text-muted-foreground ">
+                                reacted with {key}
+                              </span>
+                            </div>
+                          </HoverCardContent>
+                        </HoverCard>
+                      );
+                    })}
+                  </div>
+                );
+              }
+            }
+
+            function content() {
+              if (activity.notiType === 'reply') {
                 return (
                   <>
-                    {(activity?.reactionsList || []).map(
-                      (
-                        reaction: {
-                          value: string;
-                          reactor: string | undefined;
-                          reactorId: string | undefined;
-                        },
-                        idx: number
-                      ) => {
-                        return <span key={idx}>{reaction.value}</span>;
-                      }
+                    {activity.thread.message?.body && (
+                      <div className="flex justify-start items-start gap-1">
+                        <div className=" whitespace-nowrap">
+                          {activity.thread.name}:
+                        </div>
+                        <Renderer value={activity.thread.message?.body} />
+                      </div>
+                    )}
+                  </>
+                );
+              } else if (activity.notiType === 'reaction') {
+                return (
+                  <>
+                    {activity.notifications?.[0]?.message?.body && (
+                      <div className="flex justify-start items-start gap-1">
+                        <Renderer
+                          value={activity.notifications?.[0]?.message?.body}
+                        />
+                      </div>
                     )}
                   </>
                 );
               }
-            };
+            }
 
             return (
               <div className="p-2" key={index}>
@@ -155,11 +255,12 @@ const ActivityCard = ({
                         new Date(activity.newestNoti._creationTime)
                       )}
                     </span>
-                    {activity.unreadCount > 0 && (
-                      <div className="w-8 h-5 bg-[#5E2C5F] flex justify-center items-center rounded-3xl text-white font-normal text-sm">
-                        {activity.unreadCount}
-                      </div>
-                    )}
+                    {activity.notiType !== 'reaction' &&
+                      activity.unreadCount > 0 && (
+                        <div className="w-8 h-5 bg-[#5E2C5F] flex justify-center items-center rounded-3xl text-white font-normal text-sm">
+                          {activity.unreadCount}
+                        </div>
+                      )}
                   </div>
                 </div>
                 <div className="flex justify-start gap-2 items-start">
@@ -203,16 +304,7 @@ const ActivityCard = ({
                     <div className="text-muted-foreground">
                       {activityContent()}
                     </div>
-                    <div className="mb-5">
-                      {activity.thread.message?.body && (
-                        <div className="flex justify-start items-start gap-1">
-                          <div className=" whitespace-nowrap">
-                            {activity.thread.name}:
-                          </div>
-                          <Renderer value={activity.thread.message?.body} />
-                        </div>
-                      )}
-                    </div>
+                    <div className="mb-5">{content()}</div>
                   </div>
                 </div>
                 <Separator />

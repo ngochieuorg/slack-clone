@@ -51,7 +51,7 @@ const SidebarItem = ({
           <span
             className={cn(
               'text-sm truncate',
-              Number(countNotifs) > 0 && 'font-bold text-white'
+              Number(countNotifs) > 0 && 'font-bold '
             )}
           >
             {label}

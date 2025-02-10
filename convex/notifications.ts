@@ -169,6 +169,7 @@ export const activities = query({
       notifications.map(async (notification) => {
         let channelData = null;
         let parentMessageData = null;
+        let message = null;
         if (notification.channelId) {
           channelData = await ctx.db.get(notification.channelId);
         }
@@ -178,11 +179,15 @@ export const activities = query({
             notification.parentMessageId
           );
         }
-        const senderData = await populateUser(ctx, notification.senderId);
+        const senderData = await ctx.db.get(notification.senderId);
         const thread = await populateThread(
           ctx,
           notification.parentMessageId as Id<'messages'>
         );
+
+        if (notification.messageId) {
+          message = await ctx.db.get(notification.messageId);
+        }
 
         return {
           ...notification,
@@ -190,6 +195,7 @@ export const activities = query({
           sender: senderData,
           parentMessage: parentMessageData,
           thread,
+          message,
         };
       })
     );
@@ -229,6 +235,10 @@ export const activities = query({
         let thread = group[0].thread;
         let unreadCount = 0;
         let closetTime;
+        const notifications: (Doc<'notifications'> & {
+          sender: Doc<'users'> | null;
+          message: Doc<'messages'> | null;
+        })[] = [];
 
         group.forEach((noti) => {
           threadName = noti.channel?.name;
@@ -244,6 +254,7 @@ export const activities = query({
           if (noti.status === 'unread') {
             unreadCount = unreadCount + 1;
           }
+          notifications.push(noti);
         });
         return {
           threadName,
@@ -254,6 +265,7 @@ export const activities = query({
           unreadCount,
           closetTime,
           notiType,
+          notifications,
         };
       });
 
@@ -272,11 +284,10 @@ export const activities = query({
         const senders: Record<string, Doc<'users'>> = {};
         let thread = group[0].thread;
         let unreadCount = 0;
-        const reactionsList: {
-          value: string;
-          reactor: string | undefined;
-          reactorId: string | undefined;
-        }[] = [];
+        const notifications: (Doc<'notifications'> & {
+          sender: Doc<'users'> | null;
+          message: Doc<'messages'> | null;
+        })[] = [];
 
         group.forEach((noti) => {
           threadName = noti.channel?.name;
@@ -291,11 +302,7 @@ export const activities = query({
           if (noti.status === 'unread') {
             unreadCount = unreadCount + 1;
           }
-          reactionsList.push({
-            value: noti.content,
-            reactor: noti.sender?.name,
-            reactorId: noti.senderId,
-          });
+          notifications.push(noti);
         });
         return {
           threadName,
@@ -305,7 +312,7 @@ export const activities = query({
           thread,
           unreadCount,
           notiType,
-          reactionsList,
+          notifications,
         };
       });
 

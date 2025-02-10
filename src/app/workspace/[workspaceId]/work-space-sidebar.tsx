@@ -99,7 +99,7 @@ const WorkSpaceSidebar = () => {
       >
         {channels?.map((item) => {
           const countNotifs = notifications?.filter(
-            (noti) => noti.channelId === item._id
+            (noti) => noti.channelId === item._id && noti.type === 'reply'
           ).length;
           return (
             <div onClick={() => markAsReadChannel(item._id)} key={item._id}>

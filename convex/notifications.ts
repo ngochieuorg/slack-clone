@@ -130,15 +130,6 @@ export const markAsRead = mutation({
   },
 });
 
-// export interface ActivityDto {
-//   threadName: string;
-//   newestNoti: Doc<'notifications'>;
-//   threadMsgCount: number;
-//   senders: Doc<'users'>[];
-//   thread: any;
-//   unreadCount: number;
-// }
-
 export const activities = query({
   args: {
     workspaceId: v.id('workspaces'),
@@ -203,22 +194,23 @@ export const activities = query({
       })
     );
 
-    const groupNotifByParentMess = groupBy(
-      notificationWithPopulate || [],
+    // for replies
+    const groupByParentMessage = groupBy(
+      notificationWithPopulate.filter((noti) => noti.type === 'reply') || [],
       'parentMessageId'
     );
 
-    if (groupNotifByParentMess['undefined']) {
-      for (const noti of groupNotifByParentMess['undefined']) {
+    if (groupByParentMessage['undefined']) {
+      for (const noti of groupByParentMessage['undefined']) {
         if (noti.messageId) {
-          if (groupNotifByParentMess[noti.messageId]) {
-            groupNotifByParentMess[noti.messageId].push(noti);
-            groupNotifByParentMess['undefined'] = groupNotifByParentMess[
+          if (groupByParentMessage[noti.messageId]) {
+            groupByParentMessage[noti.messageId].push(noti);
+            groupByParentMessage['undefined'] = groupByParentMessage[
               'undefined'
             ].filter((n) => n._id !== noti._id);
           } else {
-            groupNotifByParentMess[noti.messageId] = [noti];
-            groupNotifByParentMess['undefined'] = groupNotifByParentMess[
+            groupByParentMessage[noti.messageId] = [noti];
+            groupByParentMessage['undefined'] = groupByParentMessage[
               'undefined'
             ].filter((n) => n._id !== noti._id);
           }
@@ -226,15 +218,17 @@ export const activities = query({
       }
     }
 
-    const activities = Object.values(groupNotifByParentMess)
+    const replies = Object.values(groupByParentMessage)
       .filter((gr) => gr.length)
       .map((group) => {
+        const notiType = group[0].type;
         let threadName;
         let newestNoti = group[0];
         let threadMsgCount = 0;
         const senders: Record<string, Doc<'users'>> = {};
         let thread = group[0].thread;
         let unreadCount = 0;
+        let closetTime;
 
         group.forEach((noti) => {
           threadName = noti.channel?.name;
@@ -242,6 +236,7 @@ export const activities = query({
             newestNoti = noti;
             thread = noti.thread;
             threadMsgCount = noti.thread.count;
+            closetTime = noti._creationTime;
           }
           if (noti.sender && !senders[noti.senderId]) {
             senders[noti.senderId] = noti.sender;
@@ -257,9 +252,65 @@ export const activities = query({
           senders: Object.values(senders),
           thread,
           unreadCount,
+          closetTime,
+          notiType,
         };
       });
 
-    return activities;
+    // for react
+    const groupByMessage = groupBy(
+      notificationWithPopulate.filter((noti) => noti.type === 'reaction') || [],
+      'messageId'
+    );
+    const reactions = Object.values(groupByMessage)
+      .filter((gr) => gr.length)
+      .map((group) => {
+        const notiType = group[0].type;
+        let threadName;
+        let newestNoti = group[0];
+        let threadMsgCount = 0;
+        const senders: Record<string, Doc<'users'>> = {};
+        let thread = group[0].thread;
+        let unreadCount = 0;
+        const reactionsList: {
+          value: string;
+          reactor: string | undefined;
+          reactorId: string | undefined;
+        }[] = [];
+
+        group.forEach((noti) => {
+          threadName = noti.channel?.name;
+          if (noti._creationTime > newestNoti._creationTime) {
+            newestNoti = noti;
+            thread = noti.thread;
+            threadMsgCount = noti.thread.count;
+          }
+          if (noti.sender && !senders[noti.senderId]) {
+            senders[noti.senderId] = noti.sender;
+          }
+          if (noti.status === 'unread') {
+            unreadCount = unreadCount + 1;
+          }
+          reactionsList.push({
+            value: noti.content,
+            reactor: noti.sender?.name,
+            reactorId: noti.senderId,
+          });
+        });
+        return {
+          threadName,
+          newestNoti,
+          threadMsgCount,
+          senders: Object.values(senders),
+          thread,
+          unreadCount,
+          notiType,
+          reactionsList,
+        };
+      });
+
+    return [...replies, ...reactions].sort(
+      (a, b) => b.newestNoti._creationTime - a.newestNoti._creationTime
+    );
   },
 });

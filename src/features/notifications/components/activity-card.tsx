@@ -60,9 +60,78 @@ const ActivityCard = ({
       {isLoading ? (
         LoaderComponent
       ) : (
-        <div className="max-h-[480px] overflow-auto">
+        <div className="max-h-[480px] overflow-auto flex flex-col">
           {activities?.length === 0 && EmptyActivities}
           {activities?.map((activity, index: number) => {
+            const memberInActivity = () => {
+              return (
+                <>
+                  {activity.senders.map((sender, index) => (
+                    <span key={sender._id}>
+                      {sender.name}
+                      {index !== activity.senders.length - 1 ? ',' : ''}
+                    </span>
+                  ))}
+                </>
+              );
+            };
+            const activityLocate = () => {
+              if (activity.notiType === 'reply') {
+                return (
+                  <span>
+                    Thread in{' '}
+                    {activity.threadName
+                      ? `# ${activity.threadName}`
+                      : 'direct message'}
+                  </span>
+                );
+              } else if (activity.notiType === 'reaction') {
+                return (
+                  <span className="text-xs font-extralight">
+                    {memberInActivity()} reacted in{' '}
+                    {activity.threadName
+                      ? `# ${activity.threadName}`
+                      : 'direct message'}
+                  </span>
+                );
+              } else return null;
+            };
+
+            const activityContent = () => {
+              if (activity.notiType === 'reply') {
+                return (
+                  <>
+                    {activity.newestNoti.parentMessage?.body && (
+                      <div className="flex items-center gap-1">
+                        <div className="w-max">replied to:</div>
+                        <Renderer
+                          value={activity.newestNoti.parentMessage?.body}
+                          cutWord={2}
+                        />
+                      </div>
+                    )}
+                  </>
+                );
+              } else if (activity.notiType === 'reaction') {
+                return (
+                  <>
+                    {(activity?.reactionsList || []).map(
+                      (
+                        reaction: {
+                          value: string;
+                          reactor: string | undefined;
+                          reactorId: string | undefined;
+                        },
+                        idx: number
+                      ) => {
+                        return <span key={idx}>{reaction.value}</span>;
+                      }
+                    )}
+                  </>
+                );
+              }
+            };
+
             return (
               <div className="p-2" key={index}>
                 <div
@@ -78,10 +147,7 @@ const ActivityCard = ({
                     )}
                   >
                     <MessageSquareTextIcon className="size-4" />
-                    Thread in{' '}
-                    {activity.threadName
-                      ? `# ${activity.threadName}`
-                      : 'direct message'}
+                    {activityLocate()}
                   </div>
                   <div className="flex gap-1 ">
                     <span className="text-base">
@@ -132,24 +198,10 @@ const ActivityCard = ({
 
                   <div>
                     <p className="font-bold text-base">
-                      {activity.senders.map((sender, index) => (
-                        <span key={sender._id}>
-                          {sender.name}
-                          {index !== activity.senders.length - 1 ? ',' : ''}
-                        </span>
-                      ))}{' '}
-                      and you
+                      {memberInActivity()} and you
                     </p>
                     <div className="text-muted-foreground">
-                      {activity.newestNoti.parentMessage?.body && (
-                        <div className="flex items-center gap-1">
-                          <div className="w-max">replied to:</div>
-                          <Renderer
-                            value={activity.newestNoti.parentMessage?.body}
-                            cutWord={2}
-                          />
-                        </div>
-                      )}
+                      {activityContent()}
                     </div>
                     <div className="mb-5">
                       {activity.thread.message?.body && (

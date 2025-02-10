@@ -16,6 +16,7 @@ import Reactions from './reactions';
 import { usePanel } from '@/hooks/use-panel';
 import ThreadBar from './thread-bar';
 import { formatFulltime } from '@/app/utils/date-time';
+import { useChannelId } from '@/hooks/use-channel-id';
 
 const Renderer = dynamic(() => import('@/components/renderer'), { ssr: true });
 const Editor = dynamic(() => import('@/components/editor'), { ssr: false });
@@ -66,6 +67,7 @@ const Message = ({
   threadTimestamp,
   threadName,
 }: MessageProps) => {
+  const channelId = useChannelId();
   const { parentMessageId, onOpenMessage, onClose, onOpenProfileMember } =
     usePanel();
   const [ConfirmDialog, confirm] = useConfirm(
@@ -121,7 +123,7 @@ const Message = ({
 
   const handleReaction = (value: string) => {
     toggleReaction(
-      { messageId: id, value },
+      { messageId: id, value, channelId },
       {
         onError: () => {
           toast.error('Failed to toggle reaction');

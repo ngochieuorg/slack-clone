@@ -2,6 +2,7 @@ import { v } from 'convex/values';
 import { Id } from './_generated/dataModel';
 import { mutation, QueryCtx } from './_generated/server';
 import { getAuthUserId } from '@convex-dev/auth/server';
+import { populateMember } from '../src/utils/convex.utils';
 
 const getMember = async (
   ctx: QueryCtx,
@@ -17,7 +18,11 @@ const getMember = async (
 };
 
 export const toggle = mutation({
-  args: { messageId: v.id('messages'), value: v.string() },
+  args: {
+    messageId: v.id('messages'),
+    value: v.string(),
+    channelId: v.optional(v.id('channels')),
+  },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
 
@@ -48,8 +53,20 @@ export const toggle = mutation({
       )
       .first();
 
+    const messageOwner = await populateMember(ctx, message.memberId);
+
     if (existingMessageReactionFromUser) {
       await ctx.db.delete(existingMessageReactionFromUser._id);
+      const reactionNoti = await ctx.db
+        .query('notifications')
+        .filter((q) =>
+          q.eq(q.field('reactionId'), existingMessageReactionFromUser._id)
+        )
+        .unique();
+
+      if (reactionNoti) {
+        await ctx.db.delete(reactionNoti._id);
+      }
 
       return existingMessageReactionFromUser._id;
     } else {
@@ -59,6 +76,19 @@ export const toggle = mutation({
         messageId: message._id,
         workspaceId: message.workspaceId,
       });
+
+      if (messageOwner) {
+        await ctx.db.insert('notifications', {
+          userId: messageOwner?.userId,
+          messageId: args.messageId,
+          type: 'reaction',
+          status: 'unread',
+          content: args.value,
+          senderId: userId,
+          reactionId: newReactionId,
+          channelId: args.channelId,
+        });
+      }
 
       return newReactionId;
     }

@@ -7,6 +7,7 @@ import { Id } from '../../../../convex/_generated/dataModel';
 type RequestType = {
   value: string;
   messageId: Id<'messages'>;
+  channelId: Id<'channels'>;
 };
 type ResponseType = Id<'reactions'> | null;
 

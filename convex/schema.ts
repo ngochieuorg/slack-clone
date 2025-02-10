@@ -63,6 +63,7 @@ const schema = defineSchema({
     conversationId: v.optional(v.id('conversations')),
     parentMessageId: v.optional(v.id('messages')),
     messageId: v.optional(v.id('messages')),
+    reactionId: v.optional(v.id('reactions')),
     type: v.union(
       v.literal('mention'),
       v.literal('keyword'),

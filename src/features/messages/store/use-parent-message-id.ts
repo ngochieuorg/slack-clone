@@ -1,7 +1,7 @@
-import { useQueryState } from "nuqs";
+import { useQueryState } from 'nuqs';
 
 const useParentMessageId = () => {
-  return useQueryState("parentMessageId");
+  return useQueryState('parentMessageId');
 };
 
 export default useParentMessageId;

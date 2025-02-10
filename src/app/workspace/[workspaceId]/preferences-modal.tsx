@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogClose,
@@ -7,16 +7,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { useRemoveWorkspace } from "@/features/workspaces/api/use-remove-workspace";
-import { useUpdateWorkspace } from "@/features/workspaces/api/use-update-workspace";
-import useConfirm from "@/hooks/use-confirm";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { TrashIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { toast } from "sonner";
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { useRemoveWorkspace } from '@/features/workspaces/api/use-remove-workspace';
+import { useUpdateWorkspace } from '@/features/workspaces/api/use-update-workspace';
+import useConfirm from '@/hooks/use-confirm';
+import { useWorkspaceId } from '@/hooks/use-workspace-id';
+import { TrashIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 interface PreferencesModalProps {
   open: boolean;
@@ -32,8 +32,8 @@ const PreferencesModal = ({
   const router = useRouter();
   const workspaceId = useWorkspaceId();
   const [ConfirmDialog, confirm] = useConfirm(
-    "Are you sure",
-    "This action is irreversible"
+    'Are you sure',
+    'This action is irreversible'
   );
 
   const [value, setValue] = useState(initialValue);
@@ -54,11 +54,11 @@ const PreferencesModal = ({
       },
       {
         onSuccess: () => {
-          router.replace("/");
-          toast.success("Workspace deleted");
+          router.replace('/');
+          toast.success('Workspace deleted');
         },
         onError: () => {
-          toast.error("Failed to deleted workspace");
+          toast.error('Failed to deleted workspace');
         },
       }
     );
@@ -74,11 +74,11 @@ const PreferencesModal = ({
       },
       {
         onSuccess: () => {
-          toast.success("Workspace updated");
+          toast.success('Workspace updated');
           setEditOpen(false);
         },
         onError: () => {
-          toast.error("Failed to updated workspace");
+          toast.error('Failed to updated workspace');
         },
       }
     );
@@ -123,7 +123,7 @@ const PreferencesModal = ({
                   <DialogFooter>
                     <DialogClose asChild>
                       <Button
-                        variant={"outline"}
+                        variant={'outline'}
                         disabled={isUpdatingWorkspace}
                       >
                         Cancel

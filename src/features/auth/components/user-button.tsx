@@ -1,14 +1,14 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useCurrentUser } from "../api/use-current-user";
-import { Loader, LogOut } from "lucide-react";
-import { useAuthActions } from "@convex-dev/auth/react";
+} from '@/components/ui/dropdown-menu';
+import { useCurrentUser } from '../api/use-current-user';
+import { Loader, LogOut } from 'lucide-react';
+import { useAuthActions } from '@convex-dev/auth/react';
 
 const UserButton = () => {
   const { signOut } = useAuthActions();

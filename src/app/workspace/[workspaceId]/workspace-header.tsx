@@ -1,20 +1,20 @@
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
   DropdownMenuItem,
   DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
-import { Doc } from "../../../../convex/_generated/dataModel";
-import { ChevronDown, ListFilter, SquarePen } from "lucide-react";
-import Hint from "@/components/hint";
-import PreferencesModal from "./preferences-modal";
-import { useState } from "react";
-import InviteModal from "./invite-modal";
+} from '@/components/ui/dropdown-menu';
+import { Doc } from '../../../../convex/_generated/dataModel';
+import { ChevronDown, ListFilter, SquarePen } from 'lucide-react';
+import Hint from '@/components/hint';
+import PreferencesModal from './preferences-modal';
+import { useState } from 'react';
+import InviteModal from './invite-modal';
 
 interface WorkspaceHeaderProps {
-  workspace: Doc<"workspaces">;
+  workspace: Doc<'workspaces'>;
   isAdmin: boolean;
 }
 
@@ -39,9 +39,9 @@ const WorkspaceHeader = ({ workspace, isAdmin }: WorkspaceHeaderProps) => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
-              variant={"transparent"}
+              variant={'transparent'}
               className="font-semibold tex-lg w-auto p-1.5 overflow-hidden"
-              size={"sm"}
+              size={'sm'}
             >
               <span className="truncate">{workspace.name}</span>
               <ChevronDown className="size-4 ml-1 shrink-0" />
@@ -81,12 +81,12 @@ const WorkspaceHeader = ({ workspace, isAdmin }: WorkspaceHeaderProps) => {
         </DropdownMenu>
         <div className="flex items-center gap-0.5">
           <Hint label="Search" side="bottom">
-            <Button variant={"transparent"} size="iconSm">
+            <Button variant={'transparent'} size="iconSm">
               <ListFilter className="size-4" />
             </Button>
           </Hint>
           <Hint label="New message" side="bottom">
-            <Button variant={"transparent"} size="iconSm">
+            <Button variant={'transparent'} size="iconSm">
               <SquarePen className="size-4" />
             </Button>
           </Hint>

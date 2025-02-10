@@ -1,11 +1,12 @@
-import Quill from "quill";
-import { useEffect, useRef, useState } from "react";
+import Quill from 'quill';
+import { useEffect, useRef, useState } from 'react';
 
 interface RendererProps {
   value: string;
+  cutWord?: number;
 }
 
-const Renderer = ({ value }: RendererProps) => {
+const Renderer = ({ value, cutWord }: RendererProps) => {
   const [isEmpty, setIsEmpty] = useState(false);
   const rendererRef = useRef<HTMLDivElement>(null);
 
@@ -14,19 +15,27 @@ const Renderer = ({ value }: RendererProps) => {
 
     const container = rendererRef.current;
 
-    const quill = new Quill(document.createElement("div"), {
-      theme: "snow",
+    const quill = new Quill(document.createElement('div'), {
+      theme: 'snow',
     });
 
     quill.enable(false);
 
     const contents = JSON.parse(value);
+
+    if (cutWord) {
+      const text = contents?.ops?.[0].insert
+        .split(' ')
+        .splice(0, cutWord)
+        .join(' ');
+      contents.ops[0].insert = text;
+    }
     quill.setContents(contents);
 
     const isEmpty =
       quill
         .getText()
-        .replace(/<(.|\n)*?>/g, "")
+        .replace(/<(.|\n)*?>/g, '')
         .trim().length === 0;
 
     setIsEmpty(isEmpty);
@@ -35,9 +44,10 @@ const Renderer = ({ value }: RendererProps) => {
 
     return () => {
       if (container) {
-        container.innerHTML = "";
+        container.innerHTML = '';
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
   if (isEmpty) return null;

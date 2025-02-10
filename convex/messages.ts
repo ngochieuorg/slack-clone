@@ -1,104 +1,60 @@
-import { getAuthUserId } from "@convex-dev/auth/server";
-import { mutation, query, QueryCtx } from "./_generated/server";
-import { v } from "convex/values";
-import { Doc, Id } from "./_generated/dataModel";
-import { paginationOptsValidator } from "convex/server";
-
-const populateThread = async (ctx: QueryCtx, messageId: Id<"messages">) => {
-  const messages = await ctx.db
-    .query("messages")
-    .withIndex("by_parent_message_id", (q) =>
-      q.eq("parentMessageId", messageId)
-    )
-    .collect();
-
-  if (messages.length === 0) {
-    return {
-      count: 0,
-      image: undefined,
-      timeStamp: 0,
-    };
-  }
-
-  const lastMessage = messages[messages.length - 1];
-  const lastMessageMember = await populateMember(ctx, lastMessage.memberId);
-
-  if (!lastMessageMember) {
-    return {
-      count: 0,
-      image: undefined,
-      timeStamp: 0,
-    };
-  }
-
-  const lastMessageUser = await populateUser(ctx, lastMessageMember.userId);
-
-  return {
-    count: messages.length,
-    image: lastMessageUser?.image,
-    timeStamp: lastMessage._creationTime,
-  };
-};
-
-const populateReactions = (ctx: QueryCtx, messageId: Id<"messages">) => {
-  return ctx.db
-    .query("reactions")
-    .withIndex("by_message_id", (q) => q.eq("messageId", messageId))
-    .collect();
-};
-
-const populateUser = (ctx: QueryCtx, userId: Id<"users">) => {
-  return ctx.db.get(userId);
-};
-
-const populateMember = (ctx: QueryCtx, memberId: Id<"members">) => {
-  return ctx.db.get(memberId);
-};
+import { getAuthUserId } from '@convex-dev/auth/server';
+import { mutation, query, QueryCtx } from './_generated/server';
+import { v } from 'convex/values';
+import { Doc, Id } from './_generated/dataModel';
+import { paginationOptsValidator } from 'convex/server';
+import { getSetByKey } from '../src/app/utils/index';
+import {
+  populateMember,
+  populateReactions,
+  populateThread,
+  populateUser,
+} from '../src/utils/convex.utils';
 
 const getMember = async (
   ctx: QueryCtx,
-  workspaceId: Id<"workspaces">,
-  userId: Id<"users">
+  workspaceId: Id<'workspaces'>,
+  userId: Id<'users'>
 ) => {
   return await ctx.db
-    .query("members")
-    .withIndex("by_workspace_id_user_id", (q) =>
-      q.eq("workspaceId", workspaceId).eq("userId", userId)
+    .query('members')
+    .withIndex('by_workspace_id_user_id', (q) =>
+      q.eq('workspaceId', workspaceId).eq('userId', userId)
     )
     .unique();
 };
 
 export const get = query({
   args: {
-    channelId: v.optional(v.id("channels")),
-    conversationId: v.optional(v.id("conversations")),
-    parentMessageId: v.optional(v.id("messages")),
+    channelId: v.optional(v.id('channels')),
+    conversationId: v.optional(v.id('conversations')),
+    parentMessageId: v.optional(v.id('messages')),
     paginationOpts: paginationOptsValidator,
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
 
     if (userId === null) {
-      throw Error("Unauthorized");
+      throw Error('Unauthorized');
     }
 
     let _conversationId = args.conversationId;
 
     if (!args.conversationId && !args.channelId && args.parentMessageId) {
       const parentMessage = await ctx.db.get(args.parentMessageId);
-      if (!parentMessage) throw new Error("Parent message not found");
+      if (!parentMessage) throw new Error('Parent message not found');
       _conversationId = parentMessage.conversationId;
     }
 
     const results = await ctx.db
-      .query("messages")
-      .withIndex("by_channel_id_parent_message_id_conversation_id", (q) =>
+      .query('messages')
+      .withIndex('by_channel_id_parent_message_id_conversation_id', (q) =>
         q
-          .eq("channelId", args.channelId)
-          .eq("parentMessageId", args.parentMessageId)
-          .eq("conversationId", _conversationId)
+          .eq('channelId', args.channelId)
+          .eq('parentMessageId', args.parentMessageId)
+          .eq('conversationId', _conversationId)
       )
-      .order("desc")
+      .order('desc')
       .paginate(args.paginationOpts);
 
     return {
@@ -146,9 +102,9 @@ export const get = query({
 
                 return acc;
               },
-              [] as (Doc<"reactions"> & {
+              [] as (Doc<'reactions'> & {
                 count: number;
-                memberIds: Id<"members">[];
+                memberIds: Id<'members'>[];
               })[]
             );
 
@@ -165,6 +121,7 @@ export const get = query({
               reactions: reactionWithoutMemberIdProperty,
               threadCount: thread.count,
               threadImage: thread.image,
+              threadName: thread.name,
               threadTimestamp: thread.timeStamp,
             };
           })
@@ -178,19 +135,19 @@ export const get = query({
 
 export const getById = query({
   args: {
-    id: v.id("messages"),
+    id: v.id('messages'),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
 
     if (userId === null) {
-      throw Error("Unauthorized");
+      throw Error('Unauthorized');
     }
 
     const message = await ctx.db.get(args.id);
 
     if (!message) {
-      throw new Error("Message not found");
+      throw new Error('Message not found');
     }
     const currentMember = await getMember(ctx, message.workspaceId, userId);
 
@@ -236,9 +193,9 @@ export const getById = query({
 
         return acc;
       },
-      [] as (Doc<"reactions"> & {
+      [] as (Doc<'reactions'> & {
         count: number;
-        memberIds: Id<"members">[];
+        memberIds: Id<'members'>[];
       })[]
     );
 
@@ -262,23 +219,24 @@ export const getById = query({
 export const create = mutation({
   args: {
     body: v.string(),
-    image: v.optional(v.id("_storage")),
-    workspaceId: v.id("workspaces"),
-    channelId: v.optional(v.id("channels")),
-    parentMessageId: v.optional(v.id("messages")),
-    conversationId: v.optional(v.id("conversations")),
+    image: v.optional(v.id('_storage')),
+    workspaceId: v.id('workspaces'),
+    channelId: v.optional(v.id('channels')),
+    parentMessageId: v.optional(v.id('messages')),
+    conversationId: v.optional(v.id('conversations')),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
 
     if (userId === null) {
-      throw Error("Unauthorized");
+      throw Error('Unauthorized');
     }
 
-    const member = await getMember(ctx, args.workspaceId, userId);
+    const currentMemmber = await getMember(ctx, args.workspaceId, userId);
+    const currentUser = await populateUser(ctx, userId);
 
-    if (!member) {
-      throw Error("Unauthorized");
+    if (!currentMemmber) {
+      throw Error('Unauthorized');
     }
 
     let _conversationId = args.conversationId;
@@ -286,12 +244,12 @@ export const create = mutation({
     // only possible if we are replying in a thread in 1:1 conversation
     if (!args.conversationId && !args.channelId && args.parentMessageId) {
       const parentMessage = await ctx.db.get(args.parentMessageId);
-      if (!parentMessage) throw new Error("Parent message not found");
+      if (!parentMessage) throw new Error('Parent message not found');
       _conversationId = parentMessage.conversationId;
     }
 
-    const messageId = await ctx.db.insert("messages", {
-      memberId: member._id,
+    const messageId = await ctx.db.insert('messages', {
+      memberId: currentMemmber._id,
       body: args.body,
       image: args.image,
       channelId: args.channelId,
@@ -300,32 +258,134 @@ export const create = mutation({
       conversationId: _conversationId,
     });
 
+    const checkIsMention = true;
+
+    let notiType = 'direct';
+    if (checkIsMention) {
+      notiType = 'reply';
+    } else if (args.parentMessageId) {
+      notiType = 'mention';
+    }
+
+    if (notiType === 'reply') {
+      // tìm những member trong thread
+      const messagesByParentMessage = await ctx.db
+        .query('messages')
+        .filter((q) =>
+          q.and(
+            q.or(
+              q.eq(q.field('_id'), args.parentMessageId),
+              q.eq(q.field('parentMessageId'), args.parentMessageId)
+            ),
+            q.neq(q.field('memberId'), currentMemmber._id)
+          )
+        )
+        .collect();
+
+      const membersIdInThreads = Array.from(
+        getSetByKey(messagesByParentMessage, 'memberId')
+      );
+      const membersInTheadWithPopulate = await Promise.all(
+        membersIdInThreads.map(async (id) => {
+          const data = await ctx.db.get(id);
+          return data;
+        })
+      );
+
+      // gửi noti tơi các member trong thread
+      await Promise.all(
+        membersInTheadWithPopulate.map(async (member) => {
+          if (member) {
+            await ctx.db.insert('notifications', {
+              channelId: args.channelId,
+              conversationId: _conversationId,
+              userId: member.userId,
+              messageId: messageId,
+              type: notiType,
+              status: 'unread',
+              content: `New message in thread from ${currentUser?.name}`,
+              senderId: userId,
+              parentMessageId: args.parentMessageId,
+            });
+          }
+        })
+      );
+    }
+
+    if (notiType === 'mention') {
+    }
+
+    if (notiType === 'direct') {
+      const conversation = await ctx.db
+        .query('conversations')
+        .filter((q) => q.eq(q.field('_id'), args.conversationId))
+        .unique();
+
+      let memberInConversation: Id<'members'>;
+      if (currentMemmber._id === conversation?.memberOneId) {
+        memberInConversation = conversation?.memberTwoId;
+      }
+      if (currentMemmber._id === conversation?.memberTwoId) {
+        memberInConversation = conversation?.memberOneId;
+      }
+
+      const members = await ctx.db
+        .query('members')
+        .filter((q) =>
+          q.and(
+            q.eq(q.field('workspaceId'), args.workspaceId),
+            q.neq(q.field('userId'), userId)
+          )
+        )
+        .filter((q) => {
+          if (args.conversationId) {
+            return q.eq(q.field('_id'), memberInConversation);
+          } else return true;
+        })
+        .collect();
+
+      await Promise.all(
+        members.map(async (member) => {
+          await ctx.db.insert('notifications', {
+            channelId: args.channelId,
+            conversationId: _conversationId,
+            userId: member.userId,
+            messageId: messageId,
+            type: notiType,
+            status: 'unread',
+            content: `New message from ${currentUser?.name}`,
+            senderId: userId,
+          });
+        })
+      );
+    }
+
     return messageId;
   },
 });
 
 export const update = mutation({
   args: {
-    id: v.id("messages"),
+    id: v.id('messages'),
     body: v.string(),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
 
     if (userId === null) {
-      throw Error("Unauthorized");
+      throw Error('Unauthorized');
     }
 
     const message = await ctx.db.get(args.id);
 
     if (!message) {
-      throw new Error("Message not found");
+      throw new Error('Message not found');
     }
 
     const member = await getMember(ctx, message.workspaceId, userId);
 
     if (!member || member._id !== message.memberId) {
-      throw new Error("Unauthorized");
+      throw new Error('Unauthorized');
     }
 
     await ctx.db.patch(args.id, {
@@ -339,25 +399,25 @@ export const update = mutation({
 
 export const remove = mutation({
   args: {
-    id: v.id("messages"),
+    id: v.id('messages'),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
 
     if (userId === null) {
-      throw Error("Unauthorized");
+      throw Error('Unauthorized');
     }
 
     const message = await ctx.db.get(args.id);
 
     if (!message) {
-      throw new Error("Message not found");
+      throw new Error('Message not found');
     }
 
     const member = await getMember(ctx, message.workspaceId, userId);
 
     if (!member || member._id !== message.memberId) {
-      throw new Error("Unauthorized");
+      throw new Error('Unauthorized');
     }
 
     await ctx.db.delete(args.id);

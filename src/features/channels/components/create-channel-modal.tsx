@@ -1,18 +1,18 @@
-import { useState } from "react";
+import { useState } from 'react';
 
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { useCreateChannelModal } from "../store/use-create-channel-modal";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useCreateChannel } from "../api/use-create-channel";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+} from '@/components/ui/dialog';
+import { useCreateChannelModal } from '../store/use-create-channel-modal';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { useCreateChannel } from '../api/use-create-channel';
+import { useWorkspaceId } from '@/hooks/use-workspace-id';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 const CreateChannelModal = () => {
   const router = useRouter();
@@ -20,15 +20,15 @@ const CreateChannelModal = () => {
   const { mutate, isPending } = useCreateChannel();
   const [open, setOpen] = useCreateChannelModal();
 
-  const [name, setName] = useState("name");
+  const [name, setName] = useState('name');
 
   const handleClose = () => {
-    setName("");
+    setName('');
     setOpen(false);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\s+/g, "-").toLowerCase();
+    const value = e.target.value.replace(/\s+/g, '-').toLowerCase();
     setName(value);
   };
 
@@ -38,12 +38,12 @@ const CreateChannelModal = () => {
       { name, workspaceId },
       {
         onSuccess: (id) => {
-          toast.success("Channel created");
+          toast.success('Channel created');
           router.push(`/workspace/${workspaceId}/channel/${id}`);
           handleClose();
         },
         onError: () => {
-          toast.error("Failed to create a channel");
+          toast.error('Failed to create a channel');
         },
       }
     );

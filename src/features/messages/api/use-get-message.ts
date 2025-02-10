@@ -1,9 +1,9 @@
-import { useQuery } from "convex/react";
-import { Id } from "../../../../convex/_generated/dataModel";
-import { api } from "../../../../convex/_generated/api";
+import { useQuery } from 'convex/react';
+import { Id } from '../../../../convex/_generated/dataModel';
+import { api } from '../../../../convex/_generated/api';
 
 interface UseGetMessageProps {
-  id: Id<"messages">;
+  id: Id<'messages'>;
 }
 
 export const useGetMessage = ({ id }: UseGetMessageProps) => {

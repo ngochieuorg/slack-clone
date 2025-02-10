@@ -1,33 +1,28 @@
-import { GetMessageReturnType } from "@/features/messages/api/use-get-messages";
-import { differenceInMinutes, format, isToday, isYesterday } from "date-fns";
-import Message from "./message";
-import ChannelHero from "./channel-hero";
-import { useState } from "react";
-import { Id } from "../../convex/_generated/dataModel";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { useCurrentMember } from "@/features/members/api/use-current-member";
-import { Loader } from "lucide-react";
+import { GetMessageReturnType } from '@/features/messages/api/use-get-messages';
+import { differenceInMinutes, format } from 'date-fns';
+import Message from './message';
+import ChannelHero from './channel-hero';
+import { useState } from 'react';
+import { Id } from '../../convex/_generated/dataModel';
+import { useWorkspaceId } from '@/hooks/use-workspace-id';
+import { useCurrentMember } from '@/features/members/api/use-current-member';
+import { Loader } from 'lucide-react';
+import ConversationHero from './conversation-hero';
+import { formatDateLabel } from '@/app/utils/date-time';
 
 const TIME_THRESHHOLD = 5;
 
 interface MessageListProps {
   channelName?: string;
-  channelCreationTime: number;
+  channelCreationTime?: number;
   memberImage?: string;
   data: GetMessageReturnType | undefined;
   loadMore: () => void;
   isLoadingMore: boolean;
   canLoadMore: boolean;
-  variant?: "channel" | "thread" | "conversation";
+  variant?: 'channel' | 'thread' | 'conversation';
   memberName?: string;
 }
-
-const formatDateLabel = (dateStr: string) => {
-  const date = new Date(dateStr);
-  if (isToday(date)) return "Today";
-  if (isYesterday(date)) return "Yesterday";
-  return format(date, "EEEE, MMMM d");
-};
 
 const MessageList = ({
   channelName,
@@ -37,18 +32,18 @@ const MessageList = ({
   loadMore,
   isLoadingMore,
   canLoadMore,
-  variant = "channel",
+  variant = 'channel',
   memberName,
 }: MessageListProps) => {
   const workspaceId = useWorkspaceId();
   const { data: currentMember } = useCurrentMember({ workspaceId });
 
-  const [editingId, setEditingId] = useState<Id<"messages"> | null>(null);
+  const [editingId, setEditingId] = useState<Id<'messages'> | null>(null);
 
   const groupedMessage = data?.reduce(
     (groups, message) => {
       const date = new Date(message._creationTime);
-      const dateKey = format(date, "yyyy-MM-dd");
+      const dateKey = format(date, 'yyyy-MM-dd');
 
       if (!groups[dateKey]) {
         groups[dateKey] = [];
@@ -94,10 +89,11 @@ const MessageList = ({
                 isEditing={editingId === message._id}
                 setEditingId={setEditingId}
                 isCompact={isCompact}
-                hideThreadButton={variant === "thread"}
+                hideThreadButton={variant === 'thread'}
                 threadCount={message.threadCount}
                 threadImage={message.threadImage}
                 threadTimestamp={message.threadTimestamp}
+                threadName={message.threadName}
               />
             );
           })}
@@ -129,8 +125,11 @@ const MessageList = ({
           </span>
         </div>
       )}
-      {variant === "channel" && channelName && channelCreationTime && (
+      {variant === 'channel' && channelName && channelCreationTime && (
         <ChannelHero name={channelName} creationTime={channelCreationTime} />
+      )}
+      {variant === 'conversation' && (
+        <ConversationHero name={memberName} image={memberImage} />
       )}
     </div>
   );

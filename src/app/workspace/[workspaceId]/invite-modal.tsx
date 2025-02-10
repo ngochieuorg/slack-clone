@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogClose,
@@ -6,12 +6,12 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { CopyIcon, RefreshCcw } from "lucide-react";
-import { useNewJoinCode } from "@/features/workspaces/api/use-new-join-code";
-import { toast } from "sonner";
-import useConfirm from "@/hooks/use-confirm";
+} from '@/components/ui/dialog';
+import { useWorkspaceId } from '@/hooks/use-workspace-id';
+import { CopyIcon, RefreshCcw } from 'lucide-react';
+import { useNewJoinCode } from '@/features/workspaces/api/use-new-join-code';
+import { toast } from 'sonner';
+import useConfirm from '@/hooks/use-confirm';
 
 interface InviteModalProps {
   open: boolean;
@@ -23,8 +23,8 @@ interface InviteModalProps {
 const InviteModal = ({ open, setOpen, name, joinCode }: InviteModalProps) => {
   const workspaceId = useWorkspaceId();
   const [ConfirmDialog, confirm] = useConfirm(
-    "Are you sure?",
-    "this will deactive the current code and generate new one"
+    'Are you sure?',
+    'this will deactive the current code and generate new one'
   );
 
   const { mutate, isPending } = useNewJoinCode();
@@ -40,7 +40,7 @@ const InviteModal = ({ open, setOpen, name, joinCode }: InviteModalProps) => {
       },
       {
         onSuccess: () => {
-          toast.success("Generate new Code");
+          toast.success('Generate new Code');
         },
         onError: () => {},
       }
@@ -51,7 +51,7 @@ const InviteModal = ({ open, setOpen, name, joinCode }: InviteModalProps) => {
     const inviteLink = `${window.location.origin}/join/${workspaceId}`;
     navigator.clipboard
       .writeText(inviteLink)
-      .then(() => toast.success("Copied!"));
+      .then(() => toast.success('Copied!'));
   };
 
   return (
@@ -69,14 +69,14 @@ const InviteModal = ({ open, setOpen, name, joinCode }: InviteModalProps) => {
             <p className="text-4xl font-bold tracking-widest uppercase">
               {joinCode}
             </p>
-            <Button variant={"ghost"} size={"sm"} onClick={handleCopy}>
+            <Button variant={'ghost'} size={'sm'} onClick={handleCopy}>
               Copy link <CopyIcon className="size-4 ml-2" />
             </Button>
           </div>
           <div className="flex item-center justify-between w-full">
             <Button
               onClick={handleNewCode}
-              variant={"outline"}
+              variant={'outline'}
               disabled={isPending}
             >
               New Code

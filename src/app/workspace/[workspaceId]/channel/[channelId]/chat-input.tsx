@@ -1,25 +1,25 @@
-import { useCreateMessage } from "@/features/messages/api/use-create-message";
-import { useGenerateUploadUrl } from "@/features/upload/api/use-generate-upload-url";
-import { useChannelId } from "@/hooks/use-channel-id";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import dynamic from "next/dynamic";
-import Quill from "quill";
+import { useCreateMessage } from '@/features/messages/api/use-create-message';
+import { useGenerateUploadUrl } from '@/features/upload/api/use-generate-upload-url';
+import { useChannelId } from '@/hooks/use-channel-id';
+import { useWorkspaceId } from '@/hooks/use-workspace-id';
+import dynamic from 'next/dynamic';
+import Quill from 'quill';
 
-const Editor = dynamic(() => import("@/components/editor"), { ssr: true });
+const Editor = dynamic(() => import('@/components/editor'), { ssr: true });
 
-import React, { useRef, useState } from "react";
-import { toast } from "sonner";
-import { Id } from "../../../../../../convex/_generated/dataModel";
+import React, { useRef, useState } from 'react';
+import { toast } from 'sonner';
+import { Id } from '../../../../../../convex/_generated/dataModel';
 
 interface ChatInputProps {
   placeholder: string;
 }
 
 type CreateMesageValues = {
-  channelId: Id<"channels">;
-  workspaceId: Id<"workspaces">;
+  channelId: Id<'channels'>;
+  workspaceId: Id<'workspaces'>;
   body: string;
-  image: Id<"_storage"> | undefined;
+  image: Id<'_storage'> | undefined;
 };
 
 const ChatInput = ({ placeholder }: ChatInputProps) => {
@@ -55,13 +55,13 @@ const ChatInput = ({ placeholder }: ChatInputProps) => {
         const url = await generateUploadUrl({}, { throwError: true });
 
         const result = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": image.type },
+          method: 'POST',
+          headers: { 'Content-Type': image.type },
           body: image,
         });
 
         if (!result) {
-          throw new Error("Failed to upload image");
+          throw new Error('Failed to upload image');
         }
 
         const { storageId } = await result.json();
@@ -73,7 +73,7 @@ const ChatInput = ({ placeholder }: ChatInputProps) => {
       setEditorKey((prevKey) => prevKey + 1);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      toast.error("Failed to send message");
+      toast.error('Failed to send message');
     } finally {
       setIsPending(false);
       editorRef?.current?.enable(true);

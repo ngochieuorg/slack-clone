@@ -1,58 +1,57 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import dynamic from "next/dynamic";
-import { Doc, Id } from "../../convex/_generated/dataModel";
-import { format, isToday, isYesterday } from "date-fns";
-import Hint from "./hint";
-import { Avatar, AvatarImage } from "./ui/avatar";
-import { AvatarFallback } from "@radix-ui/react-avatar";
-import Thumbnail from "./thumbnail";
-import Toolbar from "./toolbar";
-import { useUpdateMessage } from "@/features/messages/api/use-update-message";
-import { toast } from "sonner";
-import { cn } from "@/lib/utils";
-import { useRemoveMessage } from "@/features/messages/api/use-remove-message";
-import useConfirm from "@/hooks/use-confirm";
-import { useToggleReaction } from "@/features/reactions/api/use-toggle-reaction";
-import Reactions from "./reactions";
-import { usePanel } from "@/hooks/use-panel";
+import dynamic from 'next/dynamic';
+import { Doc, Id } from '../../convex/_generated/dataModel';
+import { format } from 'date-fns';
+import Hint from './hint';
+import { Avatar, AvatarImage } from './ui/avatar';
+import { AvatarFallback } from '@radix-ui/react-avatar';
+import Thumbnail from './thumbnail';
+import Toolbar from './toolbar';
+import { useUpdateMessage } from '@/features/messages/api/use-update-message';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
+import { useRemoveMessage } from '@/features/messages/api/use-remove-message';
+import useConfirm from '@/hooks/use-confirm';
+import { useToggleReaction } from '@/features/reactions/api/use-toggle-reaction';
+import Reactions from './reactions';
+import { usePanel } from '@/hooks/use-panel';
+import ThreadBar from './thread-bar';
+import { formatFulltime } from '@/app/utils/date-time';
+import { useChannelId } from '@/hooks/use-channel-id';
 
-const Renderer = dynamic(() => import("@/components/renderer"), { ssr: true });
-const Editor = dynamic(() => import("@/components/editor"), { ssr: false });
+const Renderer = dynamic(() => import('@/components/renderer'), { ssr: true });
+const Editor = dynamic(() => import('@/components/editor'), { ssr: false });
 
 interface MessageProps {
-  id: Id<"messages">;
-  memberId: Id<"members">;
+  id: Id<'messages'>;
+  memberId: Id<'members'>;
   authorImage?: string;
   authorName?: string;
   isAuthor: boolean;
   reactions: Array<
-    Omit<Doc<"reactions">, "memberId"> & {
+    Omit<Doc<'reactions'>, 'memberId'> & {
       count: number;
-      memberIds: Id<"members">[];
+      memberIds: Id<'members'>[];
     }
   >;
-  body: Doc<"messages">["body"];
+  body: Doc<'messages'>['body'];
   image: string | null | undefined;
-  createdAt: Doc<"messages">["_creationTime"];
-  updatedAt: Doc<"messages">["updatedAt"];
+  createdAt: Doc<'messages'>['_creationTime'];
+  updatedAt: Doc<'messages'>['updatedAt'];
   isEditing: boolean;
   isCompact?: boolean;
-  setEditingId: (id: Id<"messages"> | null) => void;
+  setEditingId: (id: Id<'messages'> | null) => void;
   hideThreadButton?: boolean;
   threadCount?: number;
   threadImage?: string;
+  threadName?: string;
   threadTimestamp?: number;
 }
-
-const formatFulltime = (date: Date) => {
-  return `${isToday(date) ? "Today" : isYesterday(date) ? "Yesterday" : format(date, "MMM d, yyyy")} at ${format(date, "h:mm:ss a")}`;
-};
 
 const Message = ({
   id,
   memberId,
   authorImage,
-  authorName = "Member",
+  authorName = 'Member',
   isAuthor,
   reactions,
   body,
@@ -66,32 +65,35 @@ const Message = ({
   threadCount,
   threadImage,
   threadTimestamp,
+  threadName,
 }: MessageProps) => {
-  const { parentMessageId, onOpenMessage, onClose } = usePanel();
+  const channelId = useChannelId();
+  const { parentMessageId, onOpenMessage, onClose, onOpenProfileMember } =
+    usePanel();
   const [ConfirmDialog, confirm] = useConfirm(
-    "Delete message",
-    "Are you sure want to delete this message"
+    'Delete message',
+    'Are you sure want to delete this message'
   );
 
   const { mutate: updateMessage, isPending: isUpdatingMessage } =
     useUpdateMessage();
   const { mutate: removeMessage, isPending: isRemovingMessage } =
     useRemoveMessage();
-  const { mutate: toggleReaction, isPending: isTogglingMessage } =
+  const { mutate: toggleReaction, isPending: isTogglingReaction } =
     useToggleReaction();
 
-  const isPending = isUpdatingMessage;
+  const isPending = isUpdatingMessage || isTogglingReaction;
 
   const handleUpdate = ({ body }: { body: string }) => {
     updateMessage(
       { id, body },
       {
         onSuccess: () => {
-          toast.success("Message updated");
+          toast.success('Message updated');
           setEditingId(null);
         },
         onError: () => {
-          toast.success("Failed to update message");
+          toast.success('Failed to update message');
         },
       }
     );
@@ -106,14 +108,14 @@ const Message = ({
       { id },
       {
         onSuccess: () => {
-          toast.success("Message deleted");
+          toast.success('Message deleted');
 
           if (parentMessageId === id) {
             onClose();
           }
         },
         onError: () => {
-          toast.error("Failed to delete message");
+          toast.error('Failed to delete message');
         },
       }
     );
@@ -121,10 +123,10 @@ const Message = ({
 
   const handleReaction = (value: string) => {
     toggleReaction(
-      { messageId: id, value },
+      { messageId: id, value, channelId },
       {
         onError: () => {
-          toast.error("Failed to toggle reaction");
+          toast.error('Failed to toggle reaction');
         },
       }
     );
@@ -136,16 +138,16 @@ const Message = ({
         <ConfirmDialog />
         <div
           className={cn(
-            "flex flex-col gap-2 p-1.5 px-5 hover:bg-gray-100/60 group relative",
-            isEditing && "bg-[#f2c74433] hover:bg-[#f2c74433]",
+            'flex flex-col gap-2 p-1.5 px-5 hover:bg-gray-100/60 group relative',
+            isEditing && 'bg-[#f2c74433] hover:bg-[#f2c74433]',
             isRemovingMessage &&
-              "bg-rose-500/50 transform transition-all scale-y-0 origin-bottom duration-200"
+              'bg-rose-500/50 transform transition-all scale-y-0 origin-bottom duration-200'
           )}
         >
           <div className="flex items-start gap-2">
             <Hint label={formatFulltime(new Date(createdAt))}>
               <button className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 w-[40px] leading-[22px] text-center hover:underline">
-                {format(new Date(createdAt), "hh:mm")}
+                {format(new Date(createdAt), 'hh:mm')}
               </button>
             </Hint>
             {isEditing ? (
@@ -168,6 +170,13 @@ const Message = ({
                   </span>
                 ) : null}
                 <Reactions data={reactions} onChange={handleReaction} />
+                <ThreadBar
+                  count={threadCount}
+                  image={threadImage}
+                  timstamp={threadTimestamp}
+                  onClick={() => onOpenMessage(id)}
+                  name={threadName}
+                />
               </div>
             )}
           </div>
@@ -193,20 +202,19 @@ const Message = ({
       <ConfirmDialog />
       <div
         className={cn(
-          "flex flex-col gap-2 p-1.5 px-5 hover:bg-gray-100/60 group relative",
-          isEditing && "bg-[#f2c74433] hover:bg-[#f2c74433]",
+          'flex flex-col gap-2 p-1.5 px-5 hover:bg-gray-100/60 group relative',
+          isEditing && 'bg-[#f2c74433] hover:bg-[#f2c74433]',
           isRemovingMessage &&
-            "bg-rose-500/50 transform transition-all scale-y-0 origin-bottom duration-200"
+            'bg-rose-500/50 transform transition-all scale-y-0 origin-bottom duration-200'
         )}
       >
         <div className="flex items-start gap-2">
-          <button>
-            <Avatar>
-              <AvatarImage
-                className="bg-sky-500 text-white"
-                src={authorImage}
-              />
-              <AvatarFallback>{avatarFallback}</AvatarFallback>
+          <button onClick={() => onOpenProfileMember(memberId)}>
+            <Avatar className="size-10 hover:opacity-75 transition">
+              <AvatarImage src={authorImage} />
+              <AvatarFallback className="aspect-square rounded-md bg-sky-500 text-white">
+                {avatarFallback}
+              </AvatarFallback>
             </Avatar>
           </button>
           {isEditing ? (
@@ -222,13 +230,16 @@ const Message = ({
           ) : (
             <div className="flex flex-col w-full overflow-hidden">
               <div className="text-sm">
-                <button className="font-bold text-primary hover:underline">
+                <button
+                  onClick={() => onOpenProfileMember(memberId)}
+                  className="font-bold text-primary hover:underline"
+                >
                   {authorName}
                 </button>
                 <span>&nbsp;&nbsp;</span>
                 <Hint label={formatFulltime(new Date(createdAt))}>
                   <button className="text-xs text-muted-foreground hover:underline">
-                    {format(new Date(createdAt), "h:mm a")}
+                    {format(new Date(createdAt), 'h:mm a')}
                   </button>
                 </Hint>
               </div>
@@ -238,6 +249,13 @@ const Message = ({
                 <span className="text-xs text-muted-foreground">(edited)</span>
               ) : null}
               <Reactions data={reactions} onChange={handleReaction} />
+              <ThreadBar
+                count={threadCount}
+                image={threadImage}
+                timstamp={threadTimestamp}
+                onClick={() => onOpenMessage(id)}
+                name={threadName}
+              />
             </div>
           )}
         </div>

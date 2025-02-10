@@ -1,20 +1,20 @@
-import { FcGoogle } from "react-icons/fc";
-import { TriangleAlert } from "lucide-react";
+import { FcGoogle } from 'react-icons/fc';
+import { TriangleAlert } from 'lucide-react';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { FaGithub } from "react-icons/fa";
-import { SignInFlow } from "../type";
-import { useState } from "react";
-import { useAuthActions } from "@convex-dev/auth/react";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
+import { FaGithub } from 'react-icons/fa';
+import { SignInFlow } from '../type';
+import { useState } from 'react';
+import { useAuthActions } from '@convex-dev/auth/react';
 
 interface SignInCardProps {
   setState: (state: SignInFlow) => void;
@@ -22,25 +22,25 @@ interface SignInCardProps {
 
 const SignInCard = ({ setState }: SignInCardProps) => {
   const { signIn } = useAuthActions();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [pending, setPending] = useState(false);
 
   const onPasswordSignin = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     setPending(true);
-    signIn("password", { email, password, flow: "signIn" })
+    signIn('password', { email, password, flow: 'signIn' })
       .catch(() => {
-        setError("Invalid email or password");
+        setError('Invalid email or password');
       })
       .finally(() => {
         setPending(false);
       });
   };
 
-  const handleProviderSignin = (value: "github" | "google") => {
+  const handleProviderSignin = (value: 'github' | 'google') => {
     setPending(false);
     signIn(value).finally(() => setPending(false));
   };
@@ -80,7 +80,7 @@ const SignInCard = ({ setState }: SignInCardProps) => {
           <Button
             type="submit"
             className="w-full"
-            size={"lg"}
+            size={'lg'}
             disabled={pending}
           >
             Continue
@@ -90,9 +90,9 @@ const SignInCard = ({ setState }: SignInCardProps) => {
         <div className="flex flex-col gap-y-2.5">
           <Button
             disabled={pending}
-            onClick={() => handleProviderSignin("google")}
-            variant={"outline"}
-            size={"lg"}
+            onClick={() => handleProviderSignin('google')}
+            variant={'outline'}
+            size={'lg'}
             className="w-full relative"
           >
             <FcGoogle className="size-5 absolute left-2.5" />
@@ -100,9 +100,9 @@ const SignInCard = ({ setState }: SignInCardProps) => {
           </Button>
           <Button
             disabled={pending}
-            onClick={() => handleProviderSignin("github")}
-            variant={"outline"}
-            size={"lg"}
+            onClick={() => handleProviderSignin('github')}
+            variant={'outline'}
+            size={'lg'}
             className="w-full relative"
           >
             <FaGithub className="size-5 absolute left-2.5" />
@@ -110,9 +110,9 @@ const SignInCard = ({ setState }: SignInCardProps) => {
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">
-          Don&apos;t have an account?{" "}
+          Don&apos;t have an account?{' '}
           <span
-            onClick={() => setState("signUp")}
+            onClick={() => setState('signUp')}
             className="text-sky-700 hover:underline cursor-pointer"
           >
             Sign up

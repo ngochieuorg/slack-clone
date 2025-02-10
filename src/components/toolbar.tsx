@@ -1,8 +1,8 @@
-import React from "react";
-import { Button } from "./ui/button";
-import { MessageSquareTextIcon, Pencil, Smile, Trash } from "lucide-react";
-import Hint from "./hint";
-import EmojiPopover from "./emoji-popover";
+import React from 'react';
+import { Button } from './ui/button';
+import { MessageSquareTextIcon, Pencil, Smile, Trash } from 'lucide-react';
+import Hint from './hint';
+import EmojiPopover from './emoji-popover';
 
 interface ToolbarProps {
   isAuthor: boolean;
@@ -30,15 +30,15 @@ const Toolbar = ({
           hint="Add reaction"
           onEmojiSelect={(emoji) => handleReaction(emoji.native)}
         >
-          <Button variant={"ghost"} size={"sm"} disabled={isPending}>
+          <Button variant={'ghost'} size={'sm'} disabled={isPending}>
             <Smile className="size-4" />
           </Button>
         </EmojiPopover>
         {!hideThreadButton && (
           <Hint label="Reply in thread">
             <Button
-              variant={"ghost"}
-              size={"sm"}
+              variant={'ghost'}
+              size={'sm'}
               disabled={isPending}
               onClick={handleThread}
             >
@@ -50,8 +50,8 @@ const Toolbar = ({
           <>
             <Hint label="Edit message">
               <Button
-                variant={"ghost"}
-                size={"sm"}
+                variant={'ghost'}
+                size={'sm'}
                 disabled={isPending}
                 onClick={handleEdit}
               >
@@ -60,8 +60,8 @@ const Toolbar = ({
             </Hint>
             <Hint label="Remove this message">
               <Button
-                variant={"ghost"}
-                size={"sm"}
+                variant={'ghost'}
+                size={'sm'}
                 disabled={isPending}
                 onClick={handleDelete}
               >

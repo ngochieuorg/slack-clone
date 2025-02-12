@@ -124,3 +124,28 @@ body,
   scrollbar-width: thin;
   scrollbar-color: #dcdcdc #f8f8f8;
 }
+
+.ql-mention-list-container {
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+  padding: 8px 0;
+  border-radius: 4px;
+  z-index: 500;
+  background: rgb(248, 246, 246);
+  min-width: 420px;
+  max-width: 540px;
+  max-height: 220px;
+  line-height: 1.4rem;
+}
+
+.ql-mention-list-item {
+  padding: 4px 5px;
+}
+
+.ql-mention-list-item:hover {
+  background: #1264a3;
+}
+
+.ql-editor .mention {
+  background: #adc4d6;
+  color: #1264a3;
+}

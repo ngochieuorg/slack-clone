@@ -269,6 +269,37 @@ export const activities = query({
         };
       });
 
+    // for mentions
+
+    const mentions = notificationWithPopulate
+      .filter((noti) => noti.type === 'mention')
+      .map((noti) => {
+        const notiType = noti.type;
+        const threadName = noti.channel?.name;
+        const newestNoti = noti;
+        const unreadCount = 1;
+        const senders: Record<string, Doc<'users'>> = {};
+        const thread = noti.thread;
+        const notifications: (Doc<'notifications'> & {
+          sender: Doc<'users'> | null;
+          message: Doc<'messages'> | null;
+        })[] = [];
+
+        if (noti.sender && !senders[noti.senderId]) {
+          senders[noti.senderId] = noti.sender;
+        }
+
+        return {
+          threadName,
+          newestNoti,
+          senders: Object.values(senders),
+          thread,
+          notiType,
+          notifications,
+          unreadCount,
+        };
+      });
+
     // for react
     const groupByMessage = groupBy(
       notificationWithPopulate.filter((noti) => noti.type === 'reaction') || [],
@@ -316,7 +347,7 @@ export const activities = query({
         };
       });
 
-    return [...replies, ...reactions].sort(
+    return [...replies, ...reactions, ...mentions].sort(
       (a, b) => b.newestNoti._creationTime - a.newestNoti._creationTime
     );
   },

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Quill, { Delta, Op, type QuillOptions } from 'quill';
 
 import 'quill/dist/quill.snow.css';
@@ -10,6 +11,10 @@ import Hint from './hint';
 import { cn } from '@/lib/utils';
 import EmojiPopover from './emoji-popover';
 import Image from 'next/image';
+import 'quill-mention/autoregister';
+import { useGetMembers } from '@/features/members/api/use-get-members';
+import { useWorkspaceId } from '@/hooks/use-workspace-id';
+import { GenericId } from 'convex/values';
 
 type EditorValue = {
   image: File | null;
@@ -35,6 +40,9 @@ const Editor = ({
   disabled = false,
   innerRef,
 }: EditorProps) => {
+  const workspaceId = useWorkspaceId();
+  const { data: members } = useGetMembers({ workspaceId });
+
   const [text, setText] = useState('');
   const [image, setImage] = useState<File | null>(null);
   const [isToolbarVisible, setIsToolbarVisible] = useState(true);
@@ -61,6 +69,13 @@ const Editor = ({
     const editorContainer = container.appendChild(
       container.ownerDocument.createElement('div')
     );
+    const atValues = (members || [])?.map((member) => {
+      return {
+        id: member.userId,
+        value: member.user.name || '',
+        avatar: member.user?.image || '',
+      };
+    });
 
     const options: QuillOptions = {
       theme: 'snow',
@@ -96,6 +111,64 @@ const Editor = ({
                 quill.insertText(quill.getSelection()?.index || 0, '\n');
               },
             },
+          },
+        },
+        mention: {
+          allowedChars: /^[A-Za-z\sÅÄÖåäö]*$/,
+          mentionDenotationChars: ['@', '#'],
+          renderItem: (item: { avatar: any; value: any }) => {
+            const container = document.createElement('div');
+            container.className = 'flex gap-2 items-center p-1';
+
+            let imgDiv;
+
+            if (item.avatar) {
+              const img = document.createElement('img');
+              img.src = item.avatar;
+              img.alt = item.value;
+              img.className = 'size-[18px] rounded-md';
+              imgDiv = img;
+            } else {
+              const fallbackAvar = document.createElement('div');
+              fallbackAvar.className =
+                'size-[18px] rounded-md flex items-center justify-center bg-sky-500 text-xs';
+              fallbackAvar.innerText = String(item.value)
+                .charAt(0)
+                .toUpperCase();
+              imgDiv = fallbackAvar;
+            }
+
+            const span = document.createElement('span');
+            span.innerText = item.value;
+
+            container.appendChild(imgDiv);
+            container.appendChild(span);
+
+            return container;
+          },
+
+          source: function (
+            searchTerm: string,
+            renderList: (
+              arg0: {
+                id: GenericId<'users'>;
+                value: string;
+                avatar: string;
+              }[],
+              arg1: any
+            ) => void,
+            mentionChar: string
+          ) {
+            const values = mentionChar === '@' ? atValues : atValues;
+
+            if (searchTerm.length === 0) {
+              renderList(values, searchTerm);
+            } else {
+              const matches = values.filter((v) =>
+                v.value.toLowerCase().includes(searchTerm.toLowerCase())
+              );
+              renderList(matches, searchTerm);
+            }
           },
         },
       },
@@ -138,7 +211,6 @@ const Editor = ({
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const emojiSelect = (emoji: any) => {
     const quill = quillRef.current;
 
@@ -158,7 +230,7 @@ const Editor = ({
       />
       <div
         className={cn(
-          'flex flex-col border border-slate-200 rounded-md overflow-hidden focus-within:border-slate-300 focus-within:shadow-sm transition bg-white',
+          'flex flex-col border border-slate-200 rounded-md  focus-within:border-slate-300 focus-within:shadow-sm transition bg-white',
           disabled && 'opacity-50'
         )}
       >
@@ -270,7 +342,7 @@ const Editor = ({
           )}
         >
           <p>
-            <strong>Shift + Rerturn</strong> to add new line
+            <strong>Shift + Return</strong> to add new line
           </p>
         </div>
       )}

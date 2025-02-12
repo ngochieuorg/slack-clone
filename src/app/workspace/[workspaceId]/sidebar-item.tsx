@@ -47,20 +47,20 @@ const SidebarItem = ({
     >
       <Link href={`/workspace/${workspaceId}/channel/${id}`}>
         <div className="flex items-center w-full">
-          <Icon className="size-3.5 mr-1 shrink-0" />
+          <Icon
+            className={cn(
+              'size-3.5 mr-1 shrink-0',
+              Number(countNotifs) > 0 && 'text-white'
+            )}
+          />
           <span
             className={cn(
               'text-sm truncate',
-              Number(countNotifs) > 0 && 'font-bold '
+              Number(countNotifs) > 0 && 'font-bold text-white'
             )}
           >
             {label}
           </span>
-          {Number(countNotifs) > 0 && (
-            <span className="ml-auto h-5 w-6 bg-[#EFB8FB] rounded-lg flex items-center justify-center text-[#481349] font-semibold text-xs">
-              {countNotifs}
-            </span>
-          )}
         </div>
       </Link>
     </Button>

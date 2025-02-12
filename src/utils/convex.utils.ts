@@ -62,3 +62,23 @@ export const populateMember = (ctx: QueryCtx, memberId: Id<'members'>) => {
 export const populateMesssage = (ctx: QueryCtx, messageId: Id<'messages'>) => {
   return ctx.db.get(messageId);
 };
+
+export function extractMentionIds(jsonString: string): string[] {
+  try {
+    const jsonData = JSON.parse(jsonString); // Parse JSON
+    const ids: string[] = [];
+
+    if (jsonData.ops && Array.isArray(jsonData.ops)) {
+      for (const op of jsonData.ops) {
+        if (op.insert && typeof op.insert === 'object' && op.insert.mention) {
+          ids.push(op.insert.mention.id);
+        }
+      }
+    }
+
+    return ids;
+  } catch (error) {
+    console.error('Invalid JSON:', error);
+    return [];
+  }
+}

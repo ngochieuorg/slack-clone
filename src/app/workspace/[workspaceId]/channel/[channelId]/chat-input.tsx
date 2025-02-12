@@ -15,7 +15,7 @@ interface ChatInputProps {
   placeholder: string;
 }
 
-type CreateMesageValues = {
+type CreateMessageValues = {
   channelId: Id<'channels'>;
   workspaceId: Id<'workspaces'>;
   body: string;
@@ -44,7 +44,7 @@ const ChatInput = ({ placeholder }: ChatInputProps) => {
       setIsPending(true);
       editorRef?.current?.enable(false);
 
-      const values: CreateMesageValues = {
+      const values: CreateMessageValues = {
         channelId,
         workspaceId,
         body,

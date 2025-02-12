@@ -5,6 +5,7 @@ import { Doc, Id } from './_generated/dataModel';
 import { paginationOptsValidator } from 'convex/server';
 import { getSetByKey } from '../src/app/utils/index';
 import {
+  extractMentionIds,
   populateMember,
   populateReactions,
   populateThread,
@@ -258,17 +259,17 @@ export const create = mutation({
       conversationId: _conversationId,
     });
 
-    const checkIsMention = true;
+    const mentionIds = extractMentionIds(args.body);
 
-    let notiType = 'direct';
-    if (checkIsMention) {
-      notiType = 'reply';
-    } else if (args.parentMessageId) {
-      notiType = 'mention';
+    const notiTypes = ['direct'];
+    if (mentionIds.length) {
+      notiTypes.push('mention');
+    }
+    if (args.parentMessageId) {
+      notiTypes.push('reply');
     }
 
-    if (notiType === 'reply') {
-      // tìm những member trong thread
+    if (notiTypes.includes('reply')) {
       const messagesByParentMessage = await ctx.db
         .query('messages')
         .filter((q) =>
@@ -292,7 +293,6 @@ export const create = mutation({
         })
       );
 
-      // gửi noti tơi các member trong thread
       await Promise.all(
         membersInTheadWithPopulate.map(async (member) => {
           if (member) {
@@ -301,7 +301,7 @@ export const create = mutation({
               conversationId: _conversationId,
               userId: member.userId,
               messageId: messageId,
-              type: notiType,
+              type: 'reply',
               status: 'unread',
               content: `New message in thread from ${currentUser?.name}`,
               senderId: userId,
@@ -312,10 +312,25 @@ export const create = mutation({
       );
     }
 
-    if (notiType === 'mention') {
+    if (notiTypes.includes('mention')) {
+      mentionIds.forEach(async (id) => {
+        if (id) {
+          await ctx.db.insert('notifications', {
+            channelId: args.channelId,
+            conversationId: _conversationId,
+            userId: id as Id<'users'>,
+            messageId: messageId,
+            type: 'mention',
+            status: 'unread',
+            content: `${currentUser?.name} mention you`,
+            senderId: userId,
+            parentMessageId: args.parentMessageId,
+          });
+        }
+      });
     }
 
-    if (notiType === 'direct') {
+    if (notiTypes.includes('direct')) {
       const conversation = await ctx.db
         .query('conversations')
         .filter((q) => q.eq(q.field('_id'), args.conversationId))
@@ -351,7 +366,7 @@ export const create = mutation({
             conversationId: _conversationId,
             userId: member.userId,
             messageId: messageId,
-            type: notiType,
+            type: 'direct',
             status: 'unread',
             content: `New message from ${currentUser?.name}`,
             senderId: userId,

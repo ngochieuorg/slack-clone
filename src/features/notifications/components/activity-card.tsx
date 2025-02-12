@@ -104,6 +104,14 @@ const ActivityCard = ({
                 </>
               );
             }
+
+            function activityIcon() {
+              if (activity.notiType === 'reply') {
+                return <MessageSquareTextIcon className="size-4" />;
+              } else if (activity.notiType === 'mention') {
+                return <span className="text-muted-foreground">@</span>;
+              }
+            }
             function activityLocate() {
               if (activity.notiType === 'reply') {
                 return (
@@ -123,6 +131,15 @@ const ActivityCard = ({
                       : 'direct message'}
                   </span>
                 );
+              } else if (activity.notiType === 'mention') {
+                return (
+                  <span className="text-xs font-extralight">
+                    {activity.senders[0].name} mention you in{' '}
+                    {activity.threadName
+                      ? `# ${activity.threadName}`
+                      : 'a message'}
+                  </span>
+                );
               } else return null;
             }
 
@@ -137,6 +154,16 @@ const ActivityCard = ({
                           value={activity.newestNoti.parentMessage?.body}
                           cutWord={2}
                         />
+                      </div>
+                    )}
+                  </>
+                );
+              } else if (activity.notiType === 'mention') {
+                return (
+                  <>
+                    {activity.newestNoti.message?.body && (
+                      <div className="flex items-center gap-1">
+                        <Renderer value={activity.newestNoti.message?.body} />
                       </div>
                     )}
                   </>
@@ -242,11 +269,11 @@ const ActivityCard = ({
                 >
                   <div
                     className={cn(
-                      'text-sm text-muted-foreground flex gap-2 items-center',
+                      'text-sm text-muted-foreground flex gap-1 items-center',
                       activity.unreadCount > 0 && 'font-medium text-black'
                     )}
                   >
-                    <MessageSquareTextIcon className="size-4" />
+                    {activityIcon()}
                     {activityLocate()}
                   </div>
                   <div className="flex gap-1 ">
@@ -298,9 +325,7 @@ const ActivityCard = ({
                   </div>
 
                   <div>
-                    <p className="font-bold text-base">
-                      {memberInActivity()} and you
-                    </p>
+                    <p className="font-bold text-base">{memberInActivity()}</p>
                     <div className="text-muted-foreground">
                       {activityContent()}
                     </div>

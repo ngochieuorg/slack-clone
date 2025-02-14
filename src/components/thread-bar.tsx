@@ -10,7 +10,7 @@ interface ThreadBarProps {
   timstamp?: number;
   onClick?: () => void;
   name?: string;
-  threadUsers: (Doc<'users'> | null | undefined)[];
+  threadUsers?: (Doc<'users'> | null | undefined)[];
 }
 
 const ThreadBar = ({

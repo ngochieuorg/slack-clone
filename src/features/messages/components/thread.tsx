@@ -25,7 +25,7 @@ interface ThreadProps {
   onClose: () => void;
 }
 
-type CreateMesageValues = {
+type CreateMessageValues = {
   channelId: Id<'channels'>;
   workspaceId: Id<'workspaces'>;
   parentMessageId: Id<'messages'>;
@@ -68,7 +68,7 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
       setIsPending(true);
       editorRef?.current?.enable(false);
 
-      const values: CreateMesageValues = {
+      const values: CreateMessageValues = {
         channelId,
         workspaceId,
         body,
@@ -199,6 +199,7 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
                   threadImage={message.threadImage}
                   threadTimestamp={message.threadTimestamp}
                   threadName={message.threadName}
+                  threadUsers={message.usersInThread}
                 />
               );
             })}

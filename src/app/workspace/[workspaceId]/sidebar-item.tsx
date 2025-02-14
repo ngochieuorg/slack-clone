@@ -1,5 +1,4 @@
 import { Button } from '@/components/ui/button';
-import { useWorkspaceId } from '@/hooks/use-workspace-id';
 import { LucideIcon } from 'lucide-react';
 import Link from 'next/link';
 import { IconType } from 'react-icons/lib';
@@ -27,25 +26,27 @@ interface SidebarItemProps {
   icon: LucideIcon | IconType;
   variant?: VariantProps<typeof sidebarItemVariants>['variant'];
   countNotifs?: number;
+  linkTo?: string;
 }
 
 const SidebarItem = ({
   label,
-  id,
   icon: Icon,
   variant,
   countNotifs,
+  linkTo,
 }: SidebarItemProps) => {
-  const workspaceId = useWorkspaceId();
-
   return (
     <Button
       variant={'transparent'}
       size={'sm'}
       className={cn(sidebarItemVariants({ variant: variant }))}
       asChild
+      onClick={() => {
+        if (!linkTo) return;
+      }}
     >
-      <Link href={`/workspace/${workspaceId}/channel/${id}`}>
+      <Link href={linkTo || ''}>
         <div className="flex items-center w-full">
           <Icon
             className={cn(

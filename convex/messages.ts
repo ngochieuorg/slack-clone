@@ -72,6 +72,7 @@ export const get = query({
 
             const reactions = await populateReactions(ctx, message._id);
             const thread = await populateThread(ctx, message._id);
+
             const image = message.image
               ? await ctx.storage.getUrl(message.image)
               : undefined;
@@ -178,6 +179,8 @@ export const getById = query({
       };
     });
 
+    const channel = await ctx.db.get(message.channelId as Id<'channels'>);
+
     const dedupedReactions = reactionsWithCounts.reduce(
       (acc, reaction) => {
         const existingReaction = acc.find((r) => r.value === reaction.value);
@@ -214,6 +217,7 @@ export const getById = query({
       user,
       member,
       reactions: reactionWithoutMemberIdProperty,
+      channel,
     };
   },
 });

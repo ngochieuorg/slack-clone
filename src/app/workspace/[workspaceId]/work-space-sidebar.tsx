@@ -89,7 +89,12 @@ const WorkSpaceSidebar = () => {
         isAdmin={member.role === 'admin'}
       />
       <div className="flex flex-col px-2 mt-3">
-        <SidebarItem label="Threads" icon={MessageSquareText} id="threads" />
+        <SidebarItem
+          label="Threads"
+          icon={MessageSquareText}
+          id="threads"
+          linkTo={`/workspace/${workspaceId}/thread`}
+        />
         <SidebarItem label="Drafts & Sent" icon={SendHorizontal} id="sent" />
       </div>
       <WorkspaceSection
@@ -109,6 +114,7 @@ const WorkSpaceSidebar = () => {
                 id={item._id}
                 variant={channelId === item._id ? 'active' : 'default'}
                 countNotifs={countNotifs}
+                linkTo={`/workspace/${workspaceId}/channel/${item._id}`}
               />
             </div>
           );

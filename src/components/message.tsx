@@ -45,7 +45,7 @@ interface MessageProps {
   threadImage?: string;
   threadName?: string;
   threadTimestamp?: number;
-  threadUsers: (Doc<'users'> | null | undefined)[];
+  threadUsers?: (Doc<'users'> | null | undefined)[];
 }
 
 const Message = ({

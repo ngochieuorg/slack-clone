@@ -70,8 +70,6 @@ const ActivityCard = ({
     );
   };
 
-  console.log(activities);
-
   return (
     <div className="flex flex-col w-96">
       <div className="flex justify-between items-center p-2">
@@ -112,6 +110,7 @@ const ActivityCard = ({
                 return <span className="text-muted-foreground">@</span>;
               }
             }
+
             function activityLocate() {
               if (activity.notiType === 'reply') {
                 return (
@@ -143,6 +142,47 @@ const ActivityCard = ({
               } else return null;
             }
 
+            function activityAvatar() {
+              let isDoubleAvatar = false;
+              if (activity.notiType === 'reply') isDoubleAvatar = true;
+
+              return (
+                <div className="relative w-10">
+                  <Avatar
+                    className={cn(
+                      'size-10 hover:opacity-75 transition rounded-md mt-1',
+                      isDoubleAvatar && 'absolute size-6'
+                    )}
+                  >
+                    <AvatarImage
+                      className="rounded-md"
+                      src={activity.newestNoti.sender?.image}
+                      alt={activity.newestNoti.sender?.name}
+                    />
+                    <AvatarFallback className="rounded-md bg-sky-500 text-white">
+                      {activity.newestNoti.sender?.name?.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <Avatar
+                    className={cn(
+                      'hover:opacity-75 transition rounded-md mt-1 hidden',
+                      isDoubleAvatar &&
+                        'absolute size-6 translate-x-3 translate-y-3 block'
+                    )}
+                  >
+                    <AvatarImage
+                      className="rounded-md"
+                      src={currentUser?.image}
+                      alt={currentUser?.name}
+                    />
+                    <AvatarFallback className="rounded-md bg-sky-500 text-white">
+                      {currentUser?.name?.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
+              );
+            }
+
             function activityContent() {
               if (activity.notiType === 'reply') {
                 return (
@@ -152,7 +192,6 @@ const ActivityCard = ({
                         <div className="w-max">replied to:</div>
                         <Renderer
                           value={activity.newestNoti.parentMessage?.body}
-                          cutWord={2}
                         />
                       </div>
                     )}
@@ -232,15 +271,28 @@ const ActivityCard = ({
 
             function content() {
               if (activity.notiType === 'reply') {
+                const reads = activity.notifications.filter(
+                  (noti) => noti.status === 'read'
+                );
+                const unreads = activity.notifications.filter(
+                  (noti) => noti.status === 'unread'
+                );
+                const oldestRead = reads[0];
                 return (
                   <>
-                    {activity.thread.message?.body && (
+                    {oldestRead?.message && (
                       <div className="flex justify-start items-start gap-1">
                         <div className=" whitespace-nowrap">
-                          {activity.thread.name}:
+                          {oldestRead.sender?.name}:
                         </div>
-                        <Renderer value={activity.thread.message?.body} />
+                        <Renderer value={oldestRead.message?.body} />
                       </div>
+                    )}
+                    {unreads.length > 0 && (
+                      <span className=" text-sky-700 font-semibold cursor-pointer hover:underline">
+                        {unreads.length} more{' '}
+                        {unreads.length > 1 ? 'replies' : 'reply'}
+                      </span>
                     )}
                   </>
                 );
@@ -248,7 +300,7 @@ const ActivityCard = ({
                 return (
                   <>
                     {activity.notifications?.[0]?.message?.body && (
-                      <div className="flex justify-start items-start gap-1">
+                      <div className="flex justify-start items-start gap-1 ">
                         <Renderer
                           value={activity.notifications?.[0]?.message?.body}
                         />
@@ -291,39 +343,7 @@ const ActivityCard = ({
                   </div>
                 </div>
                 <div className="flex justify-start gap-2 items-start">
-                  <div className="relative w-10">
-                    <Avatar
-                      className={cn(
-                        'size-10 hover:opacity-75 transition rounded-md mt-1',
-                        true && 'absolute size-6'
-                      )}
-                    >
-                      <AvatarImage
-                        className="rounded-md"
-                        src={activity.newestNoti.sender?.image}
-                        alt={activity.newestNoti.sender?.name}
-                      />
-                      <AvatarFallback className="rounded-md bg-sky-500 text-white">
-                        {activity.newestNoti.sender?.name?.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <Avatar
-                      className={cn(
-                        'size-10 hover:opacity-75 transition rounded-md mt-1',
-                        true && 'absolute size-6 translate-x-3 translate-y-3'
-                      )}
-                    >
-                      <AvatarImage
-                        className="rounded-md"
-                        src={currentUser?.image}
-                        alt={currentUser?.name}
-                      />
-                      <AvatarFallback className="rounded-md bg-sky-500 text-white">
-                        {currentUser?.name?.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                  </div>
-
+                  {activityAvatar()}
                   <div>
                     <p className="font-bold text-base">{memberInActivity()}</p>
                     <div className="text-muted-foreground">

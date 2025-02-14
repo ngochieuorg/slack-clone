@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { ChevronRight } from 'lucide-react';
+import { Doc } from '../../convex/_generated/dataModel';
 
 interface ThreadBarProps {
   count?: number;
@@ -8,6 +10,7 @@ interface ThreadBarProps {
   timstamp?: number;
   onClick?: () => void;
   name?: string;
+  threadUsers: (Doc<'users'> | null | undefined)[];
 }
 
 const ThreadBar = ({
@@ -16,21 +19,29 @@ const ThreadBar = ({
   name = 'Member',
   timstamp,
   onClick,
+  threadUsers,
 }: ThreadBarProps) => {
-  const avatarFallback = name.charAt(0).toUpperCase();
   if (!count || !timstamp) return null;
+
   return (
     <button
       className="p-1 rounded-md hover:bg-white border border-transparent hover:border-border flex items-center justify-start group/thread-bar transition max-w-[600px]"
       onClick={onClick}
     >
       <div className="flex items-center gap-2 overflow-hidden">
-        <Avatar className="size-6 shrink-0">
-          <AvatarImage src={image} />
-          <AvatarFallback className="rounded-md bg-sky-500 text-white flex justify-center items-center">
-            {avatarFallback}
-          </AvatarFallback>
-        </Avatar>
+        <div className="flex items-center gap-1">
+          {threadUsers?.map((user) => {
+            const avatarFallback = user?.name?.charAt(0).toUpperCase();
+            return (
+              <Avatar key={user?._id} className="size-6">
+                <AvatarImage src={user?.image} />
+                <AvatarFallback className="rounded-md bg-sky-500 text-white flex justify-center items-center">
+                  {avatarFallback}
+                </AvatarFallback>
+              </Avatar>
+            );
+          })}
+        </div>
         <span className="text-xs text-sky-700 hover:underline font-bold truncate">
           {count} {count > 1 ? 'replies' : 'reply'}
         </span>

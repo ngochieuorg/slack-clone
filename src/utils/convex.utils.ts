@@ -1,3 +1,4 @@
+import { groupBy } from '../app/utils';
 import { Id } from '../../convex/_generated/dataModel';
 import { QueryCtx } from '../../convex/_generated/server';
 
@@ -18,8 +19,23 @@ export const populateThread = async (
       image: undefined,
       timeStamp: 0,
       name: '',
+      usersInThread: [],
     };
   }
+
+  const groupByMember = groupBy(messages, 'memberId');
+
+  const memberIds = Object.keys(groupByMember);
+
+  const users = await Promise.all(
+    memberIds.map(async (member) => {
+      const populateMem = await populateMember(ctx, member as Id<'members'>);
+      if (populateMem) {
+        const user = await populateUser(ctx, populateMem.userId);
+        return user;
+      }
+    })
+  );
 
   const lastMessage = messages[messages.length - 1];
   const lastMessageMember = await populateMember(ctx, lastMessage.memberId);
@@ -30,6 +46,7 @@ export const populateThread = async (
       image: undefined,
       timeStamp: 0,
       name: '',
+      usersInThread: users,
     };
   }
 
@@ -41,6 +58,7 @@ export const populateThread = async (
     timeStamp: lastMessage._creationTime,
     name: lastMessageUser?.name,
     message: lastMessage,
+    usersInThread: users,
   };
 };
 

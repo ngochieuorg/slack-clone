@@ -124,6 +124,7 @@ export const get = query({
               threadImage: thread.image,
               threadName: thread.name,
               threadTimestamp: thread.timeStamp,
+              usersInThread: thread.usersInThread,
             };
           })
         )

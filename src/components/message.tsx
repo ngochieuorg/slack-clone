@@ -45,6 +45,7 @@ interface MessageProps {
   threadImage?: string;
   threadName?: string;
   threadTimestamp?: number;
+  threadUsers: (Doc<'users'> | null | undefined)[];
 }
 
 const Message = ({
@@ -66,6 +67,7 @@ const Message = ({
   threadImage,
   threadTimestamp,
   threadName,
+  threadUsers,
 }: MessageProps) => {
   const channelId = useChannelId();
   const { parentMessageId, onOpenMessage, onClose, onOpenProfileMember } =
@@ -176,6 +178,7 @@ const Message = ({
                   timstamp={threadTimestamp}
                   onClick={() => onOpenMessage(id)}
                   name={threadName}
+                  threadUsers={threadUsers}
                 />
               </div>
             )}
@@ -255,6 +258,7 @@ const Message = ({
                 timstamp={threadTimestamp}
                 onClick={() => onOpenMessage(id)}
                 name={threadName}
+                threadUsers={threadUsers}
               />
             </div>
           )}

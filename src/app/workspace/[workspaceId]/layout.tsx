@@ -14,13 +14,18 @@ import { Loader } from 'lucide-react';
 import { Id } from '../../../../convex/_generated/dataModel';
 import Thread from '@/features/messages/components/thread';
 import Profile from '@/features/members/components/profile';
+import { usePathname } from 'next/navigation';
+import ActivitySidebar from './activity-sidebar';
 
 interface WorkspaceIdLayoutProps {
   children: React.ReactNode;
 }
 
 const WorkspaceLayout = ({ children }: WorkspaceIdLayoutProps) => {
+  const path = usePathname();
   const { parentMessageId, profileMemberId, onClose } = usePanel();
+
+  const isActivityPage = path.includes('/activity');
 
   const showPanel = !!parentMessageId || !!profileMemberId;
 
@@ -34,18 +39,29 @@ const WorkspaceLayout = ({ children }: WorkspaceIdLayoutProps) => {
           autoSaveId={'ca-workspace-layout'}
         >
           <ResizablePanel
-            defaultSize={20}
+            id={isActivityPage ? 'activity' : 'home'}
+            defaultSize={isActivityPage ? 40 : 20}
             minSize={11}
             className="bg-[#5E2C5F]"
+            order={1}
           >
-            <WorkSpaceSidebar />
+            <div className="flex flex-col bg-[#5E2C5F] h-full">
+              {isActivityPage ? <ActivitySidebar /> : <WorkSpaceSidebar />}
+            </div>
           </ResizablePanel>
           <ResizableHandle withHandle />
-          <ResizablePanel minSize={20}>{children}</ResizablePanel>
+          <ResizablePanel minSize={20} order={2} id="content">
+            {children}
+          </ResizablePanel>
           {showPanel && (
             <>
               <ResizableHandle withHandle />
-              <ResizablePanel minSize={20} defaultSize={29}>
+              <ResizablePanel
+                minSize={20}
+                order={3}
+                defaultSize={29}
+                id="right"
+              >
                 {parentMessageId ? (
                   <Thread
                     messageId={parentMessageId as Id<'messages'>}

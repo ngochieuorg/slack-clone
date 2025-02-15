@@ -2,7 +2,7 @@ import UserButton from '@/features/auth/components/user-button';
 import WorkspaceSwitcher from './workspace-switcher';
 import SidebarButton from './sidebar-button';
 import { Bell, Home, MessageSquare, MoreHorizontal } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 import {
   HoverCard,
@@ -19,6 +19,7 @@ import { useState } from 'react';
 import { useCurrentUser } from '@/features/auth/api/use-current-user';
 
 export const Sidebar = () => {
+  const router = useRouter();
   const workspaceId = useWorkspaceId();
   const { data: currentUser } = useCurrentUser();
 
@@ -34,6 +35,17 @@ export const Sidebar = () => {
     return (activities || []).filter((activity) => activity.unreadCount).length;
   };
 
+  const onNavigateToActivityPage = () => {
+    router.push(`/workspace/${workspaceId}/activity`);
+  };
+
+  const activeSideButton = (): 'home' | 'activity' => {
+    if (pathName.includes('/activity')) {
+      return 'activity';
+    }
+    return 'home';
+  };
+
   const pathName = usePathname();
   return (
     <aside className="w-[70px] h-full bg-[#481349] flex flex-col gap-y-4 items-center pt-[8px] p-1">
@@ -41,27 +53,31 @@ export const Sidebar = () => {
       <SidebarButton
         icon={Home}
         label="Home"
-        isActive={pathName.includes('/workspace')}
+        isActive={activeSideButton() === 'home'}
+        onClick={() => router.replace(`/workspace/${workspaceId}/channel`)}
       />
       <SidebarButton icon={MessageSquare} label="DMs" />
-      <HoverCard>
-        <HoverCardTrigger>
-          <SidebarButton
-            icon={Bell}
-            label="Activity"
-            notiCount={countActivitiesNoti(activities)}
-          />
-        </HoverCardTrigger>
-        <HoverCardContent className="p-0">
-          <ActivityCard
-            activities={activities || []}
-            isLoading={notificationsLoading}
-            isUnRead={isUnRead}
-            setIsUnRead={setIsUnRead}
-            currentUser={currentUser}
-          />
-        </HoverCardContent>
-      </HoverCard>
+      <div onClick={onNavigateToActivityPage}>
+        <HoverCard>
+          <HoverCardTrigger>
+            <SidebarButton
+              icon={Bell}
+              label="Activity"
+              notiCount={countActivitiesNoti(activities)}
+              isActive={activeSideButton() === 'activity'}
+            />
+          </HoverCardTrigger>
+          <HoverCardContent className="p-0">
+            <ActivityCard
+              activities={activities || []}
+              isLoading={notificationsLoading}
+              isUnRead={isUnRead}
+              setIsUnRead={setIsUnRead}
+              currentUser={currentUser}
+            />
+          </HoverCardContent>
+        </HoverCard>
+      </div>
       <SidebarButton icon={MoreHorizontal} label="More" />
       <div className="flex flex-col items-center justify-center gap-y-1 mt-auto">
         <UserButton />

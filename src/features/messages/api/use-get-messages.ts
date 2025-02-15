@@ -34,8 +34,6 @@ export const useGetMessages = ({
     parentMessageId,
   });
 
-  console.log(allMessage);
-
   const totalItems = allMessage?.length || 0;
 
   if (fetchAll) {

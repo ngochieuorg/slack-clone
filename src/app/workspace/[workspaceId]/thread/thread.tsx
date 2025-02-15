@@ -25,20 +25,25 @@ type CreateMessageValues = {
   image: Id<'_storage'> | undefined;
 };
 
+const initMessLoad = 2;
+
 const ThreadComponent = ({
   messageId,
   userInThreads,
 }: ThreadComponentProps) => {
   const workspaceId = useWorkspaceId();
   const { data: currentMember } = useCurrentMember({ workspaceId });
+  const [isFetchAll, setIsFetchAll] = useState(false);
 
   const { data: message, isLoading: loadingMessage } = useGetMessage({
     id: messageId,
   });
 
-  const { results, status } = useGetMessages({
+  const { results, status, totalItems } = useGetMessages({
     channelId: message?.channelId,
     parentMessageId: messageId,
+    initialNumItems: initMessLoad,
+    fetchAll: isFetchAll,
   });
 
   const { mutate: createMessage } = useCreateMessage();
@@ -145,7 +150,7 @@ const ThreadComponent = ({
           isEditing={editingId === message._id}
           setEditingId={setEditingId}
         />
-        <div>
+        <div className="flex flex-col-reverse">
           {results.map((message) => {
             return (
               <Message
@@ -172,6 +177,14 @@ const ThreadComponent = ({
               />
             );
           })}
+          {totalItems > initMessLoad && !isFetchAll && (
+            <span
+              className="px-4 text-sky-500 hover:underline cursor-pointer"
+              onClick={() => setIsFetchAll(true)}
+            >
+              Show {totalItems - initMessLoad} more replies
+            </span>
+          )}
         </div>
         <div className="px-4">
           <Editor

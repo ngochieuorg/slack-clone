@@ -104,7 +104,8 @@ export const get = query({
         .filter(
           (message): message is NonNullable<typeof message> => message !== null
         )
-        .filter((message) => message.threadCount > 0),
+        .filter((message) => message.threadCount > 0)
+        .sort((a, b) => b.threadTimestamp - a.threadTimestamp),
     };
   },
 });

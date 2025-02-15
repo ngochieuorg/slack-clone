@@ -23,8 +23,10 @@ import { useMarkAsReadNotifications } from '@/features/notifications/api/use-mar
 import { Id } from '../../../../convex/_generated/dataModel';
 import { useGetConversations } from '@/features/conversations/api/use-get-conversations';
 import { useCurrentUser } from '@/features/auth/api/use-current-user';
+import { usePathname } from 'next/navigation';
 
 const WorkSpaceSidebar = () => {
+  const path = usePathname();
   const memberId = useMemberId();
   const workspaceId = useWorkspaceId();
   const channelId = useChannelId();
@@ -82,6 +84,10 @@ const WorkSpaceSidebar = () => {
     );
   }
 
+  const checkIsThreadPage = () => {
+    return path.includes('/thread');
+  };
+
   return (
     <div className="flex flex-col bg-[#5E2C5F] h-full ">
       <WorkspaceHeader
@@ -94,6 +100,7 @@ const WorkSpaceSidebar = () => {
           icon={MessageSquareText}
           id="threads"
           linkTo={`/workspace/${workspaceId}/thread`}
+          variant={checkIsThreadPage() ? 'active' : 'default'}
         />
         <SidebarItem label="Drafts & Sent" icon={SendHorizontal} id="sent" />
       </div>

@@ -92,7 +92,6 @@ body,
 .ql-editor {
   line-height: 22px !important;
   padding: 8px 12px;
-  color: #1d1c1d !important;
   font-weight: 400 !important;
   font-family: 'Lato', sans-serif !important;
   font-size: 14px !important;
@@ -143,9 +142,4 @@ body,
 
 .ql-mention-list-item:hover {
   background: #1264a3;
-}
-
-.ql-editor .mention {
-  background: #d5e3ee;
-  color: #1264a3;
 }

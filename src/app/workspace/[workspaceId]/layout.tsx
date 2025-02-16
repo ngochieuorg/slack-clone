@@ -40,7 +40,7 @@ const WorkspaceLayout = ({ children }: WorkspaceIdLayoutProps) => {
         >
           <ResizablePanel
             id={isActivityPage ? 'activity' : 'home'}
-            defaultSize={isActivityPage ? 40 : 20}
+            defaultSize={isActivityPage ? 45 : 15}
             minSize={11}
             className="bg-[#5E2C5F]"
             order={1}

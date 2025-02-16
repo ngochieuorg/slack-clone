@@ -159,7 +159,7 @@ const ActivityCard = ({
                       src={activity.newestNoti.sender?.image}
                       alt={activity.newestNoti.sender?.name}
                     />
-                    <AvatarFallback className="rounded-md bg-sky-500 text-white">
+                    <AvatarFallback className="rounded-md bg-sky-500 text-white size-10">
                       {activity.newestNoti.sender?.name?.charAt(0)}
                     </AvatarFallback>
                   </Avatar>

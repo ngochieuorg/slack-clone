@@ -1,12 +1,21 @@
 import Quill from 'quill';
 import { useEffect, useRef, useState } from 'react';
+import 'quill-mention/autoregister';
 
 interface RendererProps {
   value: string;
   cutWord?: number;
+  textColor?: string;
+  mentionBackground?: string;
+  mentionColor?: string;
 }
 
-const Renderer = ({ value, cutWord }: RendererProps) => {
+const Renderer = ({
+  value,
+  textColor = '#1d1c1d',
+  mentionBackground = '#d5e3ee',
+  mentionColor = '#1264a3',
+}: RendererProps) => {
   const [isEmpty, setIsEmpty] = useState(false);
   const rendererRef = useRef<HTMLDivElement>(null);
 
@@ -23,13 +32,6 @@ const Renderer = ({ value, cutWord }: RendererProps) => {
 
     const contents = JSON.parse(value);
 
-    if (cutWord) {
-      const text = contents?.ops?.[0].insert
-        .split(' ')
-        .splice(0, cutWord)
-        .join(' ');
-      contents.ops[0].insert = text;
-    }
     quill.setContents(contents);
 
     const isEmpty =
@@ -47,12 +49,25 @@ const Renderer = ({ value, cutWord }: RendererProps) => {
         container.innerHTML = '';
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
+
+  useEffect(() => {
+    const mentions = document.querySelectorAll('.ql-editor .mention');
+    mentions.forEach((mention) => {
+      (mention as HTMLElement).style.background = mentionBackground;
+      (mention as HTMLElement).style.color = mentionColor;
+    });
+  }, []);
 
   if (isEmpty) return null;
 
-  return <div ref={rendererRef} className="ql-editor ql-renderer" />;
+  return (
+    <div
+      ref={rendererRef}
+      className="ql-editor ql-renderer"
+      style={{ color: textColor }}
+    />
+  );
 };
 
 export default Renderer;

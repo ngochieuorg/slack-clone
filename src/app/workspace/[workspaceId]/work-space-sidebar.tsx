@@ -68,11 +68,7 @@ const WorkSpaceSidebar = () => {
   };
 
   if (memberLoading || workspaceLoading) {
-    return (
-      <div className="items-center justify-center">
-        <Loader className=" size-5 animate-spin text-white" />
-      </div>
-    );
+    return <></>;
   }
 
   if (!member || !workspace) {

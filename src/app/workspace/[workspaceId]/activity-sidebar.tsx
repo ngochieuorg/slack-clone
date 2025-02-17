@@ -424,9 +424,10 @@ const ActivitySidebar = () => {
                           {activityLocate()}
                         </div>
                         <div className="flex gap-1 ">
-                          <span className="text-base">
+                          <span className="text-sm">
                             {formatDateNotiTime(
-                              new Date(activity.newestNoti._creationTime)
+                              new Date(activity.newestNoti._creationTime),
+                              'MMMM do'
                             )}
                           </span>
                           {activity.notiType !== 'reaction' &&

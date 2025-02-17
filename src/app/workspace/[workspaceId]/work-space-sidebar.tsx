@@ -85,7 +85,7 @@ const WorkSpaceSidebar = () => {
   };
 
   return (
-    <div>
+    <>
       <WorkspaceHeader
         workspace={workspace}
         isAdmin={member.role === 'admin'}
@@ -162,7 +162,7 @@ const WorkSpaceSidebar = () => {
           );
         })}
       </WorkspaceSection>
-    </div>
+    </>
   );
 };
 

@@ -337,9 +337,10 @@ const ActivityCard = ({
                     {activityLocate()}
                   </div>
                   <div className="flex gap-1 ">
-                    <span className="text-base">
+                    <span className=" text-sm">
                       {formatDateNotiTime(
-                        new Date(activity.newestNoti._creationTime)
+                        new Date(activity.newestNoti._creationTime),
+                        'MMMM do'
                       )}
                     </span>
                     {activity.notiType !== 'reaction' &&
@@ -352,13 +353,13 @@ const ActivityCard = ({
                 </div>
                 <div className="flex justify-start gap-2 items-start">
                   {activityAvatar()}
-                  <>
+                  <div>
                     <p className="font-bold text-base">{memberInActivity()}</p>
                     <div className="text-muted-foreground">
                       {activityContent()}
                     </div>
                     <div className="mb-5">{content()}</div>
-                  </>
+                  </div>
                 </div>
                 <Separator />
               </div>

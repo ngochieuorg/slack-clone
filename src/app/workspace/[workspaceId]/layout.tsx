@@ -42,7 +42,7 @@ const WorkspaceLayout = ({ children }: WorkspaceIdLayoutProps) => {
             id={isActivityPage ? 'activity' : 'home'}
             defaultSize={isActivityPage ? 45 : 15}
             minSize={11}
-            className="bg-[#5E2C5F]"
+            className="rounded-tl-lg rounded-bl-lg mb-0.5"
             order={1}
           >
             <div className="flex flex-col bg-[#5E2C5F] h-full">
@@ -50,7 +50,12 @@ const WorkspaceLayout = ({ children }: WorkspaceIdLayoutProps) => {
             </div>
           </ResizablePanel>
           <ResizableHandle withHandle />
-          <ResizablePanel minSize={20} order={2} id="content">
+          <ResizablePanel
+            minSize={20}
+            order={2}
+            id="content"
+            className="bg-white mb-0.5 rounded-tr-lg rounded-br-lg mr-1"
+          >
             {children}
           </ResizablePanel>
           {showPanel && (

@@ -60,6 +60,12 @@ const Editor = ({
     placeholderRef.current = placeholder;
     defaultValueRef.current = defaultValue;
     disabledRef.current = disabled;
+
+    const mentions = document.querySelectorAll('.ql-editor .mention');
+    mentions.forEach((mention) => {
+      (mention as HTMLElement).style.background = '#d5e3ee';
+      (mention as HTMLElement).style.color = '#1264a3';
+    });
   });
 
   useEffect(() => {

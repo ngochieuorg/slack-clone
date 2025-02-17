@@ -1,7 +1,15 @@
+import dynamic from 'next/dynamic';
+import { useCallback, useMemo, useState } from 'react';
+
+// UI Components
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { useEffect, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
+import { HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+
+// Icons
 import {
   MessageSquare,
   SmileIcon,
@@ -11,27 +19,33 @@ import {
   MessageSquareIcon,
   Loader,
 } from 'lucide-react';
-import { useGetActivities } from '@/features/notifications/api/use-get-activities';
+
+// Hooks
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
-import { Avatar } from '@radix-ui/react-avatar';
-import { AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useChannelId } from '@/hooks/use-channel-id';
+import { useCurrentUser } from '@/features/auth/api/use-current-user';
+
+// API Calls
+import { useGetActivities } from '@/features/notifications/api/use-get-activities';
+import { useToggleReaction } from '@/features/reactions/api/use-toggle-reaction';
+
+// Utilities
 import { cn } from '@/lib/utils';
 import { groupBy } from '@/app/utils';
-import dynamic from 'next/dynamic';
-import { useCurrentUser } from '@/features/auth/api/use-current-user';
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from '@/components/ui/hover-card';
 import { formatDateNotiTime } from '@/app/utils/date-time';
-import { Separator } from '@/components/ui/separator';
-import { Id } from '../../../../convex/_generated/dataModel';
-import { useToggleReaction } from '@/features/reactions/api/use-toggle-reaction';
-import { toast } from 'sonner';
-import { useChannelId } from '@/hooks/use-channel-id';
 
-const Renderer = dynamic(() => import('@/components/renderer'), { ssr: true });
+// Notifications
+import { toast } from 'sonner';
+
+// Types
+import { Id } from '../../../../convex/_generated/dataModel';
+
+// Dynamic Imports
+const Renderer = dynamic(() => import('@/components/renderer'), { ssr: false });
+const HoverCard = dynamic(
+  () => import('@/components/ui/hover-card').then((mod) => mod.HoverCard),
+  { ssr: false }
+);
 
 const activityType = [
   {
@@ -75,32 +89,29 @@ const ActivitySidebar = () => {
     workspaceId,
   });
 
-  useEffect(() => {
-    const mentions = document.querySelectorAll('.mention');
-    mentions.forEach((mention) => {
-      (mention as HTMLElement).style.background = 'red';
-      (mention as HTMLElement).style.color = 'red';
-    });
-  }, []);
-
   const [isUnRead, setIsUnRead] = useState(false);
+  const [selectedTab, setSelectedTab] = useState('all');
 
-  const handleReaction = ({
-    value,
-    messageId,
-  }: {
-    value: string;
-    messageId: Id<'messages'>;
-  }) => {
-    toggleReaction(
-      { messageId, value, channelId },
-      {
-        onError: () => {
-          toast.error('Failed to toggle reaction');
-        },
-      }
-    );
-  };
+  const handleReaction = useCallback(
+    ({ value, messageId }: { value: string; messageId: Id<'messages'> }) => {
+      toggleReaction(
+        { messageId, value, channelId },
+        {
+          onError: () => {
+            toast.error('Failed to toggle reaction');
+          },
+        }
+      );
+    },
+    [toggleReaction, channelId]
+  );
+
+  const filteredActivities = useMemo(() => {
+    return (activities || []).filter((activity) => {
+      if (selectedTab === 'all') return true;
+      return activity.notiType === selectedTab;
+    });
+  }, [activities, selectedTab]);
 
   const LoaderComponent = (
     <div className="flex flex-col h-[480px] items-center justify-center">
@@ -111,6 +122,7 @@ const ActivitySidebar = () => {
   if (activitiesLoading) {
     return LoaderComponent;
   }
+
   return (
     <div>
       <div className="flex justify-between items-center p-2">
@@ -130,7 +142,11 @@ const ActivitySidebar = () => {
         <TabsList className="w-full justify-start">
           {activityType.map((type) => {
             return (
-              <TabsTrigger value={type.value} key={type.value}>
+              <TabsTrigger
+                value={type.value}
+                key={type.value}
+                onClick={() => setSelectedTab(type.value)}
+              >
                 <div className="flex items-center gap-0.5">
                   <div className="">{type.icon}</div>
                   <div>{type.label}</div>
@@ -142,7 +158,7 @@ const ActivitySidebar = () => {
         {activityType.map((type) => {
           return (
             <TabsContent value={type.value} key={type.value}>
-              {(activities || [])
+              {filteredActivities
                 ?.filter((activity) => {
                   if (type.value === 'all') return true;
                   return activity.notiType === type.value;

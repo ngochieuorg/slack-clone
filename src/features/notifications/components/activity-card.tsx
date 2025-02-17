@@ -1,27 +1,38 @@
+import dynamic from 'next/dynamic';
+import { Dispatch, useCallback } from 'react';
+import { SetStateAction } from 'jotai';
+
+// UI Components
 import { CheckCircle, Loader, MessageSquareTextIcon } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { formatDateNotiTime } from '@/app/utils/date-time';
 import { Avatar } from '@radix-ui/react-avatar';
 import { AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+
+// Utils & Helpers
 import { cn } from '@/lib/utils';
-import dynamic from 'next/dynamic';
-import { Dispatch } from 'react';
-import { SetStateAction } from 'jotai';
-import { ActivitiesReturnType } from '../api/use-get-activities';
-import { Doc, Id } from '../../../../convex/_generated/dataModel';
+import { formatDateNotiTime } from '@/app/utils/date-time';
 import { groupBy } from '@/app/utils';
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from '@/components/ui/hover-card';
+
+// Hooks & API Calls
 import { useToggleReaction } from '@/features/reactions/api/use-toggle-reaction';
-import { toast } from 'sonner';
 import { useChannelId } from '@/hooks/use-channel-id';
 
-const Renderer = dynamic(() => import('@/components/renderer'), { ssr: true });
+// Types
+import { ActivitiesReturnType } from '../api/use-get-activities';
+import { Doc, Id } from '../../../../convex/_generated/dataModel';
+
+// Notifications
+import { toast } from 'sonner';
+
+// Dynamic Imports
+const Renderer = dynamic(() => import('@/components/renderer'), { ssr: false });
+const HoverCard = dynamic(
+  () => import('@/components/ui/hover-card').then((mod) => mod.HoverCard),
+  { ssr: false }
+);
 
 interface ActivityCardProps {
   activities: ActivitiesReturnType;
@@ -41,6 +52,20 @@ const ActivityCard = ({
   const channelId = useChannelId();
   const { mutate: toggleReaction } = useToggleReaction();
 
+  const handleReaction = useCallback(
+    ({ value, messageId }: { value: string; messageId: Id<'messages'> }) => {
+      toggleReaction(
+        { messageId, value, channelId },
+        {
+          onError: () => {
+            toast.error('Failed to toggle reaction');
+          },
+        }
+      );
+    },
+    [toggleReaction, channelId]
+  );
+
   const LoaderComponent = (
     <div className="flex flex-col h-[480px] items-center justify-center">
       <Loader className=" size-5 animate-spin text-[#5E2C5F]" />
@@ -52,23 +77,6 @@ const ActivityCard = ({
       <CheckCircle className=" size-5 text-[#5E2C5F]" />
     </div>
   );
-
-  const handleReaction = ({
-    value,
-    messageId,
-  }: {
-    value: string;
-    messageId: Id<'messages'>;
-  }) => {
-    toggleReaction(
-      { messageId, value, channelId },
-      {
-        onError: () => {
-          toast.error('Failed to toggle reaction');
-        },
-      }
-    );
-  };
 
   return (
     <div className="flex flex-col w-96">
@@ -344,13 +352,13 @@ const ActivityCard = ({
                 </div>
                 <div className="flex justify-start gap-2 items-start">
                   {activityAvatar()}
-                  <div>
+                  <>
                     <p className="font-bold text-base">{memberInActivity()}</p>
                     <div className="text-muted-foreground">
                       {activityContent()}
                     </div>
                     <div className="mb-5">{content()}</div>
-                  </div>
+                  </>
                 </div>
                 <Separator />
               </div>

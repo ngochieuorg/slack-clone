@@ -200,13 +200,20 @@ export const getAll = query({
           const image = message.image
             ? await ctx.storage.getUrl(message.image)
             : undefined;
-
-          const reactionsWithCounts = reactions.map((reaction) => {
-            return {
-              ...reaction,
-              count: reactions.filter((r) => r.value === reaction.value).length,
-            };
-          });
+          const reactionsWithCounts = await Promise.all(
+            reactions.map(async (reaction) => {
+              const memberReact = await populateMember(ctx, reaction.memberId);
+              const userReact = memberReact
+                ? await populateUser(ctx, memberReact.userId)
+                : null;
+              return {
+                ...reaction,
+                count: reactions.filter((r) => r.value === reaction.value)
+                  .length,
+                userReact,
+              };
+            })
+          );
 
           const dedupedReactions = reactionsWithCounts.reduce(
             (acc, reaction) => {
@@ -218,10 +225,17 @@ export const getAll = query({
                 existingReaction.memberIds = Array.from(
                   new Set([...existingReaction.memberIds, reaction.memberId])
                 );
+                if (reaction.userReact) {
+                  existingReaction.users = [
+                    ...existingReaction.users,
+                    reaction.userReact,
+                  ];
+                }
               } else {
                 acc.push({
                   ...reaction,
                   memberIds: [reaction.memberId],
+                  users: [reaction.userReact as Doc<'users'>],
                 });
               }
 
@@ -230,12 +244,8 @@ export const getAll = query({
             [] as (Doc<'reactions'> & {
               count: number;
               memberIds: Id<'members'>[];
+              users: Doc<'users'>[];
             })[]
-          );
-
-          const reactionWithoutMemberIdProperty = dedupedReactions.map(
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            ({ memberId, ...rest }) => rest
           );
 
           return {
@@ -243,7 +253,7 @@ export const getAll = query({
             image,
             member,
             user,
-            reactions: reactionWithoutMemberIdProperty,
+            reactions: dedupedReactions,
             threadCount: thread.count,
             threadImage: thread.image,
             threadName: thread.name,

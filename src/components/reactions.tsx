@@ -12,7 +12,7 @@ interface ReactionsProps {
     Omit<Doc<'reactions'>, 'memberId'> & {
       count: number;
       memberIds: Id<'members'>[];
-      users: Doc<'users'>[];
+      users?: Doc<'users'>[];
     }
   >;
   onChange: (value: string) => void;
@@ -34,8 +34,8 @@ const Reactions = ({ data, onChange }: ReactionsProps) => {
       {data.map((reaction) => {
         const usersReact = () => {
           let string = '';
-          reaction.users.forEach((user, idx) => {
-            string += `${user._id === currentUser?._id ? 'You' : user.name}${idx !== reaction.users.length - 1 ? ', ' : ''} `;
+          (reaction?.users || []).forEach((user, idx) => {
+            string += `${user._id === currentUser?._id ? 'You' : user.name}${idx !== (reaction?.users ? reaction.users.length : 0) - 1 ? ', ' : ''} `;
           });
           return string;
         };

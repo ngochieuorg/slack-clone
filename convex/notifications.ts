@@ -10,6 +10,7 @@ import {
   populateThread,
 } from '../src/utils/convex.utils';
 import { Id } from './_generated/dataModel';
+
 export const get = query({
   args: {
     workspaceId: v.id('workspaces'),
@@ -266,6 +267,7 @@ export const activities = query({
           closetTime,
           notiType,
           notifications,
+          _id: String(group[0]._creationTime),
         };
       });
 
@@ -297,6 +299,7 @@ export const activities = query({
           notiType,
           notifications,
           unreadCount,
+          _id: String(noti.messageId),
         };
       });
 
@@ -344,6 +347,7 @@ export const activities = query({
           unreadCount,
           notiType,
           notifications,
+          _id: String(group[0]._creationTime),
         };
       });
 

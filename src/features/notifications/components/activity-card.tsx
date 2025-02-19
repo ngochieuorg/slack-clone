@@ -1,14 +1,12 @@
 import dynamic from 'next/dynamic';
-import { Dispatch, useCallback } from 'react';
-import { SetStateAction } from 'jotai';
+import { useCallback } from 'react';
 
 // UI Components
-import { CheckCircle, Loader, MessageSquareTextIcon } from 'lucide-react';
+import { CheckCircle, Loader, MessageCircleCodeIcon } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Avatar } from '@radix-ui/react-avatar';
-import { AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { AvatarFallback, AvatarImage, Avatar } from '@/components/ui/avatar';
 import { HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 
 // Utils & Helpers
@@ -21,11 +19,14 @@ import { useToggleReaction } from '@/features/reactions/api/use-toggle-reaction'
 import { useChannelId } from '@/hooks/use-channel-id';
 
 // Types
-import { ActivitiesReturnType } from '../api/use-get-activities';
 import { Doc, Id } from '../../../../convex/_generated/dataModel';
 
 // Notifications
 import { toast } from 'sonner';
+
+// Store Management
+import { useAtom } from 'jotai';
+import { activitiesAtom } from '@/store/activity.store';
 
 // Dynamic Imports
 const Renderer = dynamic(() => import('@/components/renderer'), { ssr: false });
@@ -35,22 +36,15 @@ const HoverCard = dynamic(
 );
 
 interface ActivityCardProps {
-  activities: ActivitiesReturnType;
-  isLoading: boolean;
-  isUnRead: boolean;
-  setIsUnRead: Dispatch<SetStateAction<boolean>>;
   currentUser?: Doc<'users'> | null;
 }
 
-const ActivityCard = ({
-  activities,
-  isLoading,
-  isUnRead,
-  setIsUnRead,
-  currentUser,
-}: ActivityCardProps) => {
+const ActivityCard = ({ currentUser }: ActivityCardProps) => {
   const channelId = useChannelId();
   const { mutate: toggleReaction } = useToggleReaction();
+
+  const [{ activities, isUnread, isLoading }, setActivities] =
+    useAtom(activitiesAtom);
 
   const handleReaction = useCallback(
     ({ value, messageId }: { value: string; messageId: Id<'messages'> }) => {
@@ -86,8 +80,10 @@ const ActivityCard = ({
           <Label htmlFor="status-read">Unreads</Label>
           <Switch
             id="status-read"
-            checked={isUnRead}
-            onCheckedChange={(value) => setIsUnRead(value)}
+            checked={isUnread}
+            onCheckedChange={(value) =>
+              setActivities((prev) => ({ ...prev, isUnread: value }))
+            }
           />
         </div>
       </div>
@@ -113,7 +109,7 @@ const ActivityCard = ({
 
             function activityIcon() {
               if (activity.notiType === 'reply') {
-                return <MessageSquareTextIcon className="size-4" />;
+                return <MessageCircleCodeIcon className="size-4" />;
               } else if (activity.notiType === 'mention') {
                 return <span className="text-muted-foreground">@</span>;
               }
@@ -167,7 +163,7 @@ const ActivityCard = ({
                       src={activity.newestNoti.sender?.image}
                       alt={activity.newestNoti.sender?.name}
                     />
-                    <AvatarFallback className="rounded-md bg-sky-500 text-white size-10">
+                    <AvatarFallback className="rounded-md bg-sky-500 text-white">
                       {activity.newestNoti.sender?.name?.charAt(0)}
                     </AvatarFallback>
                   </Avatar>

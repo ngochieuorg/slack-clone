@@ -1,28 +1,29 @@
 import dynamic from 'next/dynamic';
-import { Button } from '@/components/ui/button';
-import { Id } from '../../../../convex/_generated/dataModel';
-import { AlertTriangle, Loader, XIcon } from 'lucide-react';
-import { useGetMessage } from '../api/use-get-message';
-import Message from '@/components/message';
-import { useCurrentMember } from '@/features/members/api/use-current-member';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
-import { useRef, useState } from 'react';
+import { Id } from '../../../../convex/_generated/dataModel';
+import { useGetMessage } from '@/features/messages/api/use-get-message';
+import { useGetMessages } from '@/features/messages/api/use-get-messages';
+
+import { format, differenceInMinutes } from 'date-fns';
+import { Loader, XIcon } from 'lucide-react';
+import Message from '@/components/message';
 import Quill from 'quill';
-import { useCreateMessage } from '../api/use-create-message';
-import { useGenerateUploadUrl } from '@/features/upload/api/use-generate-upload-url';
-import { useChannelId } from '@/hooks/use-channel-id';
+import { useRef, useState } from 'react';
+import { useCurrentMember } from '@/features/members/api/use-current-member';
 import { toast } from 'sonner';
-import { useGetMessages } from '../api/use-get-messages';
-import { differenceInMinutes, format } from 'date-fns';
-import { formatDateLabel } from '@/app/utils/date-time';
+import { useCreateMessage } from '@/features/messages/api/use-create-message';
+import { useGenerateUploadUrl } from '@/features/upload/api/use-generate-upload-url';
+import { Button } from '@/components/ui/button';
+import ChannelIcon from '@/asset/svg/channel-icon';
 
 const Editor = dynamic(() => import('@/components/editor'), { ssr: false });
 
 const TIME_THRESHHOLD = 5;
 
-interface ThreadProps {
+interface ActivityThreadProps {
+  channelId: Id<'channels'>;
+  conversationId?: string;
   messageId: Id<'messages'>;
-  onClose: () => void;
 }
 
 type CreateMessageValues = {
@@ -33,19 +34,20 @@ type CreateMessageValues = {
   image: Id<'_storage'> | undefined;
 };
 
-const Thread = ({ messageId, onClose }: ThreadProps) => {
-  const channelId = useChannelId();
+const ActivityThread = ({ channelId, messageId }: ActivityThreadProps) => {
   const workspaceId = useWorkspaceId();
 
-  const [editingId, setEditingId] = useState<Id<'messages'> | null>(null);
+  const editorRef = useRef<Quill | null>(null);
   const [editorKey, setEditorKey] = useState(0);
   const [isPending, setIsPending] = useState(false);
-  const editorRef = useRef<Quill | null>(null);
+  const [editingId, setEditingId] = useState<Id<'messages'> | null>(null);
 
   const { data: currentMember } = useCurrentMember({ workspaceId });
+
   const { data: message, isLoading: loadingMessage } = useGetMessage({
     id: messageId,
   });
+
   const { results, status, loadMore } = useGetMessages({
     channelId,
     parentMessageId: messageId,
@@ -56,6 +58,20 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
 
   const canLoadMore = status === 'CanLoadMore';
   const isLoadingMore = status === 'LoadingMore';
+
+  const groupedMessage = results?.reduce(
+    (groups, message) => {
+      const date = new Date(message._creationTime);
+      const dateKey = format(date, 'yyyy-MM-dd');
+
+      if (!groups[dateKey]) {
+        groups[dateKey] = [];
+      }
+      groups[dateKey].unshift(message);
+      return groups;
+    },
+    {} as Record<string, typeof results>
+  );
 
   const handleSubmit = async ({
     body,
@@ -105,28 +121,11 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
     }
   };
 
-  const groupedMessage = results?.reduce(
-    (groups, message) => {
-      const date = new Date(message._creationTime);
-      const dateKey = format(date, 'yyyy-MM-dd');
-
-      if (!groups[dateKey]) {
-        groups[dateKey] = [];
-      }
-      groups[dateKey].unshift(message);
-      return groups;
-    },
-    {} as Record<string, typeof results>
-  );
-
   if (loadingMessage || status === 'LoadingFirstPage') {
     return (
       <div className="h-full flex flex-col">
         <div className="h-[49px] flex justify-between items-center px-4 border-b">
           <p className="text-lg font-bold">Thread</p>
-          <Button onClick={onClose} size={'iconSm'} variant={'ghost'}>
-            <XIcon className="size-5 stroke-[1.5]" />
-          </Button>
         </div>
         <div className="flex flex-col gap-y-2 h-full items-center justify-center">
           <Loader className="size-5 animate-spin text-muted-foreground" />
@@ -140,12 +139,8 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
       <div className="h-full flex flex-col">
         <div className="h-[49px] flex justify-between items-center px-4 border-b">
           <p className="text-lg font-bold">Thread</p>
-          <Button onClick={onClose} size={'iconSm'} variant={'ghost'}>
-            <XIcon className="size-5 stroke-[1.5]" />
-          </Button>
         </div>
         <div className="flex flex-col gap-y-2 h-full items-center justify-center">
-          <AlertTriangle className="size-5 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">Message not found</p>
         </div>
       </div>
@@ -153,22 +148,36 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
   }
 
   return (
-    <div className="h-full flex flex-col bg-white mb-1">
-      <div className="h-[49px] flex justify-between items-center px-4 border-b">
-        <p className="text-lg font-bold">Thread</p>
-        <Button onClick={onClose} size={'iconSm'} variant={'ghost'}>
+    <div className="flex flex-col max-h-full overflow-y-auto">
+      <div className="h-[49px] flex items-center px-4 border-b gap-2">
+        <i className="group cursor-pointer hover:bg-slate-100 p-2 rounded-lg">
+          <ChannelIcon className="text-muted-foreground group-hover:text-slate-900" />
+        </i>
+        <p className="text-lg font-bold ">Thread</p>
+        <p className="text-muted-foreground text-sm">
+          # {message.channel?.name}
+        </p>
+        <Button
+          onClick={() => {}}
+          size={'iconSm'}
+          variant={'ghost'}
+          className="ml-auto"
+        >
           <XIcon className="size-5 stroke-[1.5]" />
         </Button>
       </div>
       <div className="flex-1 flex flex-col-reverse pb-4 overflow-y-auto messages-scrollbar">
+        <div className="px-4">
+          <Editor
+            key={editorKey}
+            onSubmit={handleSubmit}
+            innerRef={editorRef}
+            disabled={isPending}
+            placeholder="Reply..."
+          />
+        </div>
         {Object.entries(groupedMessage || {}).map(([dateKey, messages]) => (
           <div key={dateKey}>
-            <div className="text-center my-2 relative">
-              <hr className="absolute top-1/2 left-0 right-0 border-t border-gray-300" />
-              <span className="relative inline-block bg-white px-4 py-1 rounded-full text-xs border border-gray-300 shadow-sm">
-                {formatDateLabel(dateKey)}
-              </span>
-            </div>
             {messages.map((message, index) => {
               const prevMessage = messages[index - 1];
               const isCompact =
@@ -231,6 +240,12 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
             </span>
           </div>
         )}
+        <div className="my-2 relative mx-4">
+          <hr className="absolute top-1/2 left-0 right-0 border-t border-gray-300" />
+          <span className="relative inline-block px-2 py-1 text-xs bg-white left-10 text-muted-foreground">
+            {results.length} replies
+          </span>
+        </div>
         <Message
           hideThreadButton
           memberId={message.memberId}
@@ -247,17 +262,8 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
           setEditingId={setEditingId}
         />
       </div>
-      <div className="px-4">
-        <Editor
-          key={editorKey}
-          onSubmit={handleSubmit}
-          innerRef={editorRef}
-          disabled={isPending}
-          placeholder="Reply..."
-        />
-      </div>
     </div>
   );
 };
 
-export default Thread;
+export default ActivityThread;

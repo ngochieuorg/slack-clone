@@ -15,21 +15,30 @@ import {
   ActivitiesReturnType,
   useGetActivities,
 } from '@/features/notifications/api/use-get-activities';
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { useCurrentUser } from '@/features/auth/api/use-current-user';
+import { useAtom } from 'jotai';
+import { activitiesAtom } from '@/store/activity.store';
 
 export const Sidebar = () => {
   const router = useRouter();
   const workspaceId = useWorkspaceId();
   const { data: currentUser } = useCurrentUser();
 
-  const [isUnRead, setIsUnRead] = useState(false);
+  const [{ activities, isUnread }, setActivities] = useAtom(activitiesAtom);
 
-  const { data: activities, isLoading: notificationsLoading } =
-    useGetActivities({
-      workspaceId,
-      isUnRead,
-    });
+  const { data, isLoading: notificationsLoading } = useGetActivities({
+    workspaceId,
+    isUnRead: isUnread,
+  });
+
+  useEffect(() => {
+    setActivities((prev) => ({
+      ...prev,
+      activities: data || [],
+      isLoading: notificationsLoading,
+    }));
+  }, [isUnread, workspaceId, setActivities, data, notificationsLoading]);
 
   const countActivitiesNoti = (activities?: ActivitiesReturnType) => {
     return (activities || []).filter((activity) => activity.unreadCount).length;
@@ -69,13 +78,7 @@ export const Sidebar = () => {
             />
           </HoverCardTrigger>
           <HoverCardContent className="p-0">
-            <ActivityCard
-              activities={activities || []}
-              isLoading={notificationsLoading}
-              isUnRead={isUnRead}
-              setIsUnRead={setIsUnRead}
-              currentUser={currentUser}
-            />
+            <ActivityCard currentUser={currentUser} />
           </HoverCardContent>
         </HoverCard>
       </div>

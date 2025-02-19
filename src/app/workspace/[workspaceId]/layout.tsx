@@ -41,11 +41,14 @@ const WorkspaceLayout = ({ children }: WorkspaceIdLayoutProps) => {
           <ResizablePanel
             id={isActivityPage ? 'activity' : 'home'}
             defaultSize={isActivityPage ? 45 : 15}
-            minSize={11}
+            minSize={isActivityPage ? 25 : 11}
             className="rounded-tl-lg rounded-bl-lg mb-0.5"
             order={1}
           >
-            <div className="flex flex-col bg-[#5E2C5F] h-full">
+            <div
+              className="flex flex-col bg-[#5E2C5F] h-full overflow-y-scroll overflow-x-clip
+              [&::-webkit-scrollbar]:w-0"
+            >
               {isActivityPage ? <ActivitySidebar /> : <WorkSpaceSidebar />}
             </div>
           </ResizablePanel>
@@ -54,7 +57,7 @@ const WorkspaceLayout = ({ children }: WorkspaceIdLayoutProps) => {
             minSize={20}
             order={2}
             id="content"
-            className="bg-white mb-0.5 rounded-tr-lg rounded-br-lg mr-1"
+            className="bg-white mb-0.5"
           >
             {children}
           </ResizablePanel>
@@ -66,6 +69,7 @@ const WorkspaceLayout = ({ children }: WorkspaceIdLayoutProps) => {
                 order={3}
                 defaultSize={29}
                 id="right"
+                className="mb-0.5"
               >
                 {parentMessageId ? (
                   <Thread

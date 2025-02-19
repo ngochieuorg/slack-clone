@@ -17,6 +17,8 @@ import { groupBy } from '@/app/utils';
 // Hooks & API Calls
 import { useToggleReaction } from '@/features/reactions/api/use-toggle-reaction';
 import { useChannelId } from '@/hooks/use-channel-id';
+import { useMarkAsReadNotifications } from '../api/use-mark-as-read-notifications';
+import { useWorkspaceId } from '@/hooks/use-workspace-id';
 
 // Types
 import { Doc, Id } from '../../../../convex/_generated/dataModel';
@@ -40,6 +42,7 @@ interface ActivityCardProps {
 }
 
 const ActivityCard = ({ currentUser }: ActivityCardProps) => {
+  const workspaceId = useWorkspaceId();
   const channelId = useChannelId();
   const { mutate: toggleReaction } = useToggleReaction();
 
@@ -59,6 +62,20 @@ const ActivityCard = ({ currentUser }: ActivityCardProps) => {
     },
     [toggleReaction, channelId]
   );
+
+  const { mutate: markAsReadNoti } = useMarkAsReadNotifications();
+
+  // const markAsReadChannel = (channelId: Id<'channels'>) => {
+  //   markAsReadNoti({ channelId, workspaceId }, {});
+  // };
+
+  // const markAsReadConversation = (conversationId: Id<'conversations'>) => {
+  //   markAsReadNoti({ conversationId, workspaceId }, {});
+  // };
+
+  const markAsReadMessage = (messageId?: Id<'messages'>) => {
+    markAsReadNoti({ workspaceId, messageId }, {});
+  };
 
   const LoaderComponent = (
     <div className="flex flex-col h-[480px] items-center justify-center">
@@ -315,8 +332,18 @@ const ActivityCard = ({ currentUser }: ActivityCardProps) => {
               }
             }
 
+            function onHandleClickActivity() {
+              if (activity.notiType === 'mention') {
+                markAsReadMessage(activity.newestNoti.messageId);
+              }
+            }
+
             return (
-              <div className="p-2" key={index}>
+              <div
+                className="p-2 pb-0 cursor-pointer hover:bg-slate-100"
+                key={index}
+                onClick={() => onHandleClickActivity()}
+              >
                 <div
                   className={cn(
                     'flex justify-between items-end',

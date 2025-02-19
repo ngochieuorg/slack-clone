@@ -80,6 +80,7 @@ export const markAsRead = mutation({
     workspaceId: v.id('workspaces'),
     channelId: v.optional(v.id('channels')),
     conversationId: v.optional(v.id('conversations')),
+    messageId: v.optional(v.id('messages')),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -113,6 +114,10 @@ export const markAsRead = mutation({
             q.and(
               q.neq(q.field('conversationId'), undefined),
               q.eq(q.field('conversationId'), args.conversationId)
+            ),
+            q.and(
+              q.neq(q.field('messageId'), undefined),
+              q.eq(q.field('messageId'), args.messageId)
             )
           )
         )
@@ -279,7 +284,7 @@ export const activities = query({
         const notiType = noti.type;
         const threadName = noti.channel?.name;
         const newestNoti = noti;
-        const unreadCount = 1;
+        const unreadCount = noti.status === 'unread' ? 1 : 0;
         const senders: Record<string, Doc<'users'>> = {};
         const thread = noti.thread;
         const notifications: (Doc<'notifications'> & {

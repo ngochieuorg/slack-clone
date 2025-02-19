@@ -14,27 +14,26 @@ import { toast } from 'sonner';
 import { useCreateMessage } from '@/features/messages/api/use-create-message';
 import { useGenerateUploadUrl } from '@/features/upload/api/use-generate-upload-url';
 import { Button } from '@/components/ui/button';
-import ChannelIcon from '@/asset/svg/channel-icon';
 
 const Editor = dynamic(() => import('@/components/editor'), { ssr: false });
 
 const TIME_THRESHHOLD = 5;
 
-interface ActivityThreadProps {
-  channelId: Id<'channels'>;
-  conversationId?: string;
-  messageId: Id<'messages'>;
+interface ActivityChannelProps {
+  channelId?: string;
+  parentMessageId?: string;
+  messageId: string;
 }
 
 type CreateMessageValues = {
   channelId: Id<'channels'>;
   workspaceId: Id<'workspaces'>;
-  parentMessageId: Id<'messages'>;
+  parentMessageId?: Id<'messages'>;
   body: string;
   image: Id<'_storage'> | undefined;
 };
 
-const ActivityThread = ({ channelId, messageId }: ActivityThreadProps) => {
+const ActivityChannel = ({ channelId, messageId }: ActivityChannelProps) => {
   const workspaceId = useWorkspaceId();
 
   const editorRef = useRef<Quill | null>(null);
@@ -45,12 +44,11 @@ const ActivityThread = ({ channelId, messageId }: ActivityThreadProps) => {
   const { data: currentMember } = useCurrentMember({ workspaceId });
 
   const { data: message, isLoading: loadingMessage } = useGetMessage({
-    id: messageId,
+    id: messageId as Id<'messages'>,
   });
 
   const { results, status, loadMore } = useGetMessages({
-    channelId,
-    parentMessageId: messageId,
+    channelId: channelId as Id<'channels'>,
   });
 
   const { mutate: createMessage } = useCreateMessage();
@@ -85,11 +83,10 @@ const ActivityThread = ({ channelId, messageId }: ActivityThreadProps) => {
       editorRef?.current?.enable(false);
 
       const values: CreateMessageValues = {
-        channelId,
+        channelId: channelId as Id<'channels'>,
         workspaceId,
         body,
         image: undefined,
-        parentMessageId: messageId,
       };
 
       if (image) {
@@ -150,13 +147,7 @@ const ActivityThread = ({ channelId, messageId }: ActivityThreadProps) => {
   return (
     <div className="flex flex-col max-h-full overflow-y-auto">
       <div className="h-[49px] flex items-center px-4 border-b gap-2">
-        <i className="group cursor-pointer hover:bg-slate-100 p-2 rounded-lg">
-          <ChannelIcon className="text-muted-foreground group-hover:text-slate-900" />
-        </i>
-        <p className="text-lg font-bold ">Thread</p>
-        <p className="text-muted-foreground text-sm">
-          # {message.channel?.name}
-        </p>
+        <p className="text-lg font-bold"># {message.channel?.name}</p>
         <Button
           onClick={() => {}}
           size={'iconSm'}
@@ -268,4 +259,4 @@ const ActivityThread = ({ channelId, messageId }: ActivityThreadProps) => {
   );
 };
 
-export default ActivityThread;
+export default ActivityChannel;

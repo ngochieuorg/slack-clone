@@ -3,9 +3,8 @@
 // Store Management
 import { useAtom } from 'jotai';
 import { activitiesAtom } from '@/store/activity.store';
-import ActivityMention from '@/features/notifications/components/activity-mention';
 import ActivityThread from '@/features/notifications/components/activity-threads';
-import ActivityReaction from '@/features/notifications/components/activity-reactions';
+import ActivityChannel from '@/features/notifications/components/activity-channel';
 
 const ActivityPage = () => {
   const [{ selectActivityId, activities }] = useAtom(activitiesAtom);
@@ -14,7 +13,25 @@ const ActivityPage = () => {
 
   const activityContent = () => {
     if (activity?.notiType === 'mention') {
-      return <ActivityMention />;
+      if (activity.newestNoti.messageId) {
+        if (activity.newestNoti.parentMessageId) {
+          if (activity?.newestNoti.channelId) {
+            return (
+              <ActivityThread
+                channelId={activity?.newestNoti.channelId}
+                messageId={activity?.newestNoti.parentMessageId}
+              />
+            );
+          }
+        }
+        return (
+          <ActivityChannel
+            channelId={activity?.newestNoti.channelId}
+            parentMessageId={activity?.newestNoti.parentMessageId}
+            messageId={activity.newestNoti.messageId}
+          />
+        );
+      }
     }
 
     if (activity?.notiType === 'reply') {
@@ -32,7 +49,15 @@ const ActivityPage = () => {
     }
 
     if (activity?.notiType === 'reaction') {
-      return <ActivityReaction />;
+      if (activity?.newestNoti.messageId) {
+        return (
+          <ActivityChannel
+            messageId={activity?.newestNoti.messageId}
+            channelId={activity?.newestNoti.channelId}
+            parentMessageId={activity?.newestNoti.parentMessageId}
+          />
+        );
+      }
     }
   };
 

@@ -26,6 +26,8 @@ import { useCurrentUser } from '@/features/auth/api/use-current-user';
 
 // API Calls
 import { useToggleReaction } from '@/features/reactions/api/use-toggle-reaction';
+import { useMarkAsReadNotifications } from '@/features/notifications/api/use-mark-as-read-notifications';
+import { useWorkspaceId } from '@/hooks/use-workspace-id';
 
 // Utilities
 import { cn } from '@/lib/utils';
@@ -83,12 +85,15 @@ const activityType = [
 
 const ActivitySidebar = () => {
   const channelId = useChannelId();
+  const workspaceId = useWorkspaceId();
 
   const { data: currentUser } = useCurrentUser();
   const { mutate: toggleReaction } = useToggleReaction();
 
   const [{ activities, isUnread, isLoading }, setActivities] =
     useAtom(activitiesAtom);
+
+  const { mutate: markAsReadNoti } = useMarkAsReadNotifications();
 
   const [selectedTab, setSelectedTab] = useState('all');
 
@@ -105,6 +110,10 @@ const ActivitySidebar = () => {
     },
     [toggleReaction, channelId]
   );
+
+  const markAsReadMessage = (messageId?: Id<'messages'>) => {
+    markAsReadNoti({ workspaceId, messageId }, {});
+  };
 
   const filteredActivities = useMemo(() => {
     return (activities || []).filter((activity) => {
@@ -421,6 +430,9 @@ const ActivitySidebar = () => {
                       }
 
                       function onClickNoti() {
+                        if (activity.notiType === 'mention') {
+                          markAsReadMessage(activity.newestNoti.messageId);
+                        }
                         setActivities((prev) => ({
                           ...prev,
                           selectActivityId: activity._id,

@@ -8,6 +8,7 @@ import { useGetMessages } from '@/features/messages/api/use-get-messages';
 import { useCurrentMember } from '@/features/members/api/use-current-member';
 import { useCreateMessage } from '@/features/messages/api/use-create-message';
 import { useGenerateUploadUrl } from '@/features/upload/api/use-generate-upload-url';
+import { usePanel } from '@/hooks/use-panel';
 
 // Utilities
 import { format, differenceInMinutes } from 'date-fns';
@@ -17,6 +18,7 @@ import { cn } from '@/lib/utils';
 import Message from '@/components/message';
 import { Button } from '@/components/ui/button';
 import ChannelIcon from '@/asset/svg/channel-icon';
+import ChannelIdPage from '@/app/workspace/[workspaceId]/channel/[channelId]/page';
 
 // Icons
 import { Loader, XIcon } from 'lucide-react';
@@ -79,6 +81,8 @@ const ActivityThread = ({
 
   const { mutate: createMessage } = useCreateMessage();
   const { mutate: generateUploadUrl } = useGenerateUploadUrl();
+
+  const { onOpenMessage, channelId: channelIdFromQuery } = usePanel();
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -181,12 +185,21 @@ const ActivityThread = ({
     );
   }
 
+  if (channelIdFromQuery) {
+    return <ChannelIdPage channelId={channelIdFromQuery} />;
+  }
+
   return (
     <div className="flex flex-col max-h-full overflow-y-auto">
       <div className="h-[49px] flex items-center px-4 border-b gap-2">
-        <i className="group cursor-pointer hover:bg-slate-100 p-2 rounded-lg">
+        <div
+          className="group cursor-pointer hover:bg-slate-100 p-2 rounded-lg"
+          onClick={() => {
+            onOpenMessage(parentMessageId, channelId);
+          }}
+        >
           <ChannelIcon className="text-muted-foreground group-hover:text-slate-900" />
-        </i>
+        </div>
         <p className="text-lg font-bold ">Thread</p>
         <p className="text-muted-foreground text-sm">
           # {message.channel?.name}
@@ -213,7 +226,6 @@ const ActivityThread = ({
         {Object.entries(groupedMessage || {}).map(([dateKey, messages]) => (
           <div key={dateKey}>
             {messages.map((message, index) => {
-              console.log(message);
               const prevMessage = messages[index - 1];
               const isCompact =
                 prevMessage &&

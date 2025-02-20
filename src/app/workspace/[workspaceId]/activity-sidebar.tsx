@@ -43,6 +43,7 @@ import { Id } from '../../../../convex/_generated/dataModel';
 // Store Management
 import { useAtom } from 'jotai';
 import { activitiesAtom } from '@/store/activity.store';
+import { usePanel } from '@/hooks/use-panel';
 
 // Dynamic Imports
 const Renderer = dynamic(() => import('@/components/renderer'), { ssr: false });
@@ -94,6 +95,7 @@ const ActivitySidebar = () => {
     useAtom(activitiesAtom);
 
   const { mutate: markAsReadNoti } = useMarkAsReadNotifications();
+  const { onClose } = usePanel();
 
   const [selectedTab, setSelectedTab] = useState('all');
 
@@ -448,6 +450,7 @@ const ActivitySidebar = () => {
                         ) {
                           markAsReadMessage(activity.newestNoti.messageId);
                         }
+                        onClose();
                         setActivities((prev) => ({
                           ...prev,
                           selectActivityId: activity._id,

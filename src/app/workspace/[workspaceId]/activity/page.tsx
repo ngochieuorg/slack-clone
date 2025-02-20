@@ -3,11 +3,28 @@
 // Store Management
 import { useAtom } from 'jotai';
 import { activitiesAtom } from '@/store/activity.store';
+
+// Components
 import ActivityThread from '@/features/notifications/components/activity-threads';
 import ActivityChannel from '@/features/notifications/components/activity-channel';
 
+// Hooks
+import { usePanel } from '@/hooks/use-panel';
+
+// React
+import { useEffect } from 'react';
+
 const ActivityPage = () => {
   const [{ selectActivityId, activities }] = useAtom(activitiesAtom);
+
+  const { onClose } = usePanel();
+
+  useEffect(() => {
+    return () => {
+      onClose();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const activity = activities?.find((act) => act._id === selectActivityId);
 

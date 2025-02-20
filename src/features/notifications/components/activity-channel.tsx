@@ -22,12 +22,10 @@ import { Loader, XIcon } from 'lucide-react';
 
 // Libraries
 import Quill from 'quill';
+import { toast } from 'sonner';
 
 // React
 import { useEffect, useRef, useState } from 'react';
-
-// Notifications
-import { toast } from 'sonner';
 
 // Types
 import { Id } from '../../../../convex/_generated/dataModel';
@@ -175,7 +173,7 @@ const ActivityChannel = ({ channelId, messageId }: ActivityChannelProps) => {
 
   return (
     <div className="flex flex-col max-h-full overflow-y-auto">
-      <div className="h-[49px] flex items-center px-4 border-b gap-2">
+      <div className="min-h-[49px] flex items-center px-4 border-b gap-2">
         <p className="text-lg font-bold"># {message.channel?.name}</p>
         <Button
           onClick={() => {}}
@@ -199,9 +197,6 @@ const ActivityChannel = ({ channelId, messageId }: ActivityChannelProps) => {
         {Object.entries(groupedMessage || {}).map(([dateKey, messages]) => (
           <div key={dateKey}>
             {messages.map((message, index) => {
-              if (messageId === message._id) {
-                console.log(message);
-              }
               const prevMessage = messages[index - 1];
               const isCompact =
                 prevMessage &&

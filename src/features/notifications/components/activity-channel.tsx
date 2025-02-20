@@ -1,21 +1,38 @@
+// Dynamic Imports
 import dynamic from 'next/dynamic';
+
+// Hooks
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
-import { Id } from '../../../../convex/_generated/dataModel';
 import { useGetMessage } from '@/features/messages/api/use-get-message';
 import { useGetMessages } from '@/features/messages/api/use-get-messages';
-
-import { format, differenceInMinutes } from 'date-fns';
-import { Loader, XIcon } from 'lucide-react';
-import Message from '@/components/message';
-import Quill from 'quill';
-import { useEffect, useRef, useState } from 'react';
 import { useCurrentMember } from '@/features/members/api/use-current-member';
-import { toast } from 'sonner';
 import { useCreateMessage } from '@/features/messages/api/use-create-message';
 import { useGenerateUploadUrl } from '@/features/upload/api/use-generate-upload-url';
-import { Button } from '@/components/ui/button';
+
+// Utilities
+import { format, differenceInMinutes } from 'date-fns';
 import { cn } from '@/lib/utils';
 
+// Components
+import Message from '@/components/message';
+import { Button } from '@/components/ui/button';
+
+// Icons
+import { Loader, XIcon } from 'lucide-react';
+
+// Libraries
+import Quill from 'quill';
+
+// React
+import { useEffect, useRef, useState } from 'react';
+
+// Notifications
+import { toast } from 'sonner';
+
+// Types
+import { Id } from '../../../../convex/_generated/dataModel';
+
+// Dynamic Component
 const Editor = dynamic(() => import('@/components/editor'), { ssr: false });
 
 const TIME_THRESHHOLD = 5;

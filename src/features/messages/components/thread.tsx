@@ -1,21 +1,31 @@
+// Dynamic Imports
 import dynamic from 'next/dynamic';
+
+// UI Components
 import { Button } from '@/components/ui/button';
-import { Id } from '../../../../convex/_generated/dataModel';
 import { AlertTriangle, Loader, XIcon } from 'lucide-react';
-import { useGetMessage } from '../api/use-get-message';
 import Message from '@/components/message';
+
+// Hooks
+import { useGetMessage } from '../api/use-get-message';
 import { useCurrentMember } from '@/features/members/api/use-current-member';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
 import { useRef, useState } from 'react';
-import Quill from 'quill';
 import { useCreateMessage } from '../api/use-create-message';
 import { useGenerateUploadUrl } from '@/features/upload/api/use-generate-upload-url';
 import { useChannelId } from '@/hooks/use-channel-id';
-import { toast } from 'sonner';
 import { useGetMessages } from '../api/use-get-messages';
+
+// Utilities
+import { toast } from 'sonner';
 import { differenceInMinutes, format } from 'date-fns';
 import { formatDateLabel } from '@/app/utils/date-time';
 
+// Types
+import { Id } from '../../../../convex/_generated/dataModel';
+
+// Editor
+import Quill from 'quill';
 const Editor = dynamic(() => import('@/components/editor'), { ssr: false });
 
 const TIME_THRESHHOLD = 5;

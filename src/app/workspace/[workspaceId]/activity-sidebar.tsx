@@ -231,8 +231,20 @@ const ActivitySidebar = () => {
 
                       function activityAvatar() {
                         let isDoubleAvatar = false;
-                        if (activity.notiType === 'reply')
+                        if (activity.notiType === 'reply') {
                           isDoubleAvatar = true;
+                        }
+
+                        if (activity.notiType === 'reaction') {
+                          const lastReact = [...activity.notifications].pop();
+                          return (
+                            <div className="relative w-10">
+                              <div className="size-10 hover:opacity-75 transition rounded-md mt-1 text-[32px] flex justify-center items-center">
+                                {lastReact?.content}
+                              </div>
+                            </div>
+                          );
+                        }
 
                         return (
                           <div className="relative w-10">
@@ -430,7 +442,10 @@ const ActivitySidebar = () => {
                       }
 
                       function onClickNoti() {
-                        if (activity.notiType === 'mention') {
+                        if (
+                          activity.notiType === 'mention' ||
+                          activity.notiType === 'reaction'
+                        ) {
                           markAsReadMessage(activity.newestNoti.messageId);
                         }
                         setActivities((prev) => ({

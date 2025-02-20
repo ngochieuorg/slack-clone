@@ -167,6 +167,17 @@ const ActivityCard = ({ currentUser }: ActivityCardProps) => {
               let isDoubleAvatar = false;
               if (activity.notiType === 'reply') isDoubleAvatar = true;
 
+              if (activity.notiType === 'reaction') {
+                const lastReact = [...activity.notifications].pop();
+                return (
+                  <div className="relative w-10">
+                    <div className="size-10 hover:opacity-75 transition rounded-md mt-1 text-[40px] flex justify-center items-center">
+                      {lastReact?.content}
+                    </div>
+                  </div>
+                );
+              }
+
               return (
                 <div className="relative w-10">
                   <Avatar
@@ -333,7 +344,10 @@ const ActivityCard = ({ currentUser }: ActivityCardProps) => {
             }
 
             function onHandleClickActivity() {
-              if (activity.notiType === 'mention') {
+              if (
+                activity.notiType === 'mention' ||
+                activity.notiType === 'reaction'
+              ) {
                 markAsReadMessage(activity.newestNoti.messageId);
               }
             }

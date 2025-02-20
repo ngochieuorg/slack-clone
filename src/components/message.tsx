@@ -22,6 +22,7 @@ const Renderer = dynamic(() => import('@/components/renderer'), { ssr: true });
 const Editor = dynamic(() => import('@/components/editor'), { ssr: false });
 
 interface MessageProps {
+  className?: string;
   id: Id<'messages'>;
   memberId: Id<'members'>;
   authorImage?: string;
@@ -50,6 +51,7 @@ interface MessageProps {
 }
 
 const Message = ({
+  className,
   id,
   memberId,
   authorImage,
@@ -144,7 +146,8 @@ const Message = ({
             'flex flex-col gap-2 p-1.5 px-5 hover:bg-gray-100/60 group relative',
             isEditing && 'bg-[#f2c74433] hover:bg-[#f2c74433]',
             isRemovingMessage &&
-              'bg-rose-500/50 transform transition-all scale-y-0 origin-bottom duration-200'
+              'bg-rose-500/50 transform transition-all scale-y-0 origin-bottom duration-200',
+            className
           )}
         >
           <div className="flex items-start gap-2">
@@ -209,7 +212,8 @@ const Message = ({
           'flex flex-col gap-2 p-1.5 px-5 hover:bg-gray-100/60 group relative',
           isEditing && 'bg-[#f2c74433] hover:bg-[#f2c74433]',
           isRemovingMessage &&
-            'bg-rose-500/50 transform transition-all scale-y-0 origin-bottom duration-200'
+            'bg-rose-500/50 transform transition-all scale-y-0 origin-bottom duration-200',
+          className
         )}
       >
         <div className="flex items-start gap-2">

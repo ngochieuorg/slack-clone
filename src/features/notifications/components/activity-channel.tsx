@@ -8,12 +8,13 @@ import { format, differenceInMinutes } from 'date-fns';
 import { Loader, XIcon } from 'lucide-react';
 import Message from '@/components/message';
 import Quill from 'quill';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useCurrentMember } from '@/features/members/api/use-current-member';
 import { toast } from 'sonner';
 import { useCreateMessage } from '@/features/messages/api/use-create-message';
 import { useGenerateUploadUrl } from '@/features/upload/api/use-generate-upload-url';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 const Editor = dynamic(() => import('@/components/editor'), { ssr: false });
 
@@ -40,6 +41,7 @@ const ActivityChannel = ({ channelId, messageId }: ActivityChannelProps) => {
   const [editorKey, setEditorKey] = useState(0);
   const [isPending, setIsPending] = useState(false);
   const [editingId, setEditingId] = useState<Id<'messages'> | null>(null);
+  const [hightLight, setHightLight] = useState(true);
 
   const { data: currentMember } = useCurrentMember({ workspaceId });
 
@@ -53,6 +55,16 @@ const ActivityChannel = ({ channelId, messageId }: ActivityChannelProps) => {
 
   const { mutate: createMessage } = useCreateMessage();
   const { mutate: generateUploadUrl } = useGenerateUploadUrl();
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setHightLight(false);
+    }, 3000);
+    return () => {
+      setHightLight(true);
+      clearTimeout(timeout);
+    };
+  }, [messageId]);
 
   const canLoadMore = status === 'CanLoadMore';
   const isLoadingMore = status === 'LoadingMore';
@@ -170,6 +182,9 @@ const ActivityChannel = ({ channelId, messageId }: ActivityChannelProps) => {
         {Object.entries(groupedMessage || {}).map(([dateKey, messages]) => (
           <div key={dateKey}>
             {messages.map((message, index) => {
+              if (messageId === message._id) {
+                console.log(message);
+              }
               const prevMessage = messages[index - 1];
               const isCompact =
                 prevMessage &&
@@ -200,6 +215,12 @@ const ActivityChannel = ({ channelId, messageId }: ActivityChannelProps) => {
                   threadTimestamp={message.threadTimestamp}
                   threadName={message.threadName}
                   threadUsers={message.usersInThread}
+                  className={cn(
+                    message._id === messageId && 'bg-gray-100/60',
+                    message._id === messageId &&
+                      hightLight &&
+                      'bg-[#f2c74433] transition duration-2000 ease-in-out'
+                  )}
                 />
               );
             })}

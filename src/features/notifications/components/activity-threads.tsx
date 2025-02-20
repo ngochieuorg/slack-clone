@@ -8,13 +8,14 @@ import { format, differenceInMinutes } from 'date-fns';
 import { Loader, XIcon } from 'lucide-react';
 import Message from '@/components/message';
 import Quill from 'quill';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useCurrentMember } from '@/features/members/api/use-current-member';
 import { toast } from 'sonner';
 import { useCreateMessage } from '@/features/messages/api/use-create-message';
 import { useGenerateUploadUrl } from '@/features/upload/api/use-generate-upload-url';
 import { Button } from '@/components/ui/button';
 import ChannelIcon from '@/asset/svg/channel-icon';
+import { cn } from '@/lib/utils';
 
 const Editor = dynamic(() => import('@/components/editor'), { ssr: false });
 
@@ -23,7 +24,8 @@ const TIME_THRESHHOLD = 5;
 interface ActivityThreadProps {
   channelId: Id<'channels'>;
   conversationId?: string;
-  messageId: Id<'messages'>;
+  parentMessageId: Id<'messages'>;
+  messageId?: Id<'messages'>;
 }
 
 type CreateMessageValues = {
@@ -34,27 +36,42 @@ type CreateMessageValues = {
   image: Id<'_storage'> | undefined;
 };
 
-const ActivityThread = ({ channelId, messageId }: ActivityThreadProps) => {
+const ActivityThread = ({
+  channelId,
+  parentMessageId,
+  messageId,
+}: ActivityThreadProps) => {
   const workspaceId = useWorkspaceId();
 
   const editorRef = useRef<Quill | null>(null);
   const [editorKey, setEditorKey] = useState(0);
   const [isPending, setIsPending] = useState(false);
   const [editingId, setEditingId] = useState<Id<'messages'> | null>(null);
+  const [hightLight, setHightLight] = useState(true);
 
   const { data: currentMember } = useCurrentMember({ workspaceId });
 
   const { data: message, isLoading: loadingMessage } = useGetMessage({
-    id: messageId,
+    id: parentMessageId,
   });
 
   const { results, status, loadMore } = useGetMessages({
     channelId,
-    parentMessageId: messageId,
+    parentMessageId: parentMessageId,
   });
 
   const { mutate: createMessage } = useCreateMessage();
   const { mutate: generateUploadUrl } = useGenerateUploadUrl();
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setHightLight(false);
+    }, 3000);
+    return () => {
+      setHightLight(true);
+      clearTimeout(timeout);
+    };
+  }, [messageId]);
 
   const canLoadMore = status === 'CanLoadMore';
   const isLoadingMore = status === 'LoadingMore';
@@ -89,7 +106,7 @@ const ActivityThread = ({ channelId, messageId }: ActivityThreadProps) => {
         workspaceId,
         body,
         image: undefined,
-        parentMessageId: messageId,
+        parentMessageId: parentMessageId,
       };
 
       if (image) {
@@ -179,6 +196,7 @@ const ActivityThread = ({ channelId, messageId }: ActivityThreadProps) => {
         {Object.entries(groupedMessage || {}).map(([dateKey, messages]) => (
           <div key={dateKey}>
             {messages.map((message, index) => {
+              console.log(message);
               const prevMessage = messages[index - 1];
               const isCompact =
                 prevMessage &&
@@ -209,6 +227,11 @@ const ActivityThread = ({ channelId, messageId }: ActivityThreadProps) => {
                   threadTimestamp={message.threadTimestamp}
                   threadName={message.threadName}
                   threadUsers={message.usersInThread}
+                  className={cn(
+                    message._id === messageId &&
+                      hightLight &&
+                      'bg-[#f2c74433] transition duration-1000'
+                  )}
                 />
               );
             })}

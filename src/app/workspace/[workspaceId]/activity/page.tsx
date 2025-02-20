@@ -19,7 +19,8 @@ const ActivityPage = () => {
             return (
               <ActivityThread
                 channelId={activity?.newestNoti.channelId}
-                messageId={activity?.newestNoti.parentMessageId}
+                parentMessageId={activity?.newestNoti.parentMessageId}
+                messageId={activity.newestNoti.messageId}
               />
             );
           }
@@ -42,7 +43,8 @@ const ActivityPage = () => {
         return (
           <ActivityThread
             channelId={activity?.newestNoti.channelId}
-            messageId={activity?.newestNoti.parentMessageId}
+            parentMessageId={activity?.newestNoti.parentMessageId}
+            messageId={activity.newestNoti.messageId}
           />
         );
       }

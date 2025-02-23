@@ -144,7 +144,7 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
 
   if (loadingMessage || status === 'LoadingFirstPage') {
     return (
-      <div className="h-full flex flex-col">
+      <div className="h-full flex flex-col bg-white">
         <div className="h-[49px] flex justify-between items-center px-4 border-b">
           <p className="text-lg font-bold">Thread</p>
           <Button onClick={onClose} size={'iconSm'} variant={'ghost'}>
@@ -160,7 +160,7 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
 
   if (!message) {
     return (
-      <div className="h-full flex flex-col">
+      <div className="h-full flex flex-col bg-white">
         <div className="h-[49px] flex justify-between items-center px-4 border-b">
           <p className="text-lg font-bold">Thread</p>
           <Button onClick={onClose} size={'iconSm'} variant={'ghost'}>

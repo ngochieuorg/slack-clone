@@ -59,7 +59,7 @@ const UserItem = ({
           </Avatar>
           <span
             className={cn(
-              'text-sm truncate',
+              'text-sm truncate ml-2',
               Number(countNotifs) > 0 && 'font-bold text-white'
             )}
           >

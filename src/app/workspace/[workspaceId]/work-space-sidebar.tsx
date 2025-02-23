@@ -5,9 +5,9 @@ import { useWorkspaceId } from '@/hooks/use-workspace-id';
 import {
   AlertTriangle,
   HashIcon,
-  Loader,
   MessageSquareText,
   SendHorizontal,
+  LockKeyhole,
 } from 'lucide-react';
 import WorkspaceHeader from './workspace-header';
 import SidebarItem from './sidebar-item';
@@ -112,7 +112,7 @@ const WorkSpaceSidebar = () => {
           return (
             <div onClick={() => markAsReadChannel(item._id)} key={item._id}>
               <SidebarItem
-                icon={HashIcon}
+                icon={item.isPrivate ? LockKeyhole : HashIcon}
                 label={item.name}
                 id={item._id}
                 variant={channelId === item._id ? 'active' : 'default'}

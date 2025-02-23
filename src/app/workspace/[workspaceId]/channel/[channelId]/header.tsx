@@ -6,7 +6,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, HashIcon, LockKeyhole } from 'lucide-react';
 import { FaChevronDown } from 'react-icons/fa';
 import { EllipsisVertical } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
@@ -31,10 +31,13 @@ const Header = ({ channel }: HeaderProps) => {
           trigger={
             <Button
               variant={'ghost'}
-              className="text-lg font-semibold px-2 overflow-hidden w-auto"
+              className="text-lg font-semibold px-2 overflow-hidden w-auto "
               size={'sm'}
             >
-              <span className="truncate"># {channel.name}</span>
+              <span className="truncate flex items-center gap-1">
+                {channel.isPrivate ? <LockKeyhole /> : <HashIcon />}{' '}
+                {channel.name}
+              </span>
               <FaChevronDown className="size-2.5 ml-2" />
             </Button>
           }

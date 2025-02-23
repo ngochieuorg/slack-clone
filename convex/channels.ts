@@ -39,6 +39,7 @@ export const create = mutation({
   args: {
     name: v.string(),
     workspaceId: v.id('workspaces'),
+    isPrivate: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -63,6 +64,7 @@ export const create = mutation({
     const channelId = await ctx.db.insert('channels', {
       name: parsedName,
       workspaceId: args.workspaceId,
+      isPrivate: args.isPrivate,
     });
 
     return channelId;

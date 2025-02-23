@@ -5,21 +5,24 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 import { ChevronRight, HashIcon, LockKeyhole } from 'lucide-react';
 import { FaChevronDown } from 'react-icons/fa';
 import { EllipsisVertical } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from '@/components/ui/hover-card';
-import { Doc } from '../../../../../../convex/_generated/dataModel';
+import { HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import SettingChannelModal from '@/features/channels/components/setting-chanel-modal';
+import { GetChannelReturnType } from '@/features/channels/api/use-get-channel';
+import dynamic from 'next/dynamic';
+
+const HoverCard = dynamic(
+  () => import('@/components/ui/hover-card').then((mod) => mod.HoverCard),
+  { ssr: false }
+);
 
 interface HeaderProps {
-  channel: Doc<'channels'>;
+  channel: GetChannelReturnType;
 }
 
 const Header = ({ channel }: HeaderProps) => {
@@ -28,17 +31,25 @@ const Header = ({ channel }: HeaderProps) => {
       <div className=" w-full flex justify-between items-center">
         <SettingChannelModal
           channel={channel}
+          defaultTab="about"
           trigger={
             <Button
               variant={'ghost'}
               className="text-lg font-semibold px-2 overflow-hidden w-auto "
               size={'sm'}
             >
-              <span className="truncate flex items-center gap-1">
-                {channel.isPrivate ? <LockKeyhole /> : <HashIcon />}{' '}
-                {channel.name}
-              </span>
-              <FaChevronDown className="size-2.5 ml-2" />
+              <HoverCard>
+                <HoverCardTrigger className="flex items-center">
+                  <span className="truncate flex items-center gap-1">
+                    {channel?.isPrivate ? <LockKeyhole /> : <HashIcon />}{' '}
+                    {channel?.name}
+                  </span>
+                  <FaChevronDown className="size-2.5 ml-2" />
+                </HoverCardTrigger>
+                <HoverCardContent className="bg-zinc-900 p-3">
+                  <p className="text-white text-sm">Get channel details</p>
+                </HoverCardContent>
+              </HoverCard>
             </Button>
           }
         />
@@ -46,9 +57,49 @@ const Header = ({ channel }: HeaderProps) => {
           <Dialog>
             <SettingChannelModal
               channel={channel}
+              defaultTab="members"
               trigger={
-                <Button variant={'outline'} className="h-8">
-                  Member
+                <Button variant={'outline'} className="h-8 px-1">
+                  <HoverCard>
+                    <HoverCardTrigger className="flex items-center gap-2">
+                      <div className="flex -space-x-1">
+                        {channel?.users.slice(0, 3).map((user, index) => {
+                          const avatarFallback = user?.user?.name
+                            ?.charAt(0)
+                            .toUpperCase();
+                          return (
+                            <div
+                              key={user?._id}
+                              className={`p-0.5 rounded-md bg-white z-${index * 10}`}
+                            >
+                              <Avatar className="size-5">
+                                <AvatarImage src={user?.user?.image} />
+                                <AvatarFallback className="rounded-md bg-sky-500 text-white flex justify-center items-center text-xs font-light">
+                                  {avatarFallback}
+                                </AvatarFallback>
+                              </Avatar>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <span className=" font-normal mr-1">
+                        {channel?.users.length}
+                      </span>
+                    </HoverCardTrigger>
+                    <HoverCardContent className=" bg-zinc-900 text-center font-semibold text-sm ">
+                      <p className="text-white ">
+                        View all member of this channel
+                      </p>
+                      <p className="text-slate-400">
+                        Includes{' '}
+                        {channel?.users
+                          .slice(0, 3)
+                          .map((user) => (
+                            <span key={user?._id}> {user?.user?.name},</span>
+                          ))}
+                      </p>
+                    </HoverCardContent>
+                  </HoverCard>
                 </Button>
               }
             />

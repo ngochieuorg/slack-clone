@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { TrashIcon } from 'lucide-react';
 import { useChannelId } from '@/hooks/use-channel-id';
 import { useUpdateChannel } from '@/features/channels/api/use-update-channel';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
 import { useCurrentMember } from '@/features/members/api/use-current-member';
 import { toast } from 'sonner';
@@ -25,18 +25,24 @@ import { Separator } from '@/components/ui/separator';
 import { format } from 'date-fns';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TabsContent } from '@radix-ui/react-tabs';
+import { GetChannelReturnType } from '../api/use-get-channel';
 
 interface SettingChannelProps {
-  channel: Doc<'channels'>;
+  channel: GetChannelReturnType;
   trigger: React.ReactNode;
+  defaultTab?: 'about' | 'members';
 }
 
-const SettingChannelModal = ({ channel, trigger }: SettingChannelProps) => {
+const SettingChannelModal = ({
+  channel,
+  trigger,
+  defaultTab = 'about',
+}: SettingChannelProps) => {
   const router = useRouter();
   const channelId = useChannelId();
   const workspaceId = useWorkspaceId();
 
-  const [value, setValue] = useState(channel.name);
+  const [value, setValue] = useState(channel?.name || '');
   const [ConfirmDialog, confirm] = useConfirm(
     'Delete this channel?',
     'You are about to delete this channel. This action is irreversible'
@@ -95,7 +101,7 @@ const SettingChannelModal = ({ channel, trigger }: SettingChannelProps) => {
   const { component: EditName, setOpen: setOpenEditName } =
     useSettingChannelItem({
       title: 'Channel name',
-      des: `# ${channel.name}`,
+      des: `# ${channel?.name}`,
       toggleModal: true,
       contentTitle: 'Rename this channel',
       content: (
@@ -186,7 +192,9 @@ const SettingChannelModal = ({ channel, trigger }: SettingChannelProps) => {
   const { component: Created, setOpen: setOpenCreated } = useSettingChannelItem(
     {
       title: 'Created by',
-      des: `${format(channel._creationTime, 'MMM d, yyyy')} at ${format(channel._creationTime, 'h:mm:ss a')}`,
+      des: channel?._creationTime
+        ? `${format(channel._creationTime, 'MMM d, yyyy')} at ${format(channel._creationTime, 'h:mm:ss a')}`
+        : '',
       toggleModal: false,
       contentTitle: 'Rename this channel',
       content: (
@@ -221,9 +229,9 @@ const SettingChannelModal = ({ channel, trigger }: SettingChannelProps) => {
       <DialogContent className="p-0 bg-gray-50 overflow-hidden h-[65vh]">
         <DialogHeader className="p-4 border-b bg-white">
           <DialogTitle className="px-4 text-2xl font-semibold">
-            # {channel.name}
+            # {channel?.name}
           </DialogTitle>
-          <Tabs>
+          <Tabs defaultValue={defaultTab}>
             <TabsList className="w-full justify-start sticky top-10 z-50 mb-4 text-slate-700">
               <TabsTrigger
                 value={'about'}

@@ -1,6 +1,8 @@
 import { v } from 'convex/values';
 import { mutation, query } from './_generated/server';
 import { getAuthUserId } from '@convex-dev/auth/server';
+import { arrayToHash } from '../src/app/utils';
+import { populateMember, populateUser } from '../src/utils/convex.utils';
 
 export const get = query({
   args: {
@@ -24,6 +26,16 @@ export const get = query({
       return [];
     }
 
+    const channelsThatMemberIn = await ctx.db
+      .query('channelMembers')
+      .withIndex('by_member_id', (q) => q.eq('memberId', member._id))
+      .collect();
+
+    const channelIdsThatMemberIn = arrayToHash(
+      channelsThatMemberIn,
+      'channelId'
+    );
+
     const channels = await ctx.db
       .query('channels')
       .withIndex('by_workspace_id', (q) =>
@@ -31,7 +43,9 @@ export const get = query({
       )
       .collect();
 
-    return channels;
+    return channels.filter((channel) => {
+      return channelIdsThatMemberIn[channel._id];
+    });
   },
 });
 
@@ -67,6 +81,11 @@ export const create = mutation({
       isPrivate: args.isPrivate,
     });
 
+    await ctx.db.insert('channelMembers', {
+      channelId,
+      memberId: member._id,
+    });
+
     return channelId;
   },
 });
@@ -97,7 +116,22 @@ export const getById = query({
 
     if (!member) return null;
 
-    return channel;
+    const membersInChannel = await ctx.db
+      .query('channelMembers')
+      .withIndex('by_channel_id', (q) => q.eq('channelId', args.id))
+      .collect();
+
+    const usersInChannel = await Promise.all(
+      membersInChannel.map(async (mem) => {
+        const member = await populateMember(ctx, mem.memberId);
+        if (member) {
+          const user = await populateUser(ctx, member?.userId);
+          return { ...mem, user };
+        }
+      })
+    );
+
+    return { ...channel, users: usersInChannel };
   },
 });
 

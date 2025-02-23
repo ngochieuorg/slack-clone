@@ -186,8 +186,8 @@ export const remove = mutation({
     for (const message of messages) {
       await ctx.db.delete(message._id);
     }
-    for (const reacion of reactions) {
-      await ctx.db.delete(reacion._id);
+    for (const reaction of reactions) {
+      await ctx.db.delete(reaction._id);
     }
 
     for (const conversation of conversations) {

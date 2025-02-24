@@ -8,13 +8,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Doc } from '../../../../convex/_generated/dataModel';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { TrashIcon } from 'lucide-react';
+import { TrashIcon, UserPlus } from 'lucide-react';
 import { useChannelId } from '@/hooks/use-channel-id';
 import { useUpdateChannel } from '@/features/channels/api/use-update-channel';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
 import { useCurrentMember } from '@/features/members/api/use-current-member';
 import { toast } from 'sonner';
@@ -26,6 +25,8 @@ import { format } from 'date-fns';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TabsContent } from '@radix-ui/react-tabs';
 import { GetChannelReturnType } from '../api/use-get-channel';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import useAddPeopleToChannel from '../hooks/add-people-to-channel';
 
 interface SettingChannelProps {
   channel: GetChannelReturnType;
@@ -222,6 +223,20 @@ const SettingChannelModal = ({
     }
   );
 
+  const { component: AddPeople, setOpen: setOpenAddPeople } =
+    useAddPeopleToChannel({
+      channelName: channel?.name,
+      channel: channel,
+      trigger: (
+        <div className="flex items-center hover:bg-slate-100 p-3 cursor-pointer">
+          <div className="bg-sky-200 size-10 rounded-md flex items-center justify-center  mr-2">
+            <UserPlus className="size-6 text-sky-800" />
+          </div>
+          <p className="font-semibold">Add People</p>
+        </div>
+      ),
+    });
+
   return (
     <Dialog>
       <ConfirmDialog />
@@ -275,7 +290,41 @@ const SettingChannelModal = ({
               </div>
             </TabsContent>
             <TabsContent value={'members'}>
-              <div className="px-4 pb-4 flex flex-col gap-y-6">Members</div>
+              <div className="flex flex-col">
+                {AddPeople}
+                {channel?.users.map((user) => {
+                  const avatarFallback = user?.user?.name
+                    ?.charAt(0)
+                    .toUpperCase();
+                  return (
+                    <div
+                      key={user?._id}
+                      className="flex items-center hover:bg-slate-100 p-3 cursor-pointer"
+                    >
+                      <Avatar className="size-10 mr-2">
+                        <AvatarImage src={user?.user?.image} />
+                        <AvatarFallback className="aspect-square rounded-md bg-sky-500 text-white">
+                          {avatarFallback}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className=" font-semibold">
+                        {user?.memberId === member?._id
+                          ? `${user?.user?.name} (You)`
+                          : user?.user?.name}
+                      </span>
+                      {member?.role === 'admin' &&
+                        user?.memberId !== member._id && (
+                          <Button
+                            variant={'link'}
+                            className="ml-auto text-xs text-sky-800"
+                          >
+                            Remove
+                          </Button>
+                        )}
+                    </div>
+                  );
+                })}
+              </div>
             </TabsContent>
           </Tabs>
         </DialogHeader>

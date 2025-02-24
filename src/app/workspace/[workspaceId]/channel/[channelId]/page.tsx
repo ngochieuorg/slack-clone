@@ -27,8 +27,6 @@ const ChannelIdPage = ({
     id: workspaceId,
   });
 
-  console.log(channel);
-
   useEffect(() => {
     if (channel?.name) {
       document.title = `${channel?.name} (Channel) - ${workspace?.name || ''}`;

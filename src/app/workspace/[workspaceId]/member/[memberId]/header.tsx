@@ -1,6 +1,5 @@
-import { Avatar, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { AvatarFallback } from '@radix-ui/react-avatar';
 import { FaChevronDown } from 'react-icons/fa';
 
 interface HeaderProps {

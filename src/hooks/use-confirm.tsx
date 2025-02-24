@@ -11,7 +11,7 @@ import {
 import React, { JSX, useState } from 'react';
 
 const useConfirm = (
-  title: string,
+  title: string | React.ReactNode,
   message: string
 ): [() => JSX.Element, () => Promise<unknown>] => {
   const [promise, setPromise] = useState<{
@@ -39,7 +39,7 @@ const useConfirm = (
   };
 
   const ConfirmDialog = () => (
-    <Dialog open={promise !== null}>
+    <Dialog open={promise !== null} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>

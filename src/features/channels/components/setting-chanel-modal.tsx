@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { TrashIcon, UserPlus } from 'lucide-react';
+import { HashIcon, LockKeyhole, TrashIcon, UserPlus } from 'lucide-react';
 import { useChannelId } from '@/hooks/use-channel-id';
 import { useUpdateChannel } from '@/features/channels/api/use-update-channel';
 import { useState } from 'react';
@@ -27,6 +27,8 @@ import { TabsContent } from '@radix-ui/react-tabs';
 import { GetChannelReturnType } from '../api/use-get-channel';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import useAddPeopleToChannel from '../hooks/add-people-to-channel';
+import { useRemoveMember } from '../api/use-remove-member';
+import { Doc, Id } from '../../../../convex/_generated/dataModel';
 
 interface SettingChannelProps {
   channel: GetChannelReturnType;
@@ -44,9 +46,25 @@ const SettingChannelModal = ({
   const workspaceId = useWorkspaceId();
 
   const [value, setValue] = useState(channel?.name || '');
+  const [selectUser, setSelectUser] = useState<string | null | undefined>(null);
+
   const [ConfirmDialog, confirm] = useConfirm(
     'Delete this channel?',
     'You are about to delete this channel. This action is irreversible'
+  );
+  const [ConfirmRemoveMemberDialog, confirmRemoveMember] = useConfirm(
+    <div className="flex items-center gap-1">
+      Remove {selectUser} from{' '}
+      <span>
+        {channel?.isPrivate ? (
+          <LockKeyhole className="size-4" />
+        ) : (
+          <HashIcon className="size-4" />
+        )}
+      </span>{' '}
+      {channel?.name} channel?
+    </div>,
+    'This person will no longer have access to the channel and can only rejoin by invitation.'
   );
 
   const { data: member } = useCurrentMember({ workspaceId });
@@ -54,6 +72,27 @@ const SettingChannelModal = ({
     useUpdateChannel();
   const { mutate: removeChannel, isPending: isRemovingChannel } =
     useRemoveChannel();
+  const { mutate: removeMemberFromChannel } = useRemoveMember();
+
+  const handleRemoveMember = async (
+    memberId: Id<'members'>,
+    channelId: Id<'channels'>
+  ) => {
+    const ok = await confirmRemoveMember();
+
+    if (!ok) return;
+    removeMemberFromChannel(
+      {
+        memberId,
+        channelId,
+      },
+      {
+        onSuccess: () => {
+          toast.success('Remove');
+        },
+      }
+    );
+  };
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value.replace(/\s+/g, '-').toLowerCase();
@@ -240,6 +279,7 @@ const SettingChannelModal = ({
   return (
     <Dialog>
       <ConfirmDialog />
+      <ConfirmRemoveMemberDialog />
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="p-0 bg-gray-50 overflow-hidden h-[65vh]">
         <DialogHeader className="p-4 border-b bg-white">
@@ -317,6 +357,12 @@ const SettingChannelModal = ({
                           <Button
                             variant={'link'}
                             className="ml-auto text-xs text-sky-800"
+                            onClick={() => {
+                              if (user?.memberId && channelId) {
+                                setSelectUser(user.user?.name);
+                                handleRemoveMember(user?.memberId, channelId);
+                              }
+                            }}
                           >
                             Remove
                           </Button>

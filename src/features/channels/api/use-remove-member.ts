@@ -4,10 +4,7 @@ import { api } from '../../../../convex/_generated/api';
 import { useCallback, useMemo, useState } from 'react';
 import { Id } from '../../../../convex/_generated/dataModel';
 
-type RequestType = {
-  memberIds: Id<'members'>[];
-  channelId: Id<'channels'>;
-};
+type RequestType = { channelId: Id<'channels'>; memberId: Id<'members'> };
 type ResponseType = { success: boolean };
 
 type Options = {
@@ -17,7 +14,7 @@ type Options = {
   throwError?: boolean;
 };
 
-export const useAddMember = () => {
+export const useRemoveMember = () => {
   const [data, setData] = useState<RequestType | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [status, setStatus] = useState<
@@ -29,7 +26,7 @@ export const useAddMember = () => {
   const isError = useMemo(() => status === 'error', [status]);
   const isSettled = useMemo(() => status === 'settled', [status]);
 
-  const mutation = useMutation(api.channelMembers.add);
+  const mutation = useMutation(api.channelMembers.remove);
 
   const mutate = useCallback(
     async (values: RequestType, options: Options) => {

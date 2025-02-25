@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { useCurrentMember } from '../api/use-current-member';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
 import { format } from 'date-fns';
+import useSettingMembers from '../hooks/setting-member';
 
 interface ProfileProps {
   memberId: Id<'members'>;
@@ -33,6 +34,14 @@ const Profile = ({ memberId, onClose }: ProfileProps) => {
     });
   const { data: member, isLoading: isLoadingMember } = useGetMember({
     id: memberId,
+  });
+
+  const { component: SettingMember } = useSettingMembers({
+    trigger: (
+      <Button variant={'link'} className="text-sky-700 text-base">
+        Edit
+      </Button>
+    ),
   });
 
   if (isLoadingMember || isLoadingCurrentMember) {
@@ -87,11 +96,7 @@ const Profile = ({ memberId, onClose }: ProfileProps) => {
         <div className="flex flex-col px-4 gap-2">
           <div className="flex justify-between">
             <p className="font-bold text-2xl">{member.user.name}</p>
-            {currentMember?._id === memberId && (
-              <Button variant={'link'} className="text-sky-700 text-base">
-                Edit
-              </Button>
-            )}
+            {currentMember?._id === memberId && <>{SettingMember}</>}
           </div>
           {currentMember?._id === memberId && (
             <Button

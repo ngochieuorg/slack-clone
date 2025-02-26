@@ -26,6 +26,7 @@ interface HeaderProps {
 }
 
 const Header = ({ channel }: HeaderProps) => {
+  console.log(channel);
   return (
     <div className="bg-white border-b h-[48px] flex items-center px-4 overflow-hidden">
       <div className=" w-full flex justify-between items-center">
@@ -76,7 +77,12 @@ const Header = ({ channel }: HeaderProps) => {
                                 className={`p-0.5 rounded-md bg-white z-${index * 10}`}
                               >
                                 <Avatar className="size-5">
-                                  <AvatarImage src={user?.user?.image} />
+                                  <AvatarImage
+                                    src={
+                                      user?.user?.memberPreference.image ||
+                                      user?.user?.image
+                                    }
+                                  />
                                   <AvatarFallback className="rounded-md bg-sky-500 text-white flex justify-center items-center text-xs font-light">
                                     {avatarFallback}
                                   </AvatarFallback>

@@ -62,7 +62,7 @@ export const get = query({
         if (notification.channelId) {
           channelData = await ctx.db.get(notification.channelId);
         }
-        const senderData = await populateUser(ctx, notification.senderId);
+        const senderData = await populateUser(ctx, notification.senderId, {});
         return {
           ...notification,
           channel: channelData,

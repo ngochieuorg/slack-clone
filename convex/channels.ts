@@ -125,7 +125,9 @@ export const getById = query({
       membersInChannel.map(async (mem) => {
         const member = await populateMember(ctx, mem.memberId);
         if (member) {
-          const user = await populateUser(ctx, member?.userId);
+          const user = await populateUser(ctx, member?.userId, {
+            memberId: member._id,
+          });
           return { ...mem, user };
         }
       })

@@ -153,7 +153,7 @@ const WorkSpaceSidebar = () => {
                 key={member._id}
                 id={member._id}
                 label={member.user.name}
-                image={member.user.image}
+                image={member.user.memberPreference.image || member.user.image}
                 variant={member._id === memberId ? 'active' : 'default'}
                 countNotifs={countNotifs}
                 isYou={member.userId === currentUser?._id}

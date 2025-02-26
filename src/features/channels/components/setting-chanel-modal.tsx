@@ -342,7 +342,12 @@ const SettingChannelModal = ({
                       className="flex items-center hover:bg-slate-100 p-3 cursor-pointer"
                     >
                       <Avatar className="size-10 mr-2">
-                        <AvatarImage src={user?.user?.image} />
+                        <AvatarImage
+                          src={
+                            user?.user?.memberPreference.image ||
+                            user?.user?.image
+                          }
+                        />
                         <AvatarFallback className="aspect-square rounded-md bg-sky-500 text-white">
                           {avatarFallback}
                         </AvatarFallback>

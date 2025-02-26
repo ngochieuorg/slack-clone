@@ -64,7 +64,9 @@ export const get = query({
         await Promise.all(
           results.page.map(async (message) => {
             const member = await populateMember(ctx, message.memberId);
-            const user = member ? await populateUser(ctx, member.userId) : null;
+            const user = member
+              ? await populateUser(ctx, member.userId, { memberId: member._id })
+              : null;
 
             if (!member || !user) {
               return null;
@@ -84,7 +86,9 @@ export const get = query({
                   reaction.memberId
                 );
                 const userReact = memberReact
-                  ? await populateUser(ctx, memberReact.userId)
+                  ? await populateUser(ctx, memberReact.userId, {
+                      memberId: memberReact._id,
+                    })
                   : null;
                 return {
                   ...reaction,
@@ -188,7 +192,9 @@ export const getAll = query({
         )
         .map(async (message) => {
           const member = await populateMember(ctx, message.memberId);
-          const user = member ? await populateUser(ctx, member.userId) : null;
+          const user = member
+            ? await populateUser(ctx, member.userId, { memberId: member._id })
+            : null;
 
           if (!member || !user) {
             return null;
@@ -204,7 +210,9 @@ export const getAll = query({
             reactions.map(async (reaction) => {
               const memberReact = await populateMember(ctx, reaction.memberId);
               const userReact = memberReact
-                ? await populateUser(ctx, memberReact.userId)
+                ? await populateUser(ctx, memberReact.userId, {
+                    memberId: memberReact._id,
+                  })
                 : null;
               return {
                 ...reaction,
@@ -295,7 +303,9 @@ export const getById = query({
       return null;
     }
 
-    const user = await populateUser(ctx, member.userId);
+    const user = await populateUser(ctx, member.userId, {
+      memberId: member._id,
+    });
 
     if (!member) {
       return null;
@@ -370,7 +380,9 @@ export const create = mutation({
     }
 
     const currentMemmber = await getMember(ctx, args.workspaceId, userId);
-    const currentUser = await populateUser(ctx, userId);
+    const currentUser = await populateUser(ctx, userId, {
+      memberId: currentMemmber?._id,
+    });
 
     if (!currentMemmber) {
       throw Error('Unauthorized');

@@ -31,7 +31,9 @@ export const populateThread = async (
     memberIds.map(async (member) => {
       const populateMem = await populateMember(ctx, member as Id<'members'>);
       if (populateMem) {
-        const user = await populateUser(ctx, populateMem.userId);
+        const user = await populateUser(ctx, populateMem.userId, {
+          memberId: populateMem._id,
+        });
         return user;
       }
     })
@@ -50,7 +52,9 @@ export const populateThread = async (
     };
   }
 
-  const lastMessageUser = await populateUser(ctx, lastMessageMember.userId);
+  const lastMessageUser = await populateUser(ctx, lastMessageMember.userId, {
+    memberId: lastMessageMember._id,
+  });
 
   return {
     count: messages.length,
@@ -69,8 +73,46 @@ export const populateReactions = (ctx: QueryCtx, messageId: Id<'messages'>) => {
     .collect();
 };
 
-export const populateUser = (ctx: QueryCtx, userId: Id<'users'>) => {
-  return ctx.db.get(userId);
+export const populateUser = async (
+  ctx: QueryCtx,
+  userId: Id<'users'>,
+  options: { workspaceId?: Id<'workspaces'>; memberId?: Id<'members'> } = {}
+) => {
+  const { workspaceId, memberId } = options;
+  const user = await ctx.db.get(userId); // Ensure this is awaited
+
+  if (!user) {
+    return null; // Return null if user is not found
+  }
+
+  let memberPreference = null;
+  if (workspaceId) {
+    memberPreference = await ctx.db
+      .query('memberPreferences')
+      .withIndex('by_user_id_workspace_id', (q) =>
+        q.eq('userId', userId).eq('workspaceId', workspaceId)
+      )
+      .unique();
+  } else if (memberId) {
+    // Use else if to avoid overwriting memberPreference
+    memberPreference = await ctx.db
+      .query('memberPreferences')
+      .withIndex('by_member_id_user_id', (q) =>
+        q.eq('memberId', memberId).eq('userId', userId)
+      )
+      .unique();
+  }
+
+  const image = memberPreference?.image
+    ? await ctx.storage.getUrl(memberPreference.image)
+    : undefined;
+
+  const returnUser = {
+    ...user,
+    memberPreference: { ...memberPreference, image },
+  };
+
+  return returnUser;
 };
 
 export const populateMember = (ctx: QueryCtx, memberId: Id<'members'>) => {

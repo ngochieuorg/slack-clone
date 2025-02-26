@@ -1,6 +1,9 @@
 import { v } from 'convex/values';
 import { query, mutation } from './_generated/server';
 import { getAuthUserId } from '@convex-dev/auth/server';
+import { Id } from './_generated/dataModel';
+
+const defaultImageId = 'kg224fbanjb2xn9nzkdt5566257b3hpd';
 
 export const get = query({
   args: { memberId: v.id('members') },
@@ -18,11 +21,18 @@ export const get = query({
       )
       .unique();
 
+    const image = memberPreference?.image
+      ? await ctx.storage.getUrl(memberPreference.image)
+      : undefined;
+
     if (!memberPreference) {
       return null;
     }
 
-    return memberPreference;
+    return {
+      ...memberPreference,
+      image,
+    };
   },
 });
 
@@ -62,6 +72,44 @@ export const update = mutation({
       timeZone: args.timeZone,
       image: args.image,
     });
+
+    return memberPreference._id;
+  },
+});
+
+export const updateAvatar = mutation({
+  args: {
+    memberId: v.id('members'),
+    image: v.optional(v.id('_storage')),
+    isRemove: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+
+    if (userId === null) {
+      throw new Error('Unauthorized');
+    }
+
+    const memberPreference = await ctx.db
+      .query('memberPreferences')
+      .withIndex('by_member_id_user_id', (q) =>
+        q.eq('memberId', args.memberId).eq('userId', userId)
+      )
+      .unique();
+
+    if (!memberPreference) {
+      throw new Error('Member preferences not found');
+    }
+
+    if (args.isRemove) {
+      await ctx.db.patch(memberPreference._id, {
+        image: defaultImageId as Id<'_storage'>,
+      });
+    } else {
+      await ctx.db.patch(memberPreference._id, {
+        image: args.image,
+      });
+    }
 
     return memberPreference._id;
   },

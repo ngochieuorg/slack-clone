@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+// Import necessary components and hooks
 import {
   Dialog,
   DialogContent,
@@ -18,6 +19,9 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useUpdateMemberPreferences } from '../api/use-update-member-preferences';
+import useConfirm from '@/hooks/use-confirm';
+import { useGenerateUploadUrl } from '@/features/upload/api/use-generate-upload-url';
+import { useUpdateMemberAvatar } from '../api/use-update-member-avatar';
 
 interface UseAddPeopleToChannelProps {
   trigger: React.ReactNode;
@@ -58,23 +62,65 @@ const useSettingMembers = ({ trigger }: UseAddPeopleToChannelProps) => {
     mutate: updateMemberPreferences,
     isPending: isUpdatingMemberPreferences,
   } = useUpdateMemberPreferences();
+  const { mutate: generateUploadUrl } = useGenerateUploadUrl();
+  const { mutate: updateMemberAvatar } = useUpdateMemberAvatar();
 
   const [open, setOpen] = useState<boolean | undefined>(false);
+  const [selectedImage, setSelectedImage] = useState<File | string | null>(
+    null
+  );
+
+  const [ConfirmUploadAvatar, confirmUploadAvatar] = useConfirm(
+    'Are you sure want to use this image as avatar?',
+    <Avatar className="w-full h-auto p-5 ">
+      <AvatarImage
+        src={
+          selectedImage
+            ? typeof selectedImage === 'string'
+              ? selectedImage
+              : URL.createObjectURL(selectedImage)
+            : currentUser?.image
+        }
+      />
+    </Avatar>
+  );
+
+  const [ConfirmRemoveAvatar, confirmRemoveAvatar] = useConfirm(
+    'Remove profile photo',
+    <>
+      <Avatar className="w-1/2 h-auto p-5 mx-auto">
+        {!!memberPreferences?.image && (
+          <AvatarImage src={memberPreferences?.image} />
+        )}
+      </Avatar>
+      <span className=" text-center">
+        Are you sure you want to remove your photo? We’ll replace it with a
+        default Slack avatar.
+      </span>
+    </>
+  );
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      fullName: memberPreferences?.fullName,
-      displayName: memberPreferences?.displayName,
-      title: memberPreferences?.title,
-      pronunciation: memberPreferences?.pronunciation,
-      timeZone: memberPreferences?.timeZone,
-    },
   });
+
+  useEffect(() => {
+    if (memberPreferences) {
+      reset({
+        fullName: memberPreferences.fullName,
+        displayName: memberPreferences.displayName,
+        title: memberPreferences.title,
+        pronunciation: memberPreferences.pronunciation,
+        timeZone: memberPreferences.timeZone,
+      });
+      setSelectedImage(memberPreferences.image || null);
+    }
+  }, [memberPreferences, reset]);
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
     updateMemberPreferences(
@@ -87,8 +133,60 @@ const useSettingMembers = ({ trigger }: UseAddPeopleToChannelProps) => {
     );
   };
 
+  const handleImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    let image;
+    if (event.target.files && event.target.files[0]) {
+      setSelectedImage(event.target.files[0]);
+      image = event.target.files[0];
+    }
+
+    const ok = await confirmUploadAvatar();
+    if (!ok) return;
+
+    if (image) {
+      const url = await generateUploadUrl({}, { throwError: true });
+
+      const result = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': image.type },
+        body: image,
+      });
+
+      if (!result) {
+        throw new Error('Failed to upload image');
+      }
+
+      const { storageId } = await result.json();
+
+      await updateMemberAvatar(
+        {
+          memberId: currentMember?._id as Id<'members'>,
+          image: storageId,
+        },
+        {}
+      );
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    const ok = await confirmRemoveAvatar();
+    if (!ok) return;
+
+    await updateMemberAvatar(
+      {
+        memberId: currentMember?._id as Id<'members'>,
+        isRemove: true,
+      },
+      {}
+    );
+  };
+
   const component = (
     <Dialog open={open} onOpenChange={(value) => setOpen(value)}>
+      <ConfirmUploadAvatar />
+      <ConfirmRemoveAvatar />
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="flex flex-col min-h-[70vh] max-w-3xl">
         <DialogHeader>
@@ -139,15 +237,32 @@ const useSettingMembers = ({ trigger }: UseAddPeopleToChannelProps) => {
               <div className="w-[200px] flex flex-col gap-4">
                 <label className="font-semibold text-sm">Profile photo</label>
                 <Avatar className="max-w-[200px] max-h-[200px] size-full self-center -top-3">
-                  <AvatarImage src={currentUser?.image} />
-                  <AvatarFallback className="aspect-square text-6xl rounded-md bg-sky-500 text-white">
-                    {currentUser?.name?.charAt(0).toUpperCase()}
-                  </AvatarFallback>
+                  {!!memberPreferences?.image && (
+                    <AvatarImage src={memberPreferences?.image} />
+                  )}
+                  <AvatarFallback className="aspect-square text-6xl rounded-md bg-slate-300 text-white"></AvatarFallback>
                 </Avatar>
-                <Button variant={'outline'}>Upload Photo</Button>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  style={{ display: 'none' }}
+                  id="upload-photo"
+                />
+                <Button
+                  variant={'outline'}
+                  type="button"
+                  onClick={() =>
+                    document.getElementById('upload-photo')?.click()
+                  }
+                >
+                  Upload Photo
+                </Button>
                 <Button
                   variant={'link'}
                   className="h-min py-0 font-normal text-sky-700"
+                  type="button"
+                  onClick={() => handleRemoveAvatar()}
                 >
                   Remove Photo
                 </Button>

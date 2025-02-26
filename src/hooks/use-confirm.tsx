@@ -12,7 +12,7 @@ import React, { JSX, useState } from 'react';
 
 const useConfirm = (
   title: string | React.ReactNode,
-  message: string
+  message: string | React.ReactNode
 ): [() => JSX.Element, () => Promise<unknown>] => {
   const [promise, setPromise] = useState<{
     resolve: (value: boolean) => void;
@@ -40,7 +40,7 @@ const useConfirm = (
 
   const ConfirmDialog = () => (
     <Dialog open={promise !== null} onOpenChange={handleClose}>
-      <DialogContent>
+      <DialogContent aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{message}</DialogDescription>
@@ -49,7 +49,11 @@ const useConfirm = (
           <Button onClick={handleCancel} variant={'outline'}>
             Cancel
           </Button>
-          <Button onClick={handleConfirm} variant={'outline'}>
+          <Button
+            onClick={handleConfirm}
+            variant={'default'}
+            className="bg-emerald-800"
+          >
             Confirm
           </Button>
         </DialogFooter>

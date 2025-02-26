@@ -18,6 +18,7 @@ import type * as channelMembers from "../channelMembers.js";
 import type * as channels from "../channels.js";
 import type * as conversation from "../conversation.js";
 import type * as http from "../http.js";
+import type * as memberPreferences from "../memberPreferences.js";
 import type * as members from "../members.js";
 import type * as messages from "../messages.js";
 import type * as notifications from "../notifications.js";
@@ -41,6 +42,7 @@ declare const fullApi: ApiFromModules<{
   channels: typeof channels;
   conversation: typeof conversation;
   http: typeof http;
+  memberPreferences: typeof memberPreferences;
   members: typeof members;
   messages: typeof messages;
   notifications: typeof notifications;

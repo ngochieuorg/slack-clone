@@ -288,10 +288,15 @@ export const join = mutation({
       throw new Error('Already an active member of this workspace');
     }
 
-    await ctx.db.insert('members', {
+    const memberId = await ctx.db.insert('members', {
       userId,
       workspaceId: workspace._id,
       role: 'members',
+    });
+
+    await ctx.db.insert('memberPreferences', {
+      userId,
+      memberId,
     });
 
     return workspace._id;

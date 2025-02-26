@@ -17,6 +17,16 @@ const schema = defineSchema({
     .index('by_user_id', ['userId'])
     .index('by_workspace_id', ['workspaceId'])
     .index('by_workspace_id_user_id', ['workspaceId', 'userId']),
+  memberPreferences: defineTable({
+    userId: v.id('users'),
+    memberId: v.id('members'),
+    fullName: v.optional(v.string()),
+    displayName: v.optional(v.string()),
+    title: v.optional(v.string()),
+    pronunciation: v.optional(v.string()),
+    timeZone: v.optional(v.string()),
+    image: v.optional(v.id('_storage')),
+  }).index('by_member_id_user_id', ['memberId', 'userId']),
   channels: defineTable({
     name: v.string(),
     workspaceId: v.id('workspaces'),

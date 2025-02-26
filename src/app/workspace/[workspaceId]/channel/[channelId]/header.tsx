@@ -39,12 +39,14 @@ const Header = ({ channel }: HeaderProps) => {
               size={'sm'}
             >
               <HoverCard>
-                <HoverCardTrigger className="flex items-center">
-                  <span className="truncate flex items-center gap-1">
-                    {channel?.isPrivate ? <LockKeyhole /> : <HashIcon />}{' '}
-                    {channel?.name}
-                  </span>
-                  <FaChevronDown className="size-2.5 ml-2" />
+                <HoverCardTrigger asChild>
+                  <div className="flex items-center">
+                    <span className="truncate flex items-center gap-1">
+                      {channel?.isPrivate ? <LockKeyhole /> : <HashIcon />}{' '}
+                      {channel?.name}
+                    </span>
+                    <FaChevronDown className="size-2.5 ml-2" />
+                  </div>
                 </HoverCardTrigger>
                 <HoverCardContent className="bg-zinc-900 p-3">
                   <p className="text-white text-sm">Get channel details</p>
@@ -61,30 +63,32 @@ const Header = ({ channel }: HeaderProps) => {
               trigger={
                 <Button variant={'outline'} className="h-8 px-1">
                   <HoverCard>
-                    <HoverCardTrigger className="flex items-center gap-2">
-                      <div className="flex -space-x-1">
-                        {channel?.users.slice(0, 3).map((user, index) => {
-                          const avatarFallback = user?.user?.name
-                            ?.charAt(0)
-                            .toUpperCase();
-                          return (
-                            <div
-                              key={user?._id}
-                              className={`p-0.5 rounded-md bg-white z-${index * 10}`}
-                            >
-                              <Avatar className="size-5">
-                                <AvatarImage src={user?.user?.image} />
-                                <AvatarFallback className="rounded-md bg-sky-500 text-white flex justify-center items-center text-xs font-light">
-                                  {avatarFallback}
-                                </AvatarFallback>
-                              </Avatar>
-                            </div>
-                          );
-                        })}
+                    <HoverCardTrigger asChild>
+                      <div className="flex items-center gap-2">
+                        <div className="flex -space-x-1">
+                          {channel?.users.slice(0, 3).map((user, index) => {
+                            const avatarFallback = user?.user?.name
+                              ?.charAt(0)
+                              .toUpperCase();
+                            return (
+                              <div
+                                key={user?._id}
+                                className={`p-0.5 rounded-md bg-white z-${index * 10}`}
+                              >
+                                <Avatar className="size-5">
+                                  <AvatarImage src={user?.user?.image} />
+                                  <AvatarFallback className="rounded-md bg-sky-500 text-white flex justify-center items-center text-xs font-light">
+                                    {avatarFallback}
+                                  </AvatarFallback>
+                                </Avatar>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <span className=" font-normal mr-1">
+                          {channel?.users.length}
+                        </span>
                       </div>
-                      <span className=" font-normal mr-1">
-                        {channel?.users.length}
-                      </span>
                     </HoverCardTrigger>
                     <HoverCardContent className=" bg-zinc-900 text-center font-semibold text-sm ">
                       <p className="text-white ">
@@ -105,7 +109,7 @@ const Header = ({ channel }: HeaderProps) => {
             />
           </Dialog>
           <Popover>
-            <PopoverTrigger>
+            <PopoverTrigger asChild>
               <Button variant={'ghost'} className="h-8 py-0">
                 <EllipsisVertical />
               </Button>
@@ -121,9 +125,11 @@ const Header = ({ channel }: HeaderProps) => {
               <Separator />
               <MoreActionButton>
                 <HoverCard>
-                  <HoverCardTrigger className="flex justify-between items-center">
-                    <span>Copy</span>
-                    <ChevronRight className="size-4" />
+                  <HoverCardTrigger asChild>
+                    <div className="flex justify-between items-center">
+                      <span>Copy</span>
+                      <ChevronRight className="size-4" />
+                    </div>
                   </HoverCardTrigger>
                   <HoverCardContent className="py-2 px-0" side="left">
                     <MoreActionButton>Copy name</MoreActionButton>

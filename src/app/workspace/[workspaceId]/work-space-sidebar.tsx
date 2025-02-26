@@ -33,7 +33,7 @@ const WorkSpaceSidebar = () => {
 
   const [_open, setOpen] = useCreateChannelModal();
 
-  const { data: currentUser } = useCurrentUser();
+  const { data: currentUser } = useCurrentUser({ workspaceId });
 
   const { data: member, isLoading: memberLoading } = useCurrentMember({
     workspaceId,

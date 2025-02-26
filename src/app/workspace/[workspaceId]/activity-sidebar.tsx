@@ -88,7 +88,7 @@ const ActivitySidebar = () => {
   const channelId = useChannelId();
   const workspaceId = useWorkspaceId();
 
-  const { data: currentUser } = useCurrentUser();
+  const { data: currentUser } = useCurrentUser({ workspaceId });
   const { mutate: toggleReaction } = useToggleReaction();
 
   const [{ activities, isUnread, isLoading }, setActivities] =

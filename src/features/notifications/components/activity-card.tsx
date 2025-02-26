@@ -21,7 +21,7 @@ import { useMarkAsReadNotifications } from '../api/use-mark-as-read-notification
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
 
 // Types
-import { Doc, Id } from '../../../../convex/_generated/dataModel';
+import { Id } from '../../../../convex/_generated/dataModel';
 
 // Notifications
 import { toast } from 'sonner';
@@ -29,6 +29,7 @@ import { toast } from 'sonner';
 // Store Management
 import { useAtom } from 'jotai';
 import { activitiesAtom } from '@/store/activity.store';
+import { GetUserReturnType } from '@/features/auth/api/use-current-user';
 
 // Dynamic Imports
 const Renderer = dynamic(() => import('@/components/renderer'), { ssr: false });
@@ -38,7 +39,7 @@ const HoverCard = dynamic(
 );
 
 interface ActivityCardProps {
-  currentUser?: Doc<'users'> | null;
+  currentUser?: GetUserReturnType;
 }
 
 const ActivityCard = ({ currentUser }: ActivityCardProps) => {

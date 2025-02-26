@@ -20,13 +20,16 @@ const schema = defineSchema({
   memberPreferences: defineTable({
     userId: v.id('users'),
     memberId: v.id('members'),
+    workspaceId: v.id('workspaces'),
     fullName: v.optional(v.string()),
     displayName: v.optional(v.string()),
     title: v.optional(v.string()),
     pronunciation: v.optional(v.string()),
     timeZone: v.optional(v.string()),
     image: v.optional(v.id('_storage')),
-  }).index('by_member_id_user_id', ['memberId', 'userId']),
+  })
+    .index('by_member_id_user_id', ['memberId', 'userId'])
+    .index('by_user_id_workspace_id', ['userId', 'workspaceId']),
   channels: defineTable({
     name: v.string(),
     workspaceId: v.id('workspaces'),

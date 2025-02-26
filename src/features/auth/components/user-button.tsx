@@ -16,7 +16,7 @@ import { useWorkspaceId } from '@/hooks/use-workspace-id';
 const UserButton = () => {
   const { signOut } = useAuthActions();
   const workspaceId = useWorkspaceId();
-  const { data, isLoading } = useCurrentUser();
+  const { data, isLoading } = useCurrentUser({ workspaceId });
   const { data: currentMember } = useCurrentMember({ workspaceId });
   const { onOpenProfileMember } = usePanel();
 
@@ -28,7 +28,7 @@ const UserButton = () => {
     return null;
   }
 
-  const { image, name } = data;
+  const { image, name, memberPreference } = data;
 
   const avatarFallback = name!.charAt(0).toUpperCase();
 
@@ -36,7 +36,7 @@ const UserButton = () => {
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger className="outline-none relative">
         <Avatar className="size-10 hover:opacity-75 transition">
-          <AvatarImage alt={name} src={image} />
+          <AvatarImage alt={name} src={memberPreference?.image || image} />
           <AvatarFallback className="rounded-md bg-sky-500 text-white">
             {avatarFallback}
           </AvatarFallback>
@@ -50,7 +50,10 @@ const UserButton = () => {
         <div onClick={() => {}} className="h-10 px-4">
           <div className="flex gap-3">
             <Avatar className="size-8 hover:opacity-75 transition">
-              <AvatarImage alt={'image'} src={image} />
+              <AvatarImage
+                alt={'image'}
+                src={memberPreference?.image || image}
+              />
               <AvatarFallback className="aspect-square rounded-md bg-sky-500 text-white flex justify-center items-center">
                 {avatarFallback}
               </AvatarFallback>

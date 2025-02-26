@@ -206,6 +206,7 @@ const Editor = ({
         innerRef.current = null;
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [innerRef]);
 
   const toggleToolbar = () => {

@@ -297,6 +297,7 @@ export const join = mutation({
     await ctx.db.insert('memberPreferences', {
       userId,
       memberId,
+      workspaceId: args.workspaceId,
     });
 
     return workspace._id;

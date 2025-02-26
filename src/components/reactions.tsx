@@ -21,7 +21,7 @@ interface ReactionsProps {
 const Reactions = ({ data, onChange }: ReactionsProps) => {
   const workspaceId = useWorkspaceId();
   const { data: currentMember } = useCurrentMember({ workspaceId });
-  const { data: currentUser } = useCurrentUser();
+  const { data: currentUser } = useCurrentUser({ workspaceId });
 
   const currentMemberId = currentMember?._id;
 

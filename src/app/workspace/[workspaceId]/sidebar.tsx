@@ -23,7 +23,7 @@ import { activitiesAtom } from '@/store/activity.store';
 export const Sidebar = () => {
   const router = useRouter();
   const workspaceId = useWorkspaceId();
-  const { data: currentUser } = useCurrentUser();
+  const { data: currentUser } = useCurrentUser({ workspaceId });
 
   const [{ activities, isUnread }, setActivities] = useAtom(activitiesAtom);
 

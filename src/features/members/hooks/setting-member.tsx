@@ -52,7 +52,7 @@ type FormData = z.infer<typeof schema>;
 
 const useSettingMembers = ({ trigger }: UseAddPeopleToChannelProps) => {
   const workspaceId = useWorkspaceId();
-  const { data: currentUser } = useCurrentUser();
+  const { data: currentUser } = useCurrentUser({ workspaceId });
   const { data: currentMember } = useCurrentMember({ workspaceId });
 
   const { data: memberPreferences } = useGetMemberPreferences({

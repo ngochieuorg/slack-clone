@@ -46,7 +46,12 @@ interface MessageProps {
   threadImage?: string;
   threadName?: string;
   threadTimestamp?: number;
-  threadUsers?: (Doc<'users'> | null | undefined)[];
+  threadUsers?: // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (
+    | (Doc<'users'> & { memberPreference: Doc<'memberPreferences'> | any })
+    | null
+    | undefined
+  )[];
 }
 
 const Message = ({

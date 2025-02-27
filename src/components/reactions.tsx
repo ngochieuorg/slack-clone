@@ -13,7 +13,9 @@ interface ReactionsProps {
     Omit<Doc<'reactions'>, 'memberId'> & {
       count: number;
       memberIds: Id<'members'>[];
-      users?: Doc<'users'>[];
+      users?: (Doc<'users'> & {
+        memberPreference?: Doc<'memberPreferences'>;
+      })[];
     }
   >;
   onChange: (value: string) => void;
@@ -36,7 +38,7 @@ const Reactions = ({ data, onChange }: ReactionsProps) => {
         const usersReact = () => {
           let string = '';
           (reaction?.users || []).forEach((user, idx) => {
-            string += `${user._id === currentUser?._id ? 'You' : renderDisplayName(user.name)}${idx !== (reaction?.users ? reaction.users.length : 0) - 1 ? ', ' : ''} `;
+            string += `${user._id === currentUser?._id ? 'You' : renderDisplayName(user.name, user?.memberPreference)}${idx !== (reaction?.users ? reaction.users.length : 0) - 1 ? ', ' : ''} `;
           });
           return string;
         };

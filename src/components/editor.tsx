@@ -14,7 +14,6 @@ import Image from 'next/image';
 import 'quill-mention/autoregister';
 import { useGetMembers } from '@/features/members/api/use-get-members';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
-import { GenericId } from 'convex/values';
 import { renderDisplayName } from '@/app/utils/label';
 
 type EditorValue = {
@@ -78,7 +77,7 @@ const Editor = ({
     );
     const atValues = (members || [])?.map((member) => {
       return {
-        id: member.userId,
+        id: `${member.userId}-${member._id}`,
         value:
           renderDisplayName(member.user.name, member.user.memberPreference) ||
           '',
@@ -164,7 +163,7 @@ const Editor = ({
             searchTerm: string,
             renderList: (
               arg0: {
-                id: GenericId<'users'>;
+                id: string;
                 value: string;
                 avatar: string;
                 name: string;

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import dynamic from 'next/dynamic';
 import { Doc, Id } from '../../convex/_generated/dataModel';
 import { format } from 'date-fns';
@@ -46,8 +47,7 @@ interface MessageProps {
   threadImage?: string;
   threadName?: string;
   threadTimestamp?: number;
-  threadUsers?: // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (
+  threadUsers?: (
     | (Doc<'users'> & { memberPreference: Doc<'memberPreferences'> | any })
     | null
     | undefined

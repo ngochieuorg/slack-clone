@@ -10,6 +10,7 @@ import {
   populateReactions,
   populateThread,
   populateUser,
+  updateMentionsValue,
 } from '../src/utils/convex.utils';
 
 const getMember = async (
@@ -132,8 +133,16 @@ export const get = query({
               })[]
             );
 
+            const mentionIds = extractMentionIds(message.body);
+            const mentionBody = await updateMentionsValue(
+              ctx,
+              message.body,
+              user
+            );
+
             return {
               ...message,
+              body: mentionIds.length ? mentionBody : message.body,
               image,
               member,
               user,
@@ -255,9 +264,16 @@ export const getAll = query({
               users: Doc<'users'>[];
             })[]
           );
+          const mentionIds = extractMentionIds(message.body);
+          const mentionBody = await updateMentionsValue(
+            ctx,
+            message.body,
+            user
+          );
 
           return {
             ...message,
+            body: mentionIds.length ? mentionBody : message.body,
             image,
             member,
             user,
@@ -307,7 +323,7 @@ export const getById = query({
       memberId: member._id,
     });
 
-    if (!member) {
+    if (!member || !user) {
       return null;
     }
 
@@ -350,8 +366,12 @@ export const getById = query({
       ({ memberId, ...rest }) => rest
     );
 
+    const mentionIds = extractMentionIds(message.body);
+    const mentionBody = await updateMentionsValue(ctx, message.body, user);
+
     return {
       ...message,
+      body: mentionIds.length ? mentionBody : message.body,
       image: message.image
         ? await ctx.storage.getUrl(message.image)
         : undefined,

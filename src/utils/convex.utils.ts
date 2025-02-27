@@ -1,5 +1,5 @@
 import { groupBy } from '../app/utils';
-import { Id } from '../../convex/_generated/dataModel';
+import { Doc, Id } from '../../convex/_generated/dataModel';
 import { QueryCtx } from '../../convex/_generated/server';
 
 export const populateThread = async (
@@ -131,7 +131,8 @@ export function extractMentionIds(jsonString: string): string[] {
     if (jsonData.ops && Array.isArray(jsonData.ops)) {
       for (const op of jsonData.ops) {
         if (op.insert && typeof op.insert === 'object' && op.insert.mention) {
-          ids.push(op.insert.mention.id);
+          const combineOfIds = op.insert.mention.id.split('-');
+          ids.push(combineOfIds[0]);
         }
       }
     }
@@ -141,4 +142,58 @@ export function extractMentionIds(jsonString: string): string[] {
     console.error('Invalid JSON:', error);
     return [];
   }
+}
+
+type Mention = {
+  index: string;
+  denotationChar: string;
+  id: string;
+  value: string;
+};
+
+type Op = {
+  insert: string | { mention: Mention };
+};
+
+type Delta = {
+  ops: Op[];
+};
+
+export async function updateMentionsValue(
+  ctx: QueryCtx,
+  input: string,
+  user: Doc<'users'>
+): Promise<string> {
+  const delta: Delta = JSON.parse(input);
+  const updatedOps = await Promise.all(
+    delta.ops.map(async (op) => {
+      if (typeof op.insert === 'object' && 'mention' in op.insert) {
+        const [userId, memberId] = op.insert.mention.id.split('-');
+        const memberPreference = await ctx.db
+          .query('memberPreferences')
+          .withIndex('by_member_id_user_id', (q) =>
+            q
+              .eq('memberId', memberId as Id<'members'>)
+              .eq('userId', userId as Id<'users'>)
+          )
+          .unique();
+        return {
+          insert: {
+            mention: {
+              ...op.insert.mention,
+              value:
+                memberPreference?.displayName ||
+                memberPreference?.fullName ||
+                user.name,
+            },
+          },
+        };
+      }
+      return op;
+    })
+  );
+  const updatedDelta: Delta = {
+    ops: updatedOps as Op[],
+  };
+  return JSON.stringify(updatedDelta);
 }

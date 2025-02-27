@@ -116,8 +116,8 @@ const ActivityCard = ({ currentUser }: ActivityCardProps) => {
               return (
                 <>
                   {activity.senders.map((sender, index) => (
-                    <span key={sender._id}>
-                      {sender.name}
+                    <span key={sender?._id}>
+                      {sender?.name}
                       {index !== activity.senders.length - 1 ? ',' : ''}
                     </span>
                   ))}
@@ -155,7 +155,7 @@ const ActivityCard = ({ currentUser }: ActivityCardProps) => {
               } else if (activity.notiType === 'mention') {
                 return (
                   <span className="text-xs font-extralight">
-                    {activity.senders[0].name} mention you in{' '}
+                    {activity.senders[0]?.name} mention you in{' '}
                     {activity.threadName
                       ? `# ${activity.threadName}`
                       : 'a message'}
@@ -189,7 +189,10 @@ const ActivityCard = ({ currentUser }: ActivityCardProps) => {
                   >
                     <AvatarImage
                       className="rounded-md"
-                      src={activity.newestNoti.sender?.image}
+                      src={
+                        activity.newestNoti.sender?.memberPreference.image ||
+                        activity.newestNoti.sender?.image
+                      }
                       alt={activity.newestNoti.sender?.name}
                     />
                     <AvatarFallback className="rounded-md bg-sky-500 text-white">
@@ -205,7 +208,10 @@ const ActivityCard = ({ currentUser }: ActivityCardProps) => {
                   >
                     <AvatarImage
                       className="rounded-md"
-                      src={currentUser?.image}
+                      src={
+                        currentUser?.memberPreference.image ||
+                        currentUser?.image
+                      }
                       alt={currentUser?.name}
                     />
                     <AvatarFallback className="rounded-md bg-sky-500 text-white">

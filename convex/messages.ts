@@ -453,6 +453,7 @@ export const create = mutation({
               status: 'unread',
               content: `New message in thread from ${currentUser?.name}`,
               senderId: userId,
+              senderMemberId: currentMemmber._id,
               parentMessageId: args.parentMessageId,
             });
           }
@@ -472,6 +473,7 @@ export const create = mutation({
             status: 'unread',
             content: `${currentUser?.name} mention you`,
             senderId: userId,
+            senderMemberId: currentMemmber._id,
             parentMessageId: args.parentMessageId,
           });
         }
@@ -518,6 +520,7 @@ export const create = mutation({
             status: 'unread',
             content: `New message from ${currentUser?.name}`,
             senderId: userId,
+            senderMemberId: currentMemmber._id,
           });
         })
       );

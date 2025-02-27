@@ -94,6 +94,7 @@ const schema = defineSchema({
     ),
     status: v.union(v.literal('read'), v.literal('unread')),
     senderId: v.id('users'),
+    senderMemberId: v.optional(v.id('members')),
     content: v.string(),
   })
     .index('by_user_status', ['userId', 'status'])

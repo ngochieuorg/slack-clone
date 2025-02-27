@@ -181,8 +181,8 @@ const ActivitySidebar = () => {
                         return (
                           <>
                             {activity.senders.map((sender, index) => (
-                              <span key={sender._id}>
-                                {sender.name}
+                              <span key={sender?._id}>
+                                {sender?.name}
                                 {index !== activity.senders.length - 1
                                   ? ','
                                   : ''}
@@ -222,7 +222,7 @@ const ActivitySidebar = () => {
                         } else if (activity.notiType === 'mention') {
                           return (
                             <span className="text-xs font-extralight">
-                              {activity.senders[0].name} mention you in{' '}
+                              {activity.senders[0]?.name} mention you in{' '}
                               {activity.threadName
                                 ? `# ${activity.threadName}`
                                 : 'a message'}
@@ -258,7 +258,10 @@ const ActivitySidebar = () => {
                             >
                               <AvatarImage
                                 className="rounded-md"
-                                src={activity.newestNoti.sender?.image}
+                                src={
+                                  activity.newestNoti.sender?.memberPreference
+                                    .image || activity.newestNoti.sender?.image
+                                }
                                 alt={activity.newestNoti.sender?.name}
                               />
                               <AvatarFallback className="rounded-md bg-sky-500 text-white size-10">
@@ -274,7 +277,10 @@ const ActivitySidebar = () => {
                             >
                               <AvatarImage
                                 className="rounded-md"
-                                src={currentUser?.image}
+                                src={
+                                  currentUser?.memberPreference.image ||
+                                  currentUser?.image
+                                }
                                 alt={currentUser?.name}
                               />
                               <AvatarFallback className="rounded-md bg-sky-500 text-white">

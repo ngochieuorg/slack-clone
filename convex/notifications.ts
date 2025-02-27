@@ -185,7 +185,9 @@ export const activities = query({
             notification.parentMessageId
           );
         }
-        const senderData = await ctx.db.get(notification.senderId);
+        const senderData = await populateUser(ctx, notification.senderId, {
+          memberId: notification.senderMemberId,
+        });
         const thread = await populateThread(
           ctx,
           notification.parentMessageId as Id<'messages'>
@@ -237,7 +239,7 @@ export const activities = query({
         let threadName;
         let newestNoti = group[0];
         let threadMsgCount = 0;
-        const senders: Record<string, Doc<'users'>> = {};
+        const senders = [group[0].sender];
         let thread = group[0].thread;
         let unreadCount = 0;
         let closetTime;
@@ -254,8 +256,8 @@ export const activities = query({
             threadMsgCount = noti.thread.count;
             closetTime = noti._creationTime;
           }
-          if (noti.sender && !senders[noti.senderId]) {
-            senders[noti.senderId] = noti.sender;
+          if (noti.sender) {
+            senders.push(noti.sender);
           }
           if (noti.status === 'unread') {
             unreadCount = unreadCount + 1;
@@ -266,7 +268,9 @@ export const activities = query({
           threadName,
           newestNoti,
           threadMsgCount,
-          senders: Object.values(senders),
+          senders: [
+            ...new Map(senders.map((sender) => [sender?._id, sender])).values(),
+          ],
           thread,
           unreadCount,
           closetTime,
@@ -285,21 +289,17 @@ export const activities = query({
         const threadName = noti.channel?.name;
         const newestNoti = noti;
         const unreadCount = noti.status === 'unread' ? 1 : 0;
-        const senders: Record<string, Doc<'users'>> = {};
+        const senders = [noti.sender];
         const thread = noti.thread;
         const notifications: (Doc<'notifications'> & {
           sender: Doc<'users'> | null;
           message: Doc<'messages'> | null;
         })[] = [];
 
-        if (noti.sender && !senders[noti.senderId]) {
-          senders[noti.senderId] = noti.sender;
-        }
-
         return {
           threadName,
           newestNoti,
-          senders: Object.values(senders),
+          senders,
           thread,
           notiType,
           notifications,
@@ -320,7 +320,7 @@ export const activities = query({
         let threadName;
         let newestNoti = group[0];
         let threadMsgCount = 0;
-        const senders: Record<string, Doc<'users'>> = {};
+        const senders = [group[0].sender];
         let thread = group[0].thread;
         let unreadCount = 0;
         const notifications: (Doc<'notifications'> & {
@@ -335,8 +335,8 @@ export const activities = query({
             thread = noti.thread;
             threadMsgCount = noti.thread.count;
           }
-          if (noti.sender && !senders[noti.senderId]) {
-            senders[noti.senderId] = noti.sender;
+          if (noti.sender) {
+            senders.push(noti.sender);
           }
           if (noti.status === 'unread') {
             unreadCount = unreadCount + 1;
@@ -347,7 +347,9 @@ export const activities = query({
           threadName,
           newestNoti,
           threadMsgCount,
-          senders: Object.values(senders),
+          senders: [
+            ...new Map(senders.map((sender) => [sender?._id, sender])).values(),
+          ],
           thread,
           unreadCount,
           notiType,

@@ -10,7 +10,11 @@ interface ThreadBarProps {
   timstamp?: number;
   onClick?: () => void;
   name?: string;
-  threadUsers?: (Doc<'users'> | null | undefined)[];
+  threadUsers?: (
+    | (Doc<'users'> & { memberPreference: Doc<'memberPreferences'> })
+    | null
+    | undefined
+  )[];
 }
 
 const ThreadBar = ({
@@ -31,10 +35,13 @@ const ThreadBar = ({
       <div className="flex items-center gap-2 overflow-hidden">
         <div className="flex items-center gap-1">
           {threadUsers?.map((user) => {
+            console.log(user);
             const avatarFallback = user?.name?.charAt(0).toUpperCase();
             return (
               <Avatar key={user?._id} className="size-6">
-                <AvatarImage src={user?.image} />
+                <AvatarImage
+                  src={user?.memberPreference.image || user?.image}
+                />
                 <AvatarFallback className="rounded-md bg-sky-500 text-white flex justify-center items-center">
                   {avatarFallback}
                 </AvatarFallback>

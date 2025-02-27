@@ -83,8 +83,6 @@ export const getById = query({
       return null;
     }
 
-    console.log(user);
-
     return {
       ...member,
       user: user,

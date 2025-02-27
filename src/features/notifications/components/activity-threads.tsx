@@ -240,7 +240,9 @@ const ActivityThread = ({
                   key={message._id}
                   id={message._id}
                   memberId={message.memberId}
-                  authorImage={message.user.image}
+                  authorImage={
+                    message.user.memberPreference.image || message.user.image
+                  }
                   authorName={renderDisplayName(
                     message.user.name,
                     message.user.memberPreference

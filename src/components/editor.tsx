@@ -82,6 +82,7 @@ const Editor = ({
         value:
           renderDisplayName(member.user.name, member.user.memberPreference) ||
           '',
+        name: member.user.name || '',
         avatar: member.user.memberPreference.image || member.user?.image || '',
       };
     });
@@ -125,7 +126,7 @@ const Editor = ({
         mention: {
           allowedChars: /^[A-Za-z\sÅÄÖåäö]*$/,
           mentionDenotationChars: ['@', '#'],
-          renderItem: (item: { avatar: any; value: any }) => {
+          renderItem: (item: { avatar: any; value: any; name: any }) => {
             const container = document.createElement('div');
             container.className = 'flex gap-2 items-center p-1';
 
@@ -147,11 +148,14 @@ const Editor = ({
               imgDiv = fallbackAvar;
             }
 
+            const spanName = document.createElement('span');
+            spanName.innerText = item.name;
             const span = document.createElement('span');
             span.innerText = item.value;
 
             container.appendChild(imgDiv);
             container.appendChild(span);
+            container.appendChild(spanName);
 
             return container;
           },
@@ -163,6 +167,7 @@ const Editor = ({
                 id: GenericId<'users'>;
                 value: string;
                 avatar: string;
+                name: string;
               }[],
               arg1: any
             ) => void,
@@ -173,8 +178,10 @@ const Editor = ({
             if (searchTerm.length === 0) {
               renderList(values, searchTerm);
             } else {
-              const matches = values.filter((v) =>
-                v.value.toLowerCase().includes(searchTerm.toLowerCase())
+              const matches = values.filter(
+                (v) =>
+                  v.value.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                  v.name.toLowerCase().includes(searchTerm.toLowerCase())
               );
               renderList(matches, searchTerm);
             }

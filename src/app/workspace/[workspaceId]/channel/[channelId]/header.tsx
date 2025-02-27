@@ -27,7 +27,6 @@ interface HeaderProps {
 }
 
 const Header = ({ channel }: HeaderProps) => {
-  console.log(channel);
   return (
     <div className="bg-white border-b h-[48px] flex items-center px-4 overflow-hidden">
       <div className=" w-full flex justify-between items-center">

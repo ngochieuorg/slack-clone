@@ -44,7 +44,6 @@ export const update = mutation({
     title: v.optional(v.string()),
     pronunciation: v.optional(v.string()),
     timeZone: v.optional(v.string()),
-    image: v.optional(v.id('_storage')),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -70,7 +69,6 @@ export const update = mutation({
       title: args.title,
       pronunciation: args.pronunciation,
       timeZone: args.timeZone,
-      image: args.image,
     });
 
     return memberPreference._id;

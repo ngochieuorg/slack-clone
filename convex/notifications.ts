@@ -1,7 +1,6 @@
 import { v } from 'convex/values';
 import { mutation, query } from './_generated/server';
 import { getAuthUserId } from '@convex-dev/auth/server';
-import { Doc } from './_generated/dataModel';
 import { groupBy } from '../src/app/utils/index';
 
 import {
@@ -62,7 +61,9 @@ export const get = query({
         if (notification.channelId) {
           channelData = await ctx.db.get(notification.channelId);
         }
-        const senderData = await populateUser(ctx, notification.senderId, {});
+        const senderData = await populateUser(ctx, notification.senderId, {
+          memberId: notification.senderMemberId,
+        });
         return {
           ...notification,
           channel: channelData,
@@ -243,12 +244,9 @@ export const activities = query({
         let thread = group[0].thread;
         let unreadCount = 0;
         let closetTime;
-        const notifications: (Doc<'notifications'> & {
-          sender: Doc<'users'> | null;
-          message: Doc<'messages'> | null;
-        })[] = [];
+        const notifications = [group[0]];
 
-        group.forEach((noti) => {
+        group.forEach((noti, idx) => {
           threadName = noti.channel?.name;
           if (noti._creationTime > newestNoti._creationTime) {
             newestNoti = noti;
@@ -262,7 +260,7 @@ export const activities = query({
           if (noti.status === 'unread') {
             unreadCount = unreadCount + 1;
           }
-          notifications.push(noti);
+          if (idx > 0) notifications.push(noti);
         });
         return {
           threadName,
@@ -291,10 +289,7 @@ export const activities = query({
         const unreadCount = noti.status === 'unread' ? 1 : 0;
         const senders = [noti.sender];
         const thread = noti.thread;
-        const notifications: (Doc<'notifications'> & {
-          sender: Doc<'users'> | null;
-          message: Doc<'messages'> | null;
-        })[] = [];
+        const notifications = [noti];
 
         return {
           threadName,
@@ -304,7 +299,7 @@ export const activities = query({
           notiType,
           notifications,
           unreadCount,
-          _id: String(noti.messageId),
+          _id: String(noti._creationTime),
         };
       });
 
@@ -323,12 +318,9 @@ export const activities = query({
         const senders = [group[0].sender];
         let thread = group[0].thread;
         let unreadCount = 0;
-        const notifications: (Doc<'notifications'> & {
-          sender: Doc<'users'> | null;
-          message: Doc<'messages'> | null;
-        })[] = [];
+        const notifications = [group[0]];
 
-        group.forEach((noti) => {
+        group.forEach((noti, idx) => {
           threadName = noti.channel?.name;
           if (noti._creationTime > newestNoti._creationTime) {
             newestNoti = noti;
@@ -341,7 +333,7 @@ export const activities = query({
           if (noti.status === 'unread') {
             unreadCount = unreadCount + 1;
           }
-          notifications.push(noti);
+          if (idx > 0) notifications.push(noti);
         });
         return {
           threadName,
@@ -354,7 +346,7 @@ export const activities = query({
           unreadCount,
           notiType,
           notifications,
-          _id: String(group[0]._creationTime),
+          _id: String(group[0].messageId),
         };
       });
 

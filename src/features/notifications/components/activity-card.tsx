@@ -30,6 +30,7 @@ import { toast } from 'sonner';
 import { useAtom } from 'jotai';
 import { activitiesAtom } from '@/store/activity.store';
 import { GetUserReturnType } from '@/features/auth/api/use-current-user';
+import { renderDisplayName } from '@/app/utils/label';
 
 // Dynamic Imports
 const Renderer = dynamic(() => import('@/components/renderer'), { ssr: false });
@@ -117,7 +118,10 @@ const ActivityCard = ({ currentUser }: ActivityCardProps) => {
                 <>
                   {activity.senders.map((sender, index) => (
                     <span key={sender?._id}>
-                      {sender?.name}
+                      {renderDisplayName(
+                        sender?.name,
+                        sender?.memberPreference
+                      )}
                       {index !== activity.senders.length - 1 ? ',' : ''}
                     </span>
                   ))}
@@ -291,7 +295,10 @@ const ActivityCard = ({ currentUser }: ActivityCardProps) => {
                                 <span key={idx} className="">
                                   {currentUser?._id === user.senderId
                                     ? 'You'
-                                    : user.sender?.name}
+                                    : renderDisplayName(
+                                        user.sender?.name,
+                                        user.sender?.memberPreference
+                                      )}
                                   {`${idx !== reacts.length - 1 ? ', ' : ''}`}{' '}
                                 </span>
                               ))}
@@ -322,7 +329,11 @@ const ActivityCard = ({ currentUser }: ActivityCardProps) => {
                     {oldestRead?.message && (
                       <div className="flex justify-start items-start gap-1">
                         <div className=" whitespace-nowrap">
-                          {oldestRead.sender?.name}:
+                          {renderDisplayName(
+                            oldestRead.sender?.name,
+                            oldestRead.sender?.memberPreference
+                          )}
+                          :
                         </div>
                         <Renderer value={oldestRead.message?.body} />
                       </div>

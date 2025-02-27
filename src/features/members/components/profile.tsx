@@ -19,6 +19,7 @@ import { useCurrentMember } from '../api/use-current-member';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
 import { format } from 'date-fns';
 import useSettingMembers from '../hooks/setting-member';
+import { renderDisplayName } from '@/app/utils/label';
 
 interface ProfileProps {
   memberId: Id<'members'>;
@@ -77,7 +78,6 @@ const Profile = ({ memberId, onClose }: ProfileProps) => {
     );
   }
 
-  const avatarFallback = member.user.name?.[0] ?? 'M';
   return (
     <div className="h-[calc(100vh-40px)] mb-1 bg-white">
       <div className="h-[49px] flex justify-between items-center px-4 ">
@@ -91,13 +91,16 @@ const Profile = ({ memberId, onClose }: ProfileProps) => {
           <AvatarImage
             src={member.user.memberPreference.image || member.user.image}
           />
-          <AvatarFallback className=" aspect-square text-6xl rounded-md bg-sky-500 text-white">
-            {avatarFallback}
-          </AvatarFallback>
+          <AvatarFallback className=" aspect-square text-6xl rounded-md bg-sky-500 text-white"></AvatarFallback>
         </Avatar>
         <div className="flex flex-col px-4 gap-2">
           <div className="flex justify-between">
-            <p className="font-bold text-2xl">{member.user.name}</p>
+            <p className="font-bold text-2xl">
+              {renderDisplayName(
+                member.user.name,
+                member.user.memberPreference
+              )}
+            </p>
             {currentMember?._id === memberId && <>{SettingMember}</>}
           </div>
           {currentMember?._id === memberId && (

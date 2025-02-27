@@ -9,6 +9,7 @@ import { useCurrentMember } from '@/features/members/api/use-current-member';
 import { Loader } from 'lucide-react';
 import ConversationHero from './conversation-hero';
 import { formatDateLabel } from '@/app/utils/date-time';
+import { renderDisplayName } from '@/app/utils/label';
 
 const TIME_THRESHHOLD = 5;
 
@@ -81,7 +82,10 @@ const MessageList = ({
                 authorImage={
                   message.user.memberPreference.image || message.user.image
                 }
-                authorName={message.user.name}
+                authorName={renderDisplayName(
+                  message.user.name,
+                  message.user.memberPreference
+                )}
                 isAuthor={message.memberId === currentMember?._id}
                 reactions={message.reactions}
                 body={message.body}

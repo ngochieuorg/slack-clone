@@ -29,6 +29,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import useAddPeopleToChannel from '../hooks/add-people-to-channel';
 import { useRemoveMember } from '../api/use-remove-member';
 import { Doc, Id } from '../../../../convex/_generated/dataModel';
+import { renderDisplayName } from '@/app/utils/label';
 
 interface SettingChannelProps {
   channel: GetChannelReturnType;
@@ -333,9 +334,6 @@ const SettingChannelModal = ({
               <div className="flex flex-col">
                 {AddPeople}
                 {channel?.users.map((user) => {
-                  const avatarFallback = user?.user?.name
-                    ?.charAt(0)
-                    .toUpperCase();
                   return (
                     <div
                       key={user?._id}
@@ -348,14 +346,15 @@ const SettingChannelModal = ({
                             user?.user?.image
                           }
                         />
-                        <AvatarFallback className="aspect-square rounded-md bg-sky-500 text-white">
-                          {avatarFallback}
-                        </AvatarFallback>
+                        <AvatarFallback className="aspect-square rounded-md bg-sky-500 text-white" />
                       </Avatar>
                       <span className=" font-semibold">
                         {user?.memberId === member?._id
-                          ? `${user?.user?.name} (You)`
-                          : user?.user?.name}
+                          ? `${renderDisplayName(user?.user?.name, user?.user?.memberPreference)} (You)`
+                          : renderDisplayName(
+                              user?.user?.name,
+                              user?.user?.memberPreference
+                            )}
                       </span>
                       {member?.role === 'admin' &&
                         user?.memberId !== member._id && (
@@ -364,7 +363,12 @@ const SettingChannelModal = ({
                             className="ml-auto text-xs text-sky-800"
                             onClick={() => {
                               if (user?.memberId && channelId) {
-                                setSelectUser(user.user?.name);
+                                setSelectUser(
+                                  renderDisplayName(
+                                    user?.user?.name,
+                                    user?.user?.memberPreference
+                                  )
+                                );
                                 handleRemoveMember(user?.memberId, channelId);
                               }
                             }}

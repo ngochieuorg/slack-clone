@@ -11,6 +11,7 @@ import Quill from 'quill';
 import { toast } from 'sonner';
 import { useCreateMessage } from '@/features/messages/api/use-create-message';
 import { useGenerateUploadUrl } from '@/features/upload/api/use-generate-upload-url';
+import { renderDisplayName } from '@/app/utils/label';
 
 interface ThreadComponentProps {
   messageId: Id<'messages'>;
@@ -139,7 +140,10 @@ const ThreadComponent = ({
           hideThreadButton
           memberId={message.memberId}
           authorImage={message?.user?.image}
-          authorName={message.user?.name}
+          authorName={renderDisplayName(
+            message.user?.name,
+            message.user?.memberPreference
+          )}
           isAuthor={message.memberId === currentMember?._id}
           body={message.body}
           image={message.image}
@@ -158,7 +162,10 @@ const ThreadComponent = ({
                 id={message._id}
                 memberId={message.memberId}
                 authorImage={message.user.image}
-                authorName={message.user.name}
+                authorName={renderDisplayName(
+                  message.user.name,
+                  message.user.memberPreference
+                )}
                 isAuthor={message.memberId === currentMember?._id}
                 reactions={message.reactions}
                 body={message.body}

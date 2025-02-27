@@ -30,6 +30,7 @@ import Quill from 'quill';
 
 // React
 import { usePathname } from 'next/navigation';
+import { renderDisplayName } from '@/app/utils/label';
 
 const Editor = dynamic(() => import('@/components/editor'), { ssr: false });
 
@@ -210,7 +211,10 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
                     authorImage={
                       message.user.memberPreference.image || message.user.image
                     }
-                    authorName={message.user.name}
+                    authorName={renderDisplayName(
+                      message.user.name,
+                      message.user.memberPreference
+                    )}
                     isAuthor={message.memberId === currentMember?._id}
                     reactions={message.reactions}
                     body={message.body}
@@ -263,7 +267,10 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
             authorImage={
               message?.user?.memberPreference.image || message?.user?.image
             }
-            authorName={message.user?.name}
+            authorName={renderDisplayName(
+              message.user?.name,
+              message.user?.memberPreference
+            )}
             isAuthor={message.memberId === currentMember?._id}
             body={message.body}
             image={message.image}

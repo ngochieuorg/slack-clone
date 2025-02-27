@@ -9,6 +9,7 @@ import ChatInput from './chat-input';
 import MessageList from '@/components/message-list';
 import { usePanel } from '@/hooks/use-panel';
 import { useEffect } from 'react';
+import { renderDisplayName } from '@/app/utils/label';
 
 interface ConversationProps {
   id: Id<'conversations'>;
@@ -43,21 +44,30 @@ const Conversation = ({ id }: ConversationProps) => {
   return (
     <div className="flex flex-col h-full">
       <Header
-        memberName={member?.user.name}
+        memberName={renderDisplayName(
+          member?.user.name,
+          member?.user.memberPreference
+        )}
         memberImage={member?.user.image}
         onclick={() => onOpenProfileMember(memberId)}
       />
       <MessageList
         data={results}
         variant="conversation"
-        memberName={member?.user.name}
+        memberName={renderDisplayName(
+          member?.user.name,
+          member?.user.memberPreference
+        )}
         memberImage={member?.user.image}
         loadMore={loadMore}
         isLoadingMore={status === 'LoadingMore'}
         canLoadMore={status === 'CanLoadMore'}
       />
       <ChatInput
-        placeholder={`Message ${member?.user.name}`}
+        placeholder={`Message ${renderDisplayName(
+          member?.user.name,
+          member?.user.memberPreference
+        )}`}
         conversationId={id}
       />
     </div>

@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils';
 import { useAddMember } from '../api/use-add-member';
 import { Id } from '../../../../convex/_generated/dataModel';
 import { toast } from 'sonner';
+import { renderDisplayName } from '@/app/utils/label';
 
 interface UseAddPeopleToChannelProps {
   trigger: React.ReactNode;
@@ -78,7 +79,10 @@ const useAddPeopleToChannel = ({
               : false;
             return {
               value: mem._id,
-              label: mem.user.name,
+              label: renderDisplayName(
+                mem.user.name,
+                mem.user.memberPreference
+              ),
               disabled: isAlreadyInChannel,
               component: (
                 <div
@@ -91,7 +95,12 @@ const useAddPeopleToChannel = ({
                       {avatarFallback}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="font-semibold">{mem.user.name}</span>
+                  <span className="font-semibold">
+                    {renderDisplayName(
+                      mem.user.name,
+                      mem.user.memberPreference
+                    )}
+                  </span>
                   {isAlreadyInChannel && (
                     <span className="text-muted-foreground text-xs ml-auto">
                       Already in this channel

@@ -34,6 +34,7 @@ import { toast } from 'sonner';
 
 // Types
 import { Id } from '../../../../convex/_generated/dataModel';
+import { renderDisplayName } from '@/app/utils/label';
 
 // Dynamic Component
 const Editor = dynamic(() => import('@/components/editor'), { ssr: false });
@@ -240,7 +241,10 @@ const ActivityThread = ({
                   id={message._id}
                   memberId={message.memberId}
                   authorImage={message.user.image}
-                  authorName={message.user.name}
+                  authorName={renderDisplayName(
+                    message.user.name,
+                    message.user.memberPreference
+                  )}
                   isAuthor={message.memberId === currentMember?._id}
                   reactions={message.reactions}
                   body={message.body}
@@ -304,7 +308,10 @@ const ActivityThread = ({
           hideThreadButton
           memberId={message.memberId}
           authorImage={message?.user?.image}
-          authorName={message.user?.name}
+          authorName={renderDisplayName(
+            message.user?.name,
+            message.user?.memberPreference
+          )}
           isAuthor={message.memberId === currentMember?._id}
           body={message.body}
           image={message.image}

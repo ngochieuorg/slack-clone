@@ -6,6 +6,7 @@ import Hint from './hint';
 import EmojiPopover from './emoji-popover';
 import { MdOutlineAddReaction } from 'react-icons/md';
 import { useCurrentUser } from '@/features/auth/api/use-current-user';
+import { renderDisplayName } from '@/app/utils/label';
 
 interface ReactionsProps {
   data: Array<
@@ -35,7 +36,7 @@ const Reactions = ({ data, onChange }: ReactionsProps) => {
         const usersReact = () => {
           let string = '';
           (reaction?.users || []).forEach((user, idx) => {
-            string += `${user._id === currentUser?._id ? 'You' : user.name}${idx !== (reaction?.users ? reaction.users.length : 0) - 1 ? ', ' : ''} `;
+            string += `${user._id === currentUser?._id ? 'You' : renderDisplayName(user.name)}${idx !== (reaction?.users ? reaction.users.length : 0) - 1 ? ', ' : ''} `;
           });
           return string;
         };

@@ -15,6 +15,7 @@ import 'quill-mention/autoregister';
 import { useGetMembers } from '@/features/members/api/use-get-members';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
 import { GenericId } from 'convex/values';
+import { renderDisplayName } from '@/app/utils/label';
 
 type EditorValue = {
   image: File | null;
@@ -78,8 +79,10 @@ const Editor = ({
     const atValues = (members || [])?.map((member) => {
       return {
         id: member.userId,
-        value: member.user.name || '',
-        avatar: member.user?.image || '',
+        value:
+          renderDisplayName(member.user.name, member.user.memberPreference) ||
+          '',
+        avatar: member.user.memberPreference.image || member.user?.image || '',
       };
     });
 

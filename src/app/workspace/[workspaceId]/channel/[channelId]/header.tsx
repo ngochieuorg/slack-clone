@@ -15,6 +15,7 @@ import { HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import SettingChannelModal from '@/features/channels/components/setting-chanel-modal';
 import { GetChannelReturnType } from '@/features/channels/api/use-get-channel';
 import dynamic from 'next/dynamic';
+import { renderDisplayName } from '@/app/utils/label';
 
 const HoverCard = dynamic(
   () => import('@/components/ui/hover-card').then((mod) => mod.HoverCard),
@@ -68,9 +69,6 @@ const Header = ({ channel }: HeaderProps) => {
                       <div className="flex items-center gap-2">
                         <div className="flex -space-x-1">
                           {channel?.users.slice(0, 3).map((user, index) => {
-                            const avatarFallback = user?.user?.name
-                              ?.charAt(0)
-                              .toUpperCase();
                             return (
                               <div
                                 key={user?._id}
@@ -83,9 +81,7 @@ const Header = ({ channel }: HeaderProps) => {
                                       user?.user?.image
                                     }
                                   />
-                                  <AvatarFallback className="rounded-md bg-sky-500 text-white flex justify-center items-center text-xs font-light">
-                                    {avatarFallback}
-                                  </AvatarFallback>
+                                  <AvatarFallback className="rounded-md bg-sky-500 text-white flex justify-center items-center text-xs font-light"></AvatarFallback>
                                 </Avatar>
                               </div>
                             );
@@ -105,7 +101,14 @@ const Header = ({ channel }: HeaderProps) => {
                         {channel?.users
                           .slice(0, 3)
                           .map((user) => (
-                            <span key={user?._id}> {user?.user?.name},</span>
+                            <span key={user?._id}>
+                              {' '}
+                              {renderDisplayName(
+                                user?.user?.name,
+                                user?.user?.memberPreference
+                              )}
+                              ,
+                            </span>
                           ))}
                       </p>
                     </HoverCardContent>

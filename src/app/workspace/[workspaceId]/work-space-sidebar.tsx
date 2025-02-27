@@ -24,6 +24,7 @@ import { Id } from '../../../../convex/_generated/dataModel';
 import { useGetConversations } from '@/features/conversations/api/use-get-conversations';
 import { useCurrentUser } from '@/features/auth/api/use-current-user';
 import { usePathname } from 'next/navigation';
+import { renderDisplayName } from '@/app/utils/label';
 
 const WorkSpaceSidebar = () => {
   const path = usePathname();
@@ -152,7 +153,10 @@ const WorkSpaceSidebar = () => {
               <UserItem
                 key={member._id}
                 id={member._id}
-                label={member.user.name}
+                label={renderDisplayName(
+                  member.user.name,
+                  member.user.memberPreference
+                )}
                 image={member.user.memberPreference.image || member.user.image}
                 variant={member._id === memberId ? 'active' : 'default'}
                 countNotifs={countNotifs}

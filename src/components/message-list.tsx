@@ -17,24 +17,30 @@ interface MessageListProps {
   channelName?: string;
   channelCreationTime?: number;
   memberImage?: string;
+  memberId?: string;
+  memberTitle?: string;
   data: GetMessageReturnType | undefined;
   loadMore: () => void;
   isLoadingMore: boolean;
   canLoadMore: boolean;
   variant?: 'channel' | 'thread' | 'conversation';
   memberName?: string;
+  isPrivate?: boolean;
 }
 
 const MessageList = ({
   channelName,
   channelCreationTime,
   memberImage,
+  memberId,
+  memberTitle,
   data,
   loadMore,
   isLoadingMore,
   canLoadMore,
   variant = 'channel',
   memberName,
+  isPrivate,
 }: MessageListProps) => {
   const workspaceId = useWorkspaceId();
   const { data: currentMember } = useCurrentMember({ workspaceId });
@@ -133,10 +139,19 @@ const MessageList = ({
         </div>
       )}
       {variant === 'channel' && channelName && channelCreationTime && (
-        <ChannelHero name={channelName} creationTime={channelCreationTime} />
+        <ChannelHero
+          name={channelName}
+          creationTime={channelCreationTime}
+          isPrivate={isPrivate}
+        />
       )}
       {variant === 'conversation' && (
-        <ConversationHero name={memberName} image={memberImage} />
+        <ConversationHero
+          name={memberName}
+          image={memberImage}
+          memberId={memberId}
+          memberTitle={memberTitle}
+        />
       )}
     </div>
   );

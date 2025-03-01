@@ -64,6 +64,7 @@ const ChannelIdPage = ({
       <MessageList
         channelName={channel.name}
         channelCreationTime={channel._creationTime}
+        isPrivate={channel.isPrivate}
         data={results}
         loadMore={loadMore}
         isLoadingMore={status === 'LoadingMore'}

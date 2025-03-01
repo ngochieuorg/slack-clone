@@ -59,6 +59,8 @@ const Conversation = ({ id }: ConversationProps) => {
           member?.user.memberPreference
         )}
         memberImage={member?.user.memberPreference.image || member?.user.image}
+        memberId={member?._id}
+        memberTitle={member?.user.memberPreference.title}
         loadMore={loadMore}
         isLoadingMore={status === 'LoadingMore'}
         canLoadMore={status === 'CanLoadMore'}

@@ -31,9 +31,9 @@ import { useAtom } from 'jotai';
 import { activitiesAtom } from '@/store/activity.store';
 import { GetUserReturnType } from '@/features/auth/api/use-current-user';
 import { renderDisplayName } from '@/app/utils/label';
+import CustomRenderer from '@/components/custom-renderer';
 
 // Dynamic Imports
-const Renderer = dynamic(() => import('@/components/renderer'), { ssr: false });
 const HoverCard = dynamic(
   () => import('@/components/ui/hover-card').then((mod) => mod.HoverCard),
   { ssr: false }
@@ -233,7 +233,7 @@ const ActivityCard = ({ currentUser }: ActivityCardProps) => {
                     {activity.newestNoti.parentMessage?.body && (
                       <div className="flex items-center gap-1">
                         <div className="w-max">replied to:</div>
-                        <Renderer
+                        <CustomRenderer
                           value={activity.newestNoti.parentMessage?.body}
                         />
                       </div>
@@ -245,7 +245,9 @@ const ActivityCard = ({ currentUser }: ActivityCardProps) => {
                   <>
                     {activity.newestNoti.message?.body && (
                       <div className="flex items-center gap-1">
-                        <Renderer value={activity.newestNoti.message?.body} />
+                        <CustomRenderer
+                          value={activity.newestNoti.message?.body}
+                        />
                       </div>
                     )}
                   </>
@@ -335,7 +337,7 @@ const ActivityCard = ({ currentUser }: ActivityCardProps) => {
                           )}
                           :
                         </div>
-                        <Renderer value={oldestRead.message?.body} />
+                        <CustomRenderer value={oldestRead.message?.body} />
                       </div>
                     )}
                     {unreads.length > 0 && (
@@ -351,7 +353,7 @@ const ActivityCard = ({ currentUser }: ActivityCardProps) => {
                   <>
                     {activity.notifications?.[0]?.message?.body && (
                       <div className="flex justify-start items-start gap-1 ">
-                        <Renderer
+                        <CustomRenderer
                           value={activity.notifications?.[0]?.message?.body}
                         />
                       </div>

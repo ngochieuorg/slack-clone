@@ -48,7 +48,7 @@ const Conversation = ({ id }: ConversationProps) => {
           member?.user.name,
           member?.user.memberPreference
         )}
-        memberImage={member?.user.image}
+        memberImage={member?.user.memberPreference.image || member?.user.image}
         onclick={() => onOpenProfileMember(memberId)}
       />
       <MessageList
@@ -58,7 +58,7 @@ const Conversation = ({ id }: ConversationProps) => {
           member?.user.name,
           member?.user.memberPreference
         )}
-        memberImage={member?.user.image}
+        memberImage={member?.user.memberPreference.image || member?.user.image}
         loadMore={loadMore}
         isLoadingMore={status === 'LoadingMore'}
         canLoadMore={status === 'CanLoadMore'}

@@ -45,9 +45,9 @@ import { useAtom } from 'jotai';
 import { activitiesAtom } from '@/store/activity.store';
 import { usePanel } from '@/hooks/use-panel';
 import { renderDisplayName } from '@/app/utils/label';
+import CustomRenderer from '@/components/custom-renderer';
 
 // Dynamic Imports
-const Renderer = dynamic(() => import('@/components/renderer'), { ssr: false });
 const HoverCard = dynamic(
   () => import('@/components/ui/hover-card').then((mod) => mod.HoverCard),
   { ssr: false }
@@ -302,7 +302,7 @@ const ActivitySidebar = () => {
                               {activity.newestNoti.parentMessage?.body && (
                                 <div className="flex items-center gap-1">
                                   <div className="w-max">replied to:</div>
-                                  <Renderer
+                                  <CustomRenderer
                                     value={
                                       activity.newestNoti.parentMessage?.body
                                     }
@@ -319,7 +319,7 @@ const ActivitySidebar = () => {
                             <>
                               {activity.newestNoti.message?.body && (
                                 <div className="flex items-center gap-1">
-                                  <Renderer
+                                  <CustomRenderer
                                     value={activity.newestNoti.message?.body}
                                     textColor="#fff"
                                     mentionBackground="#573502"
@@ -425,7 +425,7 @@ const ActivitySidebar = () => {
                                     )}
                                     :
                                   </div>
-                                  <Renderer
+                                  <CustomRenderer
                                     value={oldestRead.message?.body}
                                     textColor="#fff"
                                     mentionBackground="#573502"
@@ -446,7 +446,7 @@ const ActivitySidebar = () => {
                             <>
                               {activity.notifications?.[0]?.message?.body && (
                                 <div className="flex justify-start items-start gap-1 ">
-                                  <Renderer
+                                  <CustomRenderer
                                     value={
                                       activity.notifications?.[0]?.message?.body
                                     }

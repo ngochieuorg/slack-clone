@@ -17,8 +17,9 @@ import { usePanel } from '@/hooks/use-panel';
 import ThreadBar from './thread-bar';
 import { formatFulltime } from '@/app/utils/date-time';
 import { useChannelId } from '@/hooks/use-channel-id';
+import CustomRenderer from './custom-renderer';
+import UserDetailCard from './user-detail-card';
 
-const Renderer = dynamic(() => import('@/components/renderer'), { ssr: true });
 const Editor = dynamic(() => import('@/components/editor'), { ssr: false });
 
 interface MessageProps {
@@ -172,7 +173,7 @@ const Message = ({
               </div>
             ) : (
               <div className="flex  flex-col w-full">
-                <Renderer value={body} />
+                <CustomRenderer value={body} />
                 <Thumbnail url={image} />
                 {updatedAt ? (
                   <span className="text-xs text-muted-foreground">
@@ -222,12 +223,17 @@ const Message = ({
       >
         <div className="flex items-start gap-2">
           <button onClick={() => onOpenProfileMember(memberId)}>
-            <Avatar className="size-10 hover:opacity-75 transition">
-              <AvatarImage src={authorImage} />
-              <AvatarFallback className="aspect-square rounded-md bg-sky-500 text-white">
-                {avatarFallback}
-              </AvatarFallback>
-            </Avatar>
+            <UserDetailCard
+              memberId={memberId}
+              trigger={
+                <Avatar className="size-10 hover:opacity-75 transition">
+                  <AvatarImage src={authorImage} />
+                  <AvatarFallback className="aspect-square rounded-md bg-sky-500 text-white">
+                    {avatarFallback}
+                  </AvatarFallback>
+                </Avatar>
+              }
+            />
           </button>
           {isEditing ? (
             <div className="w-full h-full">
@@ -242,12 +248,17 @@ const Message = ({
           ) : (
             <div className="flex flex-col w-full overflow-hidden">
               <div className="text-sm">
-                <button
-                  onClick={() => onOpenProfileMember(memberId)}
-                  className="font-bold text-primary hover:underline"
-                >
-                  {authorName}
-                </button>
+                <UserDetailCard
+                  memberId={memberId}
+                  trigger={
+                    <button
+                      onClick={() => onOpenProfileMember(memberId)}
+                      className="font-bold text-primary hover:underline"
+                    >
+                      {authorName}
+                    </button>
+                  }
+                />
                 <span>&nbsp;&nbsp;</span>
                 <Hint label={formatFulltime(new Date(createdAt))}>
                   <button className="text-xs text-muted-foreground hover:underline">
@@ -255,7 +266,7 @@ const Message = ({
                   </button>
                 </Hint>
               </div>
-              <Renderer value={body} />
+              <CustomRenderer value={body} />
               <Thumbnail url={image} />
               {updatedAt ? (
                 <span className="text-xs text-muted-foreground">(edited)</span>

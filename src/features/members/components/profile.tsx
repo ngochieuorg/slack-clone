@@ -4,6 +4,7 @@ import { Id } from '../../../../convex/_generated/dataModel';
 import { useGetMember } from '../api/use-get-member';
 import {
   AlertTriangle,
+  Clock,
   EllipsisVertical,
   Headset,
   Loader,
@@ -112,7 +113,10 @@ const Profile = ({ memberId, onClose }: ProfileProps) => {
             </Button>
           )}
           <div>Away</div>
-          <div>{format(new Date(), 'h:mm a')} local time</div>
+          <div className="flex items-center gap-2">
+            <Clock className="size-4" /> {format(new Date(), 'h:mm a')} local
+            time
+          </div>
         </div>
         <div className="px-4 flex gap-4">
           <Button variant={'outline'} className="flex-1">

@@ -15,10 +15,11 @@ import {
   ActivitiesReturnType,
   useGetActivities,
 } from '@/features/notifications/api/use-get-activities';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useCurrentUser } from '@/features/auth/api/use-current-user';
 import { useAtom } from 'jotai';
 import { activitiesAtom } from '@/store/activity.store';
+import { useGetChannels } from '@/features/channels/api/use-get-channels';
 
 export const Sidebar = () => {
   const router = useRouter();
@@ -30,6 +31,10 @@ export const Sidebar = () => {
   const { data, isLoading: notificationsLoading } = useGetActivities({
     workspaceId,
     isUnRead: isUnread,
+  });
+
+  const { data: channels } = useGetChannels({
+    workspaceId,
   });
 
   useEffect(() => {
@@ -55,6 +60,8 @@ export const Sidebar = () => {
     return 'home';
   };
 
+  const channelId = useMemo(() => channels?.[0]?._id, [channels]);
+
   const pathName = usePathname();
 
   return (
@@ -64,7 +71,9 @@ export const Sidebar = () => {
         icon={Home}
         label="Home"
         isActive={activeSideButton() === 'home'}
-        onClick={() => router.replace(`/workspace/${workspaceId}/channel`)}
+        onClick={() =>
+          router.replace(`/workspace/${workspaceId}/channel/${channelId}`)
+        }
       />
       <SidebarButton icon={MessageCircle} label="DMs" />
       <div onClick={onNavigateToActivityPage}>

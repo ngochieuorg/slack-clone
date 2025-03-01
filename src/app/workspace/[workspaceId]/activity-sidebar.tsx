@@ -209,8 +209,8 @@ const ActivitySidebar = () => {
                           return (
                             <span>
                               Thread in{' '}
-                              {activity.threadName
-                                ? `# ${activity.threadName}`
+                              {activity.channelName
+                                ? `# ${activity.channelName}`
                                 : 'direct message'}
                             </span>
                           );
@@ -218,8 +218,8 @@ const ActivitySidebar = () => {
                           return (
                             <span className="text-xs font-extralight">
                               {memberInActivity()} reacted in{' '}
-                              {activity.threadName
-                                ? `# ${activity.threadName}`
+                              {activity.channelName
+                                ? `# ${activity.channelName}`
                                 : 'direct message'}
                             </span>
                           );
@@ -227,8 +227,8 @@ const ActivitySidebar = () => {
                           return (
                             <span className="text-xs font-extralight">
                               {activity.senders[0]?.name} mention you in{' '}
-                              {activity.threadName
-                                ? `# ${activity.threadName}`
+                              {activity.channelName
+                                ? `# ${activity.channelName}`
                                 : 'a message'}
                             </span>
                           );

@@ -237,7 +237,8 @@ export const activities = query({
       .filter((gr) => gr.length)
       .map((group) => {
         const notiType = group[0].type;
-        let threadName;
+        let channelName;
+        const channel = group[0].channel;
         let newestNoti = group[0];
         let threadMsgCount = 0;
         const senders = [group[0].sender];
@@ -247,7 +248,7 @@ export const activities = query({
         const notifications = [group[0]];
 
         group.forEach((noti, idx) => {
-          threadName = noti.channel?.name;
+          channelName = noti.channel?.name;
           if (noti._creationTime > newestNoti._creationTime) {
             newestNoti = noti;
             thread = noti.thread;
@@ -263,7 +264,8 @@ export const activities = query({
           if (idx > 0) notifications.push(noti);
         });
         return {
-          threadName,
+          channel,
+          channelName,
           newestNoti,
           threadMsgCount,
           senders: [
@@ -284,7 +286,8 @@ export const activities = query({
       .filter((noti) => noti.type === 'mention')
       .map((noti) => {
         const notiType = noti.type;
-        const threadName = noti.channel?.name;
+        const channel = noti.channel;
+        const channelName = noti.channel?.name;
         const newestNoti = noti;
         const unreadCount = noti.status === 'unread' ? 1 : 0;
         const senders = [noti.sender];
@@ -292,7 +295,8 @@ export const activities = query({
         const notifications = [noti];
 
         return {
-          threadName,
+          channel,
+          channelName,
           newestNoti,
           senders,
           thread,
@@ -312,7 +316,8 @@ export const activities = query({
       .filter((gr) => gr.length)
       .map((group) => {
         const notiType = group[0].type;
-        let threadName;
+        const channel = group[0].channel;
+        let channelName;
         let newestNoti = group[0];
         let threadMsgCount = 0;
         const senders = [group[0].sender];
@@ -321,7 +326,7 @@ export const activities = query({
         const notifications = [group[0]];
 
         group.forEach((noti, idx) => {
-          threadName = noti.channel?.name;
+          channelName = noti.channel?.name;
           if (noti._creationTime > newestNoti._creationTime) {
             newestNoti = noti;
             thread = noti.thread;
@@ -336,7 +341,8 @@ export const activities = query({
           if (idx > 0) notifications.push(noti);
         });
         return {
-          threadName,
+          channel,
+          channelName,
           newestNoti,
           threadMsgCount,
           senders: [

@@ -25,6 +25,7 @@ import { useGetConversations } from '@/features/conversations/api/use-get-conver
 import { useCurrentUser } from '@/features/auth/api/use-current-user';
 import { usePathname } from 'next/navigation';
 import { renderDisplayName } from '@/app/utils/label';
+import { useGetActivities } from '@/features/notifications/api/use-get-activities';
 
 const WorkSpaceSidebar = () => {
   const path = usePathname();
@@ -57,6 +58,11 @@ const WorkSpaceSidebar = () => {
       workspaceId,
       isUnRead: true,
     });
+
+  const { data: activities, isLoading: activitiesLoading } = useGetActivities({
+    workspaceId,
+    isUnRead: true,
+  });
 
   const { mutate: markAsReadNoti } = useMarkAsReadNotifications();
 
@@ -107,9 +113,9 @@ const WorkSpaceSidebar = () => {
         onNew={member.role === 'admin' ? () => setOpen(true) : undefined}
       >
         {channels?.map((item) => {
-          const countNotifs = notifications?.filter(
-            (noti) => noti.channelId === item._id && noti.type === 'direct'
-          ).length;
+          const countNotifs = activities?.filter((activity) => {
+            return activity.channel?._id === item._id;
+          }).length;
           return (
             <div onClick={() => markAsReadChannel(item._id)} key={item._id}>
               <SidebarItem

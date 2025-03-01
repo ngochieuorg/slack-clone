@@ -62,9 +62,7 @@ const ChannelIdPage = ({
     <div className="flex flex-col h-full">
       <Header channel={channel} />
       <MessageList
-        channelName={channel.name}
-        channelCreationTime={channel._creationTime}
-        isPrivate={channel.isPrivate}
+        channel={channel}
         data={results}
         loadMore={loadMore}
         isLoadingMore={status === 'LoadingMore'}

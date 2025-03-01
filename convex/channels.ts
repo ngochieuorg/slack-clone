@@ -79,6 +79,7 @@ export const create = mutation({
       name: parsedName,
       workspaceId: args.workspaceId,
       isPrivate: args.isPrivate,
+      createdBy: member._id,
     });
 
     await ctx.db.insert('channelMembers', {

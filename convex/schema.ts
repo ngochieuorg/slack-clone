@@ -34,6 +34,7 @@ const schema = defineSchema({
     name: v.string(),
     workspaceId: v.id('workspaces'),
     isPrivate: v.optional(v.boolean()),
+    createdBy: v.optional(v.id('members')),
   }).index('by_workspace_id', ['workspaceId']),
   channelMembers: defineTable({
     channelId: v.id('channels'),

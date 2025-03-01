@@ -3,7 +3,7 @@ import { differenceInMinutes, format } from 'date-fns';
 import Message from './message';
 import ChannelHero from './channel-hero';
 import { useState } from 'react';
-import { Id } from '../../convex/_generated/dataModel';
+import { Doc, Id } from '../../convex/_generated/dataModel';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
 import { useCurrentMember } from '@/features/members/api/use-current-member';
 import { Loader } from 'lucide-react';
@@ -14,8 +14,7 @@ import { renderDisplayName } from '@/app/utils/label';
 const TIME_THRESHHOLD = 5;
 
 interface MessageListProps {
-  channelName?: string;
-  channelCreationTime?: number;
+  channel?: Doc<'channels'>;
   memberImage?: string;
   memberId?: string;
   memberTitle?: string;
@@ -25,12 +24,11 @@ interface MessageListProps {
   canLoadMore: boolean;
   variant?: 'channel' | 'thread' | 'conversation';
   memberName?: string;
-  isPrivate?: boolean;
 }
 
 const MessageList = ({
-  channelName,
-  channelCreationTime,
+  channel,
+
   memberImage,
   memberId,
   memberTitle,
@@ -40,7 +38,6 @@ const MessageList = ({
   canLoadMore,
   variant = 'channel',
   memberName,
-  isPrivate,
 }: MessageListProps) => {
   const workspaceId = useWorkspaceId();
   const { data: currentMember } = useCurrentMember({ workspaceId });
@@ -138,13 +135,7 @@ const MessageList = ({
           </span>
         </div>
       )}
-      {variant === 'channel' && channelName && channelCreationTime && (
-        <ChannelHero
-          name={channelName}
-          creationTime={channelCreationTime}
-          isPrivate={isPrivate}
-        />
-      )}
+      {variant === 'channel' && channel && <ChannelHero channel={channel} />}
       {variant === 'conversation' && (
         <ConversationHero
           name={memberName}

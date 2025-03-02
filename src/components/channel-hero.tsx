@@ -22,6 +22,7 @@ const ChannelHero = ({ channel }: ChannelHeroProps) => {
     id: channel?.createdBy as Id<'members'>,
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { component: AddPeople, setOpen: setOpenAddPeople } =
     useAddPeopleToChannel({
       channelName: channel?.name,

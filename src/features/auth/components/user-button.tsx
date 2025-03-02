@@ -12,8 +12,10 @@ import { Separator } from '@/components/ui/separator';
 import { usePanel } from '@/hooks/use-panel';
 import { useCurrentMember } from '@/features/members/api/use-current-member';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
+import { useRouter } from 'next/navigation';
 
 const UserButton = () => {
+  const router = useRouter();
   const { signOut } = useAuthActions();
   const workspaceId = useWorkspaceId();
   const { data, isLoading } = useCurrentUser({ workspaceId });
@@ -78,7 +80,14 @@ const UserButton = () => {
         <UserButtonItem onClick={() => {}}>Preferences</UserButtonItem>
         <Separator />
         <UserButtonItem onClick={() => {}}>Upgrade</UserButtonItem>
-        <UserButtonItem onClick={() => signOut()}>Sign out</UserButtonItem>
+        <UserButtonItem
+          onClick={() => {
+            signOut();
+            router.replace('/auth');
+          }}
+        >
+          Sign out
+        </UserButtonItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

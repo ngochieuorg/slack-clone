@@ -7,6 +7,8 @@ import { Doc, Id } from '../../convex/_generated/dataModel';
 import { useGetMember } from '@/features/members/api/use-get-member';
 import { renderDisplayName } from '@/app/utils/label';
 import UserDetailCard from './user-detail-card';
+import useAddPeopleToChannel from '@/features/channels/hooks/add-people-to-channel';
+import { GetChannelReturnType } from '@/features/channels/api/use-get-channel';
 
 interface ChannelHeroProps {
   channel?: Doc<'channels'>;
@@ -19,6 +21,18 @@ const ChannelHero = ({ channel }: ChannelHeroProps) => {
   const { data: memberCreated } = useGetMember({
     id: channel?.createdBy as Id<'members'>,
   });
+
+  const { component: AddPeople, setOpen: setOpenAddPeople } =
+    useAddPeopleToChannel({
+      channelName: channel?.name,
+      channel: channel as GetChannelReturnType,
+      trigger: (
+        <Button variant={'outline'} className="py-1 h-min border-gray-400">
+          <UserPlus />
+          Add people to channel
+        </Button>
+      ),
+    });
 
   return (
     <div className="mt-[88px] mx-5 mb-4">
@@ -55,10 +69,7 @@ const ChannelHero = ({ channel }: ChannelHeroProps) => {
           <PencilIcon />
           Add description
         </Button>
-        <Button variant={'outline'} className="py-1 h-min border-gray-400">
-          <UserPlus />
-          Add people to channel
-        </Button>
+        {AddPeople}
       </div>
     </div>
   );

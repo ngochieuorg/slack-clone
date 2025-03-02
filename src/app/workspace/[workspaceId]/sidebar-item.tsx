@@ -36,6 +36,7 @@ const SidebarItem = ({
   countNotifs,
   linkTo,
 }: SidebarItemProps) => {
+  console.log(variant);
   return (
     <Button
       variant={'transparent'}
@@ -51,13 +52,13 @@ const SidebarItem = ({
           <Icon
             className={cn(
               'size-3.5 mr-1 shrink-0',
-              Number(countNotifs) > 0 && 'text-white'
+              Number(countNotifs) > 0 && ''
             )}
           />
           <span
             className={cn(
               'text-sm truncate',
-              Number(countNotifs) > 0 && 'font-bold text-white'
+              Number(countNotifs) > 0 && 'font-bold'
             )}
           >
             {label}

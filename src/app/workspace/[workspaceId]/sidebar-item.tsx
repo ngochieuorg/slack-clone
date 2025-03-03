@@ -36,7 +36,6 @@ const SidebarItem = ({
   countNotifs,
   linkTo,
 }: SidebarItemProps) => {
-  console.log(variant);
   return (
     <Button
       variant={'transparent'}

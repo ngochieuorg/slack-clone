@@ -361,3 +361,95 @@ export const activities = query({
     );
   },
 });
+
+export const directMessages = query({
+  args: {
+    workspaceId: v.id('workspaces'),
+    isUnRead: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const currentUserId = await getAuthUserId(ctx);
+
+    if (currentUserId === null) {
+      return null;
+    }
+
+    const currentMember = await ctx.db
+      .query('members')
+      .withIndex('by_workspace_id_user_id', (q) =>
+        q.eq('workspaceId', args.workspaceId).eq('userId', currentUserId)
+      )
+      .unique();
+
+    if (!currentMember) {
+      throw Error('Unauthorized');
+    }
+
+    const notifications = await ctx.db
+      .query('notifications')
+      .filter((q) => {
+        if (args.isUnRead === true) {
+          return q.eq(q.field('status'), 'unread');
+        }
+        return true;
+      })
+      .filter((q) =>
+        q.or(
+          q.neq(q.field('conversationId'), null),
+          q.neq(q.field('conversationId'), undefined)
+        )
+      )
+      .collect();
+
+    const notificationWithPopulate = await Promise.all(
+      notifications.map(async (notification) => {
+        let conversationWith;
+        if (notification.conversationId) {
+          const conversation = await ctx.db.get(notification.conversationId);
+
+          if (currentMember._id === conversation?.memberOneId)
+            conversationWith = await populateUser(
+              ctx,
+              conversation?.userTwoId,
+              {
+                memberId: conversation.memberTwoId,
+              }
+            );
+          if (currentMember._id === conversation?.memberTwoId)
+            conversationWith = await populateUser(
+              ctx,
+              conversation?.userOneId,
+              {
+                memberId: conversation.memberOneId,
+              }
+            );
+        }
+
+        return { ...notification, conversationWith };
+      })
+    );
+
+    const groupByConversationId = groupBy(
+      notificationWithPopulate.filter((noti) => noti.conversationId) || [],
+      'conversationId'
+    );
+
+    const directMessages = Object.values(groupByConversationId).map(
+      (conversation) => {
+        let unreadCount = 0;
+        let newestNoti = conversation[0];
+        conversation.forEach((noti) => {
+          if (noti._creationTime > newestNoti._creationTime) {
+            newestNoti = noti;
+          }
+          if (noti.status === 'unread') {
+            unreadCount = unreadCount + 1;
+          }
+        });
+        return { unreadCount, newestNoti };
+      }
+    );
+
+    return directMessages;
+  },
+});

@@ -110,7 +110,16 @@ const ActivityCard = ({ currentUser }: ActivityCardProps) => {
       {isLoading ? (
         LoaderComponent
       ) : (
-        <div className="max-h-[480px] overflow-auto flex flex-col">
+        <div
+          className="max-h-[480px] overflow-auto flex flex-col 
+            [&::-webkit-scrollbar]:w-2
+            [&::-webkit-scrollbar-track]:rounded-full
+          [&::-webkit-scrollbar-track]:bg-gray-100
+            [&::-webkit-scrollbar-thumb]:rounded-full
+          [&::-webkit-scrollbar-thumb]:bg-gray-300
+          dark:[&::-webkit-scrollbar-track]:bg-neutral-700
+          dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500"
+        >
           {activities?.length === 0 && EmptyActivities}
           {activities?.map((activity, index: number) => {
             function memberInActivity() {

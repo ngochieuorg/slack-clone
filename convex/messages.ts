@@ -538,7 +538,7 @@ export const create = mutation({
             messageId: messageId,
             type: 'direct',
             status: 'unread',
-            content: `New message from ${currentUser?.name}`,
+            content: args.body,
             senderId: userId,
             senderMemberId: currentMemmber._id,
           });

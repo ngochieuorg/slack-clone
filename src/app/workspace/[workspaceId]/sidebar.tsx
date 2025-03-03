@@ -20,18 +20,36 @@ import { useCurrentUser } from '@/features/auth/api/use-current-user';
 import { useAtom } from 'jotai';
 import { activitiesAtom } from '@/store/activity.store';
 import { useGetChannels } from '@/features/channels/api/use-get-channels';
+import DirectMessageCard from '@/features/notifications/components/direct-message-card';
+import { directMessageAtom } from '@/store/direct-message.store';
+import {
+  DirectMessageReturnType,
+  useGetDirectMessages,
+} from '@/features/notifications/api/api-get-direct-messages';
 
 export const Sidebar = () => {
   const router = useRouter();
   const workspaceId = useWorkspaceId();
   const { data: currentUser } = useCurrentUser({ workspaceId });
 
-  const [{ activities, isUnread }, setActivities] = useAtom(activitiesAtom);
+  const [{ activities, isUnread: isUnreadActivities }, setActivities] =
+    useAtom(activitiesAtom);
+  const [
+    { directMessages, isUnread: isUnreadDirectMessage },
+    setDirectMessages,
+  ] = useAtom(directMessageAtom);
 
-  const { data, isLoading: notificationsLoading } = useGetActivities({
-    workspaceId,
-    isUnRead: isUnread,
-  });
+  const { data: activitiesData, isLoading: notificationsLoading } =
+    useGetActivities({
+      workspaceId,
+      isUnRead: isUnreadActivities,
+    });
+
+  const { data: directMessagesData, isLoading: directMessageLoading } =
+    useGetDirectMessages({
+      workspaceId,
+      isUnRead: isUnreadDirectMessage,
+    });
 
   const { data: channels } = useGetChannels({
     workspaceId,
@@ -40,13 +58,37 @@ export const Sidebar = () => {
   useEffect(() => {
     setActivities((prev) => ({
       ...prev,
-      activities: data || [],
+      activities: activitiesData || [],
       isLoading: notificationsLoading,
     }));
-  }, [isUnread, workspaceId, setActivities, data, notificationsLoading]);
+  }, [
+    isUnreadActivities,
+    workspaceId,
+    setActivities,
+    activitiesData,
+    notificationsLoading,
+  ]);
+
+  useEffect(() => {
+    setDirectMessages((prev) => ({
+      ...prev,
+      directMessages: directMessagesData || [],
+      isLoading: directMessageLoading,
+    }));
+  }, [
+    isUnreadDirectMessage,
+    workspaceId,
+    setDirectMessages,
+    directMessagesData,
+    directMessageLoading,
+  ]);
 
   const countActivitiesNoti = (activities?: ActivitiesReturnType) => {
     return (activities || []).filter((activity) => activity.unreadCount).length;
+  };
+
+  const countDirectMessageNoti = (directMessages?: DirectMessageReturnType) => {
+    return (directMessages || []).filter((msg) => msg).length;
   };
 
   const onNavigateToActivityPage = () => {
@@ -75,7 +117,20 @@ export const Sidebar = () => {
           router.replace(`/workspace/${workspaceId}/channel/${channelId}`)
         }
       />
-      <SidebarButton icon={MessageCircle} label="DMs" />
+      <div>
+        <HoverCard>
+          <HoverCardTrigger>
+            <SidebarButton
+              icon={MessageCircle}
+              label="DMs"
+              notiCount={countDirectMessageNoti(directMessages)}
+            />
+          </HoverCardTrigger>
+          <HoverCardContent className="p-0">
+            <DirectMessageCard />
+          </HoverCardContent>
+        </HoverCard>
+      </div>
       <div onClick={onNavigateToActivityPage}>
         <HoverCard>
           <HoverCardTrigger>

@@ -1,31 +1,35 @@
+// UI Components
 import UserButton from '@/features/auth/components/user-button';
 import WorkspaceSwitcher from './workspace-switcher';
 import SidebarButton from './sidebar-button';
 import { Bell, Home, MessageCircle, MoreHorizontal } from 'lucide-react';
-import { usePathname, useRouter } from 'next/navigation';
-
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
 import ActivityCard from '@/features/notifications/components/activity-card';
+import DirectMessageCard from '@/features/notifications/components/direct-message-card';
+
+// Hooks & API Calls
+import { usePathname, useRouter } from 'next/navigation';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
-import {
-  ActivitiesReturnType,
-  useGetActivities,
-} from '@/features/notifications/api/use-get-activities';
-import { useEffect, useMemo } from 'react';
 import { useCurrentUser } from '@/features/auth/api/use-current-user';
 import { useAtom } from 'jotai';
 import { activitiesAtom } from '@/store/activity.store';
-import { useGetChannels } from '@/features/channels/api/use-get-channels';
-import DirectMessageCard from '@/features/notifications/components/direct-message-card';
 import { directMessageAtom } from '@/store/direct-message.store';
-import {
-  DirectMessageReturnType,
-  useGetDirectMessages,
-} from '@/features/notifications/api/api-get-direct-messages';
+
+// Notifications API
+import { useGetActivities } from '@/features/notifications/api/use-get-activities';
+import { useGetChannels } from '@/features/channels/api/use-get-channels';
+import { useGetDirectMessages } from '@/features/notifications/api/api-get-direct-messages';
+
+// Types
+import { ActivitiesReturnType } from '@/features/notifications/api/use-get-activities';
+import { DirectMessageReturnType } from '@/features/notifications/api/api-get-direct-messages';
+
+// React Hooks
+import { useEffect, useMemo } from 'react';
 
 export const Sidebar = () => {
   const router = useRouter();
@@ -88,7 +92,7 @@ export const Sidebar = () => {
   };
 
   const countDirectMessageNoti = (directMessages?: DirectMessageReturnType) => {
-    return (directMessages || []).filter((msg) => msg).length;
+    return (directMessages || []).filter((msg) => msg.unreadCount).length;
   };
 
   const onNavigateToActivityPage = () => {

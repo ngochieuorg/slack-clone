@@ -1,11 +1,15 @@
 // UI Components
-
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { CheckCircle, Loader } from 'lucide-react';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import CustomRenderer from '@/components/custom-renderer';
 
 // Utils & Helpers
+import { renderDisplayName } from '@/app/utils/label';
+import { formatDateNotiTime } from '@/app/utils/date-time';
+import { cn } from '@/lib/utils';
 
 // Hooks & API Calls
 
@@ -59,7 +63,7 @@ const DirectMessageCard = () => {
         LoaderComponent
       ) : (
         <div
-          className="max-h-[480px] overflow-auto flex flex-col 
+          className="h-[480px] overflow-auto flex flex-col 
             [&::-webkit-scrollbar]:w-2
             [&::-webkit-scrollbar-track]:rounded-full
           [&::-webkit-scrollbar-track]:bg-gray-100
@@ -69,6 +73,70 @@ const DirectMessageCard = () => {
           dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500"
         >
           {directMessages?.length === 0 && EmptyActivities}
+          {directMessages?.map((noti, index) => {
+            return (
+              <div
+                className=" px-4 pb-0 cursor-pointer hover:bg-slate-100"
+                key={index}
+              >
+                <div className="flex justify-start gap-2 items-start py-4">
+                  <Avatar className="size-10 hover:opacity-75 transition rounded-md mt-1">
+                    <AvatarImage
+                      className="rounded-md"
+                      alt={'image'}
+                      src={
+                        noti.conversationWith?.memberPreference.image ||
+                        noti.conversationWith?.image
+                      }
+                    />
+                    <AvatarFallback className="aspect-square rounded-md bg-sky-500 text-white flex justify-center items-center"></AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <div
+                      className={cn(
+                        'flex justify-between items-end ',
+                        noti.unreadCount > 0 && 'font-medium text-black'
+                      )}
+                    >
+                      <div className="font-bold text-base">
+                        {renderDisplayName(
+                          noti.conversationWith?.name,
+                          noti.conversationWith?.memberPreference
+                        )}
+                      </div>
+                      <div className="flex gap-1 ">
+                        <span className=" text-sm">
+                          {formatDateNotiTime(
+                            new Date(noti.newestNoti._creationTime),
+                            'MMMM do'
+                          )}
+                        </span>
+                        {noti.unreadCount > 0 && (
+                          <div className="w-8 h-5 bg-[#5E2C5F] flex justify-center items-center rounded-3xl text-white font-normal text-sm">
+                            {noti.unreadCount}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center">
+                      <p>
+                        {renderDisplayName(
+                          noti.newestNoti.sender?.name,
+                          noti.newestNoti.sender?.memberPreference
+                        )}
+                        :&nbsp;
+                      </p>
+                      <div className="text-muted-foreground">
+                        <CustomRenderer value={noti.newestNoti.content} />{' '}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <Separator />
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

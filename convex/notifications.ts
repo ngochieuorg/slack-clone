@@ -399,6 +399,12 @@ export const directMessages = query({
           q.neq(q.field('conversationId'), undefined)
         )
       )
+      .filter((q) =>
+        q.or(
+          q.eq(q.field('userId'), currentUserId),
+          q.eq(q.field('senderId'), currentUserId)
+        )
+      )
       .collect();
 
     const notificationWithPopulate = await Promise.all(
@@ -424,8 +430,11 @@ export const directMessages = query({
               }
             );
         }
+        const senderData = await populateUser(ctx, notification.senderId, {
+          memberId: notification.senderMemberId,
+        });
 
-        return { ...notification, conversationWith };
+        return { ...notification, conversationWith, sender: senderData };
       })
     );
 
@@ -438,15 +447,17 @@ export const directMessages = query({
       (conversation) => {
         let unreadCount = 0;
         let newestNoti = conversation[0];
+        const conversationWith = conversation[0].conversationWith;
+
         conversation.forEach((noti) => {
           if (noti._creationTime > newestNoti._creationTime) {
             newestNoti = noti;
           }
-          if (noti.status === 'unread') {
+          if (noti.status === 'unread' && noti.userId === currentUserId) {
             unreadCount = unreadCount + 1;
           }
         });
-        return { unreadCount, newestNoti };
+        return { unreadCount, newestNoti, conversationWith };
       }
     );
 

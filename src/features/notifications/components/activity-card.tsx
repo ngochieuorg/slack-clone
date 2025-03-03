@@ -8,11 +8,13 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { AvatarFallback, AvatarImage, Avatar } from '@/components/ui/avatar';
 import { HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import CustomRenderer from '@/components/custom-renderer';
 
 // Utils & Helpers
 import { cn } from '@/lib/utils';
 import { formatDateNotiTime } from '@/app/utils/date-time';
 import { groupBy } from '@/app/utils';
+import { renderDisplayName } from '@/app/utils/label';
 
 // Hooks & API Calls
 import { useToggleReaction } from '@/features/reactions/api/use-toggle-reaction';
@@ -22,6 +24,7 @@ import { useWorkspaceId } from '@/hooks/use-workspace-id';
 
 // Types
 import { Id } from '../../../../convex/_generated/dataModel';
+import { GetUserReturnType } from '@/features/auth/api/use-current-user';
 
 // Notifications
 import { toast } from 'sonner';
@@ -29,9 +32,6 @@ import { toast } from 'sonner';
 // Store Management
 import { useAtom } from 'jotai';
 import { activitiesAtom } from '@/store/activity.store';
-import { GetUserReturnType } from '@/features/auth/api/use-current-user';
-import { renderDisplayName } from '@/app/utils/label';
-import CustomRenderer from '@/components/custom-renderer';
 
 // Dynamic Imports
 const HoverCard = dynamic(
@@ -66,14 +66,6 @@ const ActivityCard = ({ currentUser }: ActivityCardProps) => {
   );
 
   const { mutate: markAsReadNoti } = useMarkAsReadNotifications();
-
-  // const markAsReadChannel = (channelId: Id<'channels'>) => {
-  //   markAsReadNoti({ channelId, workspaceId }, {});
-  // };
-
-  // const markAsReadConversation = (conversationId: Id<'conversations'>) => {
-  //   markAsReadNoti({ conversationId, workspaceId }, {});
-  // };
 
   const markAsReadMessage = (messageId?: Id<'messages'>) => {
     markAsReadNoti({ workspaceId, messageId }, {});

@@ -267,6 +267,7 @@ const ActivityThread = ({
                       hightLight &&
                       'bg-[#f2c74433] transition duration-1000'
                   )}
+                  formatFullDate
                 />
               );
             })}
@@ -325,6 +326,7 @@ const ActivityThread = ({
           reactions={message.reactions}
           isEditing={editingId === message._id}
           setEditingId={setEditingId}
+          formatFullDate
         />
       </div>
     </div>

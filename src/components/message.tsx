@@ -48,6 +48,7 @@ interface MessageProps {
   threadImage?: string;
   threadName?: string;
   threadTimestamp?: number;
+  formatFullDate?: boolean;
   threadUsers?: (
     | (Doc<'users'> & { memberPreference: Doc<'memberPreferences'> | any })
     | null
@@ -75,6 +76,7 @@ const Message = ({
   threadImage,
   threadTimestamp,
   threadName,
+  formatFullDate,
   threadUsers,
 }: MessageProps) => {
   const channelId = useChannelId();
@@ -262,7 +264,11 @@ const Message = ({
                 <span>&nbsp;&nbsp;</span>
                 <Hint label={formatFulltime(new Date(createdAt))}>
                   <button className="text-xs text-muted-foreground hover:underline">
-                    {format(new Date(createdAt), 'h:mm a')}
+                    {formatFullDate ? (
+                      <>{formatFulltime(new Date(createdAt))}</>
+                    ) : (
+                      <>{format(new Date(createdAt), 'h:mm a')}</>
+                    )}
                   </button>
                 </Hint>
               </div>

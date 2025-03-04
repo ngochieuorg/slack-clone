@@ -99,9 +99,16 @@ export const Sidebar = () => {
     router.push(`/workspace/${workspaceId}/activity`);
   };
 
-  const activeSideButton = (): 'home' | 'activity' => {
+  const onNavigateToDirectMessagePage = () => {
+    router.push(`/workspace/${workspaceId}/direct-message`);
+  };
+
+  const activeSideButton = (): 'home' | 'activity' | 'direct-message' => {
     if (pathName.includes('/activity')) {
       return 'activity';
+    }
+    if (pathName.includes('/direct-message')) {
+      return 'direct-message';
     }
     return 'home';
   };
@@ -121,13 +128,14 @@ export const Sidebar = () => {
           router.replace(`/workspace/${workspaceId}/channel/${channelId}`)
         }
       />
-      <div>
+      <div onClick={onNavigateToDirectMessagePage}>
         <HoverCard>
           <HoverCardTrigger>
             <SidebarButton
               icon={MessageCircle}
               label="DMs"
               notiCount={countDirectMessageNoti(directMessages)}
+              isActive={activeSideButton() === 'direct-message'}
             />
           </HoverCardTrigger>
           <HoverCardContent className="p-0">

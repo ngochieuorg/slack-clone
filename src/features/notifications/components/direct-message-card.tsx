@@ -12,8 +12,12 @@ import { formatDateNotiTime } from '@/app/utils/date-time';
 import { cn } from '@/lib/utils';
 
 // Hooks & API Calls
+import { useWorkspaceId } from '@/hooks/use-workspace-id';
+import { useMarkAsReadNotifications } from '../api/use-mark-as-read-notifications';
+import { useRouter } from 'next/navigation';
 
 // Types
+import { Id } from '../../../../convex/_generated/dataModel';
 
 // Notifications
 
@@ -21,15 +25,13 @@ import { cn } from '@/lib/utils';
 import { useAtom } from 'jotai';
 import { directMessageAtom } from '@/store/direct-message.store';
 
-// Dynamic Imports
-// const HoverCard = dynamic(
-//   () => import('@/components/ui/hover-card').then((mod) => mod.HoverCard),
-//   { ssr: false }
-// );
-
 const DirectMessageCard = () => {
+  const router = useRouter();
+  const workspaceId = useWorkspaceId();
   const [{ directMessages, isUnread, isLoading }, setDirectMessages] =
     useAtom(directMessageAtom);
+
+  const { mutate: markAsReadNoti } = useMarkAsReadNotifications();
 
   const LoaderComponent = (
     <div className="flex flex-col h-[480px] items-center justify-center">
@@ -42,6 +44,10 @@ const DirectMessageCard = () => {
       <CheckCircle className=" size-5 text-[#5E2C5F]" />
     </div>
   );
+
+  const markAsReadConversation = (conversationId: Id<'conversations'>) => {
+    markAsReadNoti({ conversationId, workspaceId }, {});
+  };
 
   return (
     <div className="flex flex-col w-96">
@@ -78,6 +84,14 @@ const DirectMessageCard = () => {
               <div
                 className=" px-4 pb-0 cursor-pointer hover:bg-slate-100"
                 key={index}
+                onClick={() => {
+                  if (noti.conversationId) {
+                    markAsReadConversation(noti.conversationId);
+                  }
+                  router.push(
+                    `/workspace/${workspaceId}/direct-message/${noti.conversationWith?.memberPreference.memberId}?conversationId=${noti.conversationId}`
+                  );
+                }}
               >
                 <div className="flex justify-start gap-2 items-start py-4">
                   <Avatar className="size-10 hover:opacity-75 transition rounded-md mt-1">

@@ -410,10 +410,11 @@ export const directMessages = query({
     const notificationWithPopulate = await Promise.all(
       notifications.map(async (notification) => {
         let conversationWith;
+        let conversationWithMember;
         if (notification.conversationId) {
           const conversation = await ctx.db.get(notification.conversationId);
 
-          if (currentMember._id === conversation?.memberOneId)
+          if (currentMember._id === conversation?.memberOneId) {
             conversationWith = await populateUser(
               ctx,
               conversation?.userTwoId,
@@ -421,7 +422,10 @@ export const directMessages = query({
                 memberId: conversation.memberTwoId,
               }
             );
-          if (currentMember._id === conversation?.memberTwoId)
+            conversationWithMember = conversation.memberTwoId;
+          }
+
+          if (currentMember._id === conversation?.memberTwoId) {
             conversationWith = await populateUser(
               ctx,
               conversation?.userOneId,
@@ -429,12 +433,19 @@ export const directMessages = query({
                 memberId: conversation.memberOneId,
               }
             );
+            conversationWithMember = conversation.memberOneId;
+          }
         }
         const senderData = await populateUser(ctx, notification.senderId, {
           memberId: notification.senderMemberId,
         });
 
-        return { ...notification, conversationWith, sender: senderData };
+        return {
+          ...notification,
+          conversationWith,
+          sender: senderData,
+          conversationWithMember,
+        };
       })
     );
 
@@ -448,6 +459,8 @@ export const directMessages = query({
         let unreadCount = 0;
         let newestNoti = conversation[0];
         const conversationWith = conversation[0].conversationWith;
+        const conversationWithMember = conversation[0].conversationWithMember;
+        const conversationId = conversation[0].conversationId;
 
         conversation.forEach((noti) => {
           if (noti._creationTime > newestNoti._creationTime) {
@@ -457,7 +470,13 @@ export const directMessages = query({
             unreadCount = unreadCount + 1;
           }
         });
-        return { unreadCount, newestNoti, conversationWith };
+        return {
+          unreadCount,
+          newestNoti,
+          conversationWith,
+          conversationWithMember,
+          conversationId,
+        };
       }
     );
 

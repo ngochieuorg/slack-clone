@@ -24,11 +24,18 @@ import { cn } from '@/lib/utils';
 import { formatDateNotiTime } from '@/app/utils/date-time';
 import CustomRenderer from '@/components/custom-renderer';
 import { Separator } from '@/components/ui/separator';
+import { useRouter } from 'next/navigation';
+import useConversationId from '@/features/notifications/store/use-conversation-id';
+import { useMarkAsReadNotifications } from '@/features/notifications/api/use-mark-as-read-notifications';
+import { Id } from '../../../../convex/_generated/dataModel';
 
 const DirectMessageSidebar = () => {
+  const router = useRouter();
   const workspaceId = useWorkspaceId();
   const [{ directMessages, isUnread, isLoading }, setDirectMessages] =
     useAtom(directMessageAtom);
+  const [conversationId] = useConversationId();
+  const { mutate: markAsReadNoti } = useMarkAsReadNotifications();
 
   const { data: members } = useGetMembers({ workspaceId });
 
@@ -39,6 +46,10 @@ const DirectMessageSidebar = () => {
       <Loader className=" size-5 animate-spin text-muted-foreground" />
     </div>
   );
+
+  const markAsReadConversation = (conversationId: Id<'conversations'>) => {
+    markAsReadNoti({ conversationId, workspaceId }, {});
+  };
 
   return (
     <div className="relative">
@@ -132,8 +143,19 @@ const DirectMessageSidebar = () => {
           {directMessages?.map((noti, idx) => {
             return (
               <div
-                className="pt-2 hover:bg-[#713a72] cursor-pointer text-white"
+                className={cn(
+                  'pt-2 hover:bg-[#713a72] cursor-pointer text-white',
+                  noti.conversationId === conversationId && 'bg-[#713a72]'
+                )}
                 key={idx}
+                onClick={() => {
+                  if (noti.conversationId) {
+                    markAsReadConversation(noti.conversationId);
+                  }
+                  router.replace(
+                    `/workspace/${workspaceId}/direct-message/${noti.conversationWith?.memberPreference.memberId}?conversationId=${noti.conversationId}`
+                  );
+                }}
               >
                 <div className="flex justify-start gap-2 items-start py-4 px-2">
                   <Avatar className="size-10 hover:opacity-75 transition rounded-md mt-1">

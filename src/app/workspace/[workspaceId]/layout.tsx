@@ -55,8 +55,6 @@ const WorkspaceLayout = ({ children }: WorkspaceIdLayoutProps) => {
     } else return 'home';
   };
 
-  console.log(path);
-
   return (
     <div className="h-full ">
       <Toolbar />

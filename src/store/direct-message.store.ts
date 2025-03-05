@@ -7,7 +7,7 @@ interface DirectMessageAtomProps {
   directMessages: DirectMessageReturnType;
   isLoading?: boolean;
   isUnread: boolean;
-  selectActivityId?: string;
+  selectConversationId?: string;
 }
 
 export const directMessageAtom = atom<DirectMessageAtomProps>({

@@ -21,6 +21,7 @@ import { useToggleReaction } from '@/features/reactions/api/use-toggle-reaction'
 import { useChannelId } from '@/hooks/use-channel-id';
 import { useMarkAsReadNotifications } from '../api/use-mark-as-read-notifications';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
+import { useRouter } from 'next/navigation';
 
 // Types
 import { Id } from '../../../../convex/_generated/dataModel';
@@ -46,6 +47,7 @@ interface ActivityCardProps {
 const ActivityCard = ({ currentUser }: ActivityCardProps) => {
   const workspaceId = useWorkspaceId();
   const channelId = useChannelId();
+  const router = useRouter();
   const { mutate: toggleReaction } = useToggleReaction();
 
   const [{ activities, isUnread, isLoading }, setActivities] =
@@ -364,20 +366,21 @@ const ActivityCard = ({ currentUser }: ActivityCardProps) => {
               }
             }
 
-            function onHandleClickActivity() {
-              if (
-                activity.notiType === 'mention' ||
-                activity.notiType === 'reaction'
-              ) {
-                markAsReadMessage(activity.newestNoti.messageId);
-              }
-            }
-
             return (
               <div
                 className="p-2 pb-0 cursor-pointer hover:bg-slate-100"
                 key={index}
-                onClick={() => onHandleClickActivity()}
+                onClick={() => {
+                  if (
+                    activity.notiType === 'mention' ||
+                    activity.notiType === 'reaction'
+                  ) {
+                    markAsReadMessage(activity.newestNoti.messageId);
+                  }
+                  router.replace(
+                    `/workspace/${workspaceId}/activity/${activity._id}`
+                  );
+                }}
               >
                 <div
                   className={cn(

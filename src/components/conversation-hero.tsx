@@ -32,7 +32,7 @@ const ConversationHero = ({
         </div>
       </div>
 
-      <p className="font-normal text-slate-800 mb-4 text-lg">
+      <div className="font-normal text-slate-800 mb-4 text-lg">
         This conversation is just between{' '}
         <UserDetailCard
           trigger={
@@ -43,7 +43,7 @@ const ConversationHero = ({
           memberId={memberId as Id<'members'>}
         />{' '}
         and you. Check out their profile to learn more about them.
-      </p>
+      </div>
       <Button variant={'outline'}>View Profile</Button>
     </div>
   );

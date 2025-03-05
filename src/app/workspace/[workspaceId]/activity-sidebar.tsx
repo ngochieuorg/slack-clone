@@ -43,9 +43,10 @@ import { Id } from '../../../../convex/_generated/dataModel';
 // Store Management
 import { useAtom } from 'jotai';
 import { activitiesAtom } from '@/store/activity.store';
-import { usePanel } from '@/hooks/use-panel';
 import { renderDisplayName } from '@/app/utils/label';
 import CustomRenderer from '@/components/custom-renderer';
+import { useActivityId } from '@/hooks/use-activity-id';
+import { useRouter } from 'next/navigation';
 
 // Dynamic Imports
 const HoverCard = dynamic(
@@ -86,6 +87,7 @@ const activityType = [
 ];
 
 const ActivitySidebar = () => {
+  const router = useRouter();
   const channelId = useChannelId();
   const workspaceId = useWorkspaceId();
 
@@ -96,7 +98,7 @@ const ActivitySidebar = () => {
     useAtom(activitiesAtom);
 
   const { mutate: markAsReadNoti } = useMarkAsReadNotifications();
-  const { onClose } = usePanel();
+  const activityId = useActivityId();
 
   const [selectedTab, setSelectedTab] = useState('all');
 
@@ -300,7 +302,7 @@ const ActivitySidebar = () => {
                           return (
                             <>
                               {activity.newestNoti.parentMessage?.body && (
-                                <div className="flex items-center gap-1">
+                                <div className="flex items-start gap-1">
                                   <div className="w-max">replied to:</div>
                                   <CustomRenderer
                                     value={
@@ -468,16 +470,17 @@ const ActivitySidebar = () => {
                         ) {
                           markAsReadMessage(activity.newestNoti.messageId);
                         }
-                        onClose();
-                        setActivities((prev) => ({
-                          ...prev,
-                          selectActivityId: activity._id,
-                        }));
+                        router.replace(
+                          `/workspace/${workspaceId}/activity/${activity._id}`
+                        );
                       }
 
                       return (
                         <div
-                          className="pt-2 hover:bg-[#713a72] cursor-pointer"
+                          className={cn(
+                            'pt-2 hover:bg-[#713a72] cursor-pointer',
+                            activity._id === activityId && 'bg-[#713a72]'
+                          )}
                           key={index}
                           onClick={() => onClickNoti()}
                         >

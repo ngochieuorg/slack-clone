@@ -128,10 +128,11 @@ export const Sidebar = () => {
           router.replace(`/workspace/${workspaceId}/channel/${channelId}`)
         }
       />
-      <div onClick={onNavigateToDirectMessagePage}>
+      <div>
         <HoverCard>
           <HoverCardTrigger>
             <SidebarButton
+              onClick={() => onNavigateToDirectMessagePage()}
               icon={MessageCircle}
               label="DMs"
               notiCount={countDirectMessageNoti(directMessages)}
@@ -143,10 +144,11 @@ export const Sidebar = () => {
           </HoverCardContent>
         </HoverCard>
       </div>
-      <div onClick={onNavigateToActivityPage}>
+      <div>
         <HoverCard>
           <HoverCardTrigger>
             <SidebarButton
+              onClick={() => onNavigateToActivityPage()}
               icon={Bell}
               label="Activity"
               notiCount={countActivitiesNoti(activities)}

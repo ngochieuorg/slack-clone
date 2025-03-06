@@ -56,6 +56,7 @@ const UserDetailCardContent = ({ memberId }: { memberId: Id<'members'> }) => {
         <Avatar className="size-20">
           <AvatarImage
             src={member?.user?.memberPreference.image || member?.user?.image}
+            alt={member?.user.name}
           />
           <AvatarFallback className="rounded-md bg-slate-100 text-white flex justify-center items-center text-xs font-light"></AvatarFallback>
         </Avatar>

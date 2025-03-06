@@ -79,6 +79,7 @@ const Header = ({ channel }: HeaderProps) => {
                                       user?.user?.memberPreference.image ||
                                       user?.user?.image
                                     }
+                                    alt={user?.user?.name}
                                   />
                                   <AvatarFallback className="rounded-md bg-sky-500 text-white flex justify-center items-center text-xs font-light"></AvatarFallback>
                                 </Avatar>

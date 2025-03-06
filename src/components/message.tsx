@@ -229,7 +229,7 @@ const Message = ({
               memberId={memberId}
               trigger={
                 <Avatar className="size-10 hover:opacity-75 transition">
-                  <AvatarImage src={authorImage} />
+                  <AvatarImage src={authorImage} alt={authorName} />
                   <AvatarFallback className="aspect-square rounded-md bg-sky-500 text-white">
                     {avatarFallback}
                   </AvatarFallback>

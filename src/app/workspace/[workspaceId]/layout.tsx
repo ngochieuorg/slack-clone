@@ -1,8 +1,8 @@
 'use client';
 
+import React, { useMemo } from 'react';
 import { Sidebar } from './sidebar';
 import Toolbar from './toolbar';
-
 import {
   ResizableHandle,
   ResizablePanel,
@@ -26,37 +26,40 @@ const WorkspaceLayout = ({ children }: WorkspaceIdLayoutProps) => {
   const path = usePathname();
   const { parentMessageId, profileMemberId, onClose } = usePanel();
 
-  const isActivityPage = path.includes('/activity');
-  const isDirectMessagePage = path.includes('/direct-message');
+  const isActivityPage = useMemo(() => path.includes('/activity'), [path]);
+  const isDirectMessagePage = useMemo(
+    () => path.includes('/direct-message'),
+    [path]
+  );
+  const showPanel = useMemo(
+    () => !!parentMessageId || !!profileMemberId,
+    [parentMessageId, profileMemberId]
+  );
 
-  const showPanel = !!parentMessageId || !!profileMemberId;
-
-  const sidebar = () => {
+  const renderSidebar = useMemo(() => {
     if (isActivityPage) {
       return <ActivitySidebar />;
     } else if (isDirectMessagePage) {
       return <DirectMessageSidebar />;
-    } else return <WorkSpaceSidebar />;
-  };
-
-  const defaultSidebarSize = () => {
-    if (isActivityPage || isDirectMessagePage) {
-      return 45;
-    } else {
-      return 15;
     }
-  };
+    return <WorkSpaceSidebar />;
+  }, [isActivityPage, isDirectMessagePage]);
 
-  const sidebarId = () => {
+  const defaultSidebarSize = useMemo(() => {
+    return isActivityPage || isDirectMessagePage ? 45 : 15;
+  }, [isActivityPage, isDirectMessagePage]);
+
+  const sidebarId = useMemo(() => {
     if (isActivityPage) {
       return 'activity';
     } else if (isDirectMessagePage) {
       return 'direct-message';
-    } else return 'home';
-  };
+    }
+    return 'home';
+  }, [isActivityPage, isDirectMessagePage]);
 
   return (
-    <div className="h-full ">
+    <div className="h-full">
       <Toolbar />
       <div className="flex h-[calc(100vh-40px)]">
         <Sidebar />
@@ -65,17 +68,17 @@ const WorkspaceLayout = ({ children }: WorkspaceIdLayoutProps) => {
           autoSaveId={'ca-workspace-layout'}
         >
           <ResizablePanel
-            id={sidebarId()}
-            defaultSize={defaultSidebarSize()}
+            id={sidebarId}
+            defaultSize={defaultSidebarSize}
             minSize={11}
             className="rounded-tl-lg rounded-bl-lg mb-0.5"
             order={1}
           >
             <div
               className="flex flex-col bg-[#5E2C5F] h-full overflow-y-scroll overflow-x-clip
-              [&::-webkit-scrollbar]:w-0"
+                         [&::-webkit-scrollbar]:w-0"
             >
-              {sidebar()}
+              {renderSidebar}
             </div>
           </ResizablePanel>
           <ResizableHandle withHandle />

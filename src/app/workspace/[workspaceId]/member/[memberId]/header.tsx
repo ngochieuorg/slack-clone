@@ -20,7 +20,7 @@ const Header = ({ memberName, memberImage, onclick }: HeaderProps) => {
         onClick={onclick}
       >
         <Avatar className="size-7 mr-2">
-          <AvatarImage src={memberImage} />
+          <AvatarImage src={memberImage} alt={memberName} />
           <AvatarFallback className="aspect-square rounded-md bg-sky-500 text-white">
             {avatarFallback}
           </AvatarFallback>

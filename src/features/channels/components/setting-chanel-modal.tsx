@@ -345,6 +345,7 @@ const SettingChannelModal = ({
                             user?.user?.memberPreference.image ||
                             user?.user?.image
                           }
+                          alt="img"
                         />
                         <AvatarFallback className="aspect-square rounded-md bg-sky-500 text-white" />
                       </Avatar>

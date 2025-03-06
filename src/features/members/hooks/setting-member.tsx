@@ -81,6 +81,7 @@ const useSettingMembers = ({ trigger }: UseAddPeopleToChannelProps) => {
               : URL.createObjectURL(selectedImage)
             : currentUser?.image
         }
+        alt="img"
       />
     </Avatar>
   );
@@ -90,7 +91,7 @@ const useSettingMembers = ({ trigger }: UseAddPeopleToChannelProps) => {
     <>
       <Avatar className="w-1/2 h-auto p-5 mx-auto">
         {!!memberPreferences?.image && (
-          <AvatarImage src={memberPreferences?.image} />
+          <AvatarImage src={memberPreferences?.image} alt="img" />
         )}
       </Avatar>
       <span className=" text-center">
@@ -238,7 +239,7 @@ const useSettingMembers = ({ trigger }: UseAddPeopleToChannelProps) => {
                 <label className="font-semibold text-sm">Profile photo</label>
                 <Avatar className="max-w-[200px] max-h-[200px] size-full self-center -top-3">
                   {!!memberPreferences?.image && (
-                    <AvatarImage src={memberPreferences?.image} />
+                    <AvatarImage src={memberPreferences?.image} alt="img" />
                   )}
                   <AvatarFallback className="aspect-square text-6xl rounded-md bg-slate-300 text-white"></AvatarFallback>
                 </Avatar>

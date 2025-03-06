@@ -39,6 +39,7 @@ const ThreadBar = ({
               <Avatar key={user?._id} className="size-6">
                 <AvatarImage
                   src={user?.memberPreference.image || user?.image}
+                  alt={user?.name}
                 />
                 <AvatarFallback className="rounded-md bg-sky-500 text-white flex justify-center items-center" />
               </Avatar>

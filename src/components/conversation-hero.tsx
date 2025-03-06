@@ -21,7 +21,7 @@ const ConversationHero = ({
     <div className="mt-[88px] mx-5 mb-4">
       <div className="flex items-center gap-x-1 mb-2">
         <Avatar className="size-28 mr-2 border">
-          <AvatarImage src={image} />
+          <AvatarImage src={image} alt={name} />
           <AvatarFallback className=" aspect-square rounded-md bg-sky-500 text-white">
             {avatarFallback}
           </AvatarFallback>

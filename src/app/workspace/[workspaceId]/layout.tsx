@@ -84,6 +84,7 @@ const WorkspaceLayout = ({ children }: WorkspaceIdLayoutProps) => {
           <ResizableHandle withHandle />
           <ResizablePanel
             minSize={20}
+            defaultSize={100}
             order={2}
             id="content"
             className="bg-white mb-0.5"

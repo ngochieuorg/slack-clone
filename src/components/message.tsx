@@ -4,7 +4,6 @@ import { Doc, Id } from '../../convex/_generated/dataModel';
 import { format } from 'date-fns';
 import Hint from './hint';
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
-import Thumbnail from './thumbnail';
 import Toolbar from './toolbar';
 import { useUpdateMessage } from '@/features/messages/api/use-update-message';
 import { toast } from 'sonner';
@@ -21,6 +20,7 @@ import CustomRenderer from './custom-renderer';
 import UserDetailCard from './user-detail-card';
 
 const Editor = dynamic(() => import('@/components/editor'), { ssr: false });
+const Thumbnail = dynamic(() => import('./thumbnail'));
 
 interface MessageProps {
   className?: string;

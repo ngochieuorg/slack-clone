@@ -1,4 +1,5 @@
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from './ui/dialog';
+import Image from 'next/image';
 
 /* eslint-disable @next/next/no-img-element */
 interface ThumbnailProps {
@@ -12,10 +13,13 @@ const Thumbnail = ({ url }: ThumbnailProps) => {
     <Dialog>
       <DialogTrigger>
         <div className="relative overflow-hidden max-w-[360px] border rounded-lg my-2 cursor-zoom-in">
-          <img
+          <Image
+            width={360}
+            height={300}
             src={url}
             alt="Message image"
-            className="rounded object-cover size-full"
+            className="rounded object-cover"
+            priority
           />
         </div>
       </DialogTrigger>

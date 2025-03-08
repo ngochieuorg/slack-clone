@@ -139,7 +139,7 @@ export const Sidebar = () => {
               isActive={activeSideButton() === 'direct-message'}
             />
           </HoverCardTrigger>
-          <HoverCardContent className="p-0">
+          <HoverCardContent className="p-0" side="right" align="start">
             <DirectMessageCard />
           </HoverCardContent>
         </HoverCard>
@@ -155,7 +155,7 @@ export const Sidebar = () => {
               isActive={activeSideButton() === 'activity'}
             />
           </HoverCardTrigger>
-          <HoverCardContent className="p-0">
+          <HoverCardContent className="p-0" side="right" align="start">
             <ActivityCard currentUser={currentUser} />
           </HoverCardContent>
         </HoverCard>

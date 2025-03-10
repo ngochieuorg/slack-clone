@@ -1,6 +1,7 @@
 import { groupBy } from '../app/utils';
 import { Doc, Id } from '../../convex/_generated/dataModel';
 import { QueryCtx } from '../../convex/_generated/server';
+import { DeltaOps, InsertOperation } from '../app/models';
 
 export const populateThread = async (
   ctx: QueryCtx,
@@ -144,27 +145,12 @@ export function extractMentionIds(jsonString: string): string[] {
   }
 }
 
-type Mention = {
-  index: string;
-  denotationChar: string;
-  id: string;
-  value: string;
-};
-
-type Op = {
-  insert: string | { mention: Mention };
-};
-
-type Delta = {
-  ops: Op[];
-};
-
 export async function updateMentionsValue(
   ctx: QueryCtx,
   input: string,
   user: Doc<'users'>
 ): Promise<string> {
-  const delta: Delta = JSON.parse(input);
+  const delta: DeltaOps = JSON.parse(input);
   const updatedOps = await Promise.all(
     delta.ops.map(async (op) => {
       if (typeof op.insert === 'object' && 'mention' in op.insert) {
@@ -192,8 +178,8 @@ export async function updateMentionsValue(
       return op;
     })
   );
-  const updatedDelta: Delta = {
-    ops: updatedOps as Op[],
+  const updatedDelta: DeltaOps = {
+    ops: updatedOps as InsertOperation[],
   };
   return JSON.stringify(updatedDelta);
 }

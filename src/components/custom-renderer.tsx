@@ -2,21 +2,7 @@ import { cn } from '@/lib/utils';
 import React from 'react';
 import UserDetailCard from './user-detail-card';
 import { Id } from '../../convex/_generated/dataModel';
-
-interface Mention {
-  index: string;
-  denotationChar: string;
-  id: string;
-  value: string;
-}
-
-interface InsertOperation {
-  insert: string | { mention: Mention };
-}
-
-interface DeltaOps {
-  ops: InsertOperation[];
-}
+import { DeltaOps } from '@/app/models';
 
 interface ConvertJsonToHtmlProps {
   value: string;

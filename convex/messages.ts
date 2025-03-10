@@ -400,9 +400,6 @@ export const create = mutation({
     }
 
     const currentMemmber = await getMember(ctx, args.workspaceId, userId);
-    const currentUser = await populateUser(ctx, userId, {
-      memberId: currentMemmber?._id,
-    });
 
     if (!currentMemmber) {
       throw Error('Unauthorized');
@@ -471,7 +468,7 @@ export const create = mutation({
               messageId: messageId,
               type: 'reply',
               status: 'unread',
-              content: `New message in thread from ${currentUser?.name}`,
+              content: args.body,
               senderId: userId,
               senderMemberId: currentMemmber._id,
               parentMessageId: args.parentMessageId,
@@ -491,7 +488,7 @@ export const create = mutation({
             messageId: messageId,
             type: 'mention',
             status: 'unread',
-            content: `${currentUser?.name} mention you`,
+            content: args.body,
             senderId: userId,
             senderMemberId: currentMemmber._id,
             parentMessageId: args.parentMessageId,

@@ -7,7 +7,7 @@ import { Id } from '../../../../convex/_generated/dataModel';
 type RequestType = {
   body: string;
   workspaceId: Id<'workspaces'>;
-  image?: Id<'_storage'>;
+  files?: Id<'_storage'>[];
   channelId?: Id<'channels'>;
   parentMessageId?: Id<'messages'>;
   conversationId?: Id<'conversations'>;

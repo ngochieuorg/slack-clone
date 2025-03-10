@@ -31,6 +31,7 @@ import Quill from 'quill';
 // React
 import { usePathname } from 'next/navigation';
 import { renderDisplayName } from '@/app/utils/label';
+import { CreateMessageValues } from '@/app/models';
 
 const Editor = dynamic(() => import('@/components/editor'), { ssr: false });
 
@@ -40,14 +41,6 @@ interface ThreadProps {
   messageId: Id<'messages'>;
   onClose: () => void;
 }
-
-type CreateMessageValues = {
-  channelId: Id<'channels'>;
-  workspaceId: Id<'workspaces'>;
-  parentMessageId: Id<'messages'>;
-  body: string;
-  image: Id<'_storage'> | undefined;
-};
 
 const Thread = ({ messageId, onClose }: ThreadProps) => {
   const path = usePathname();
@@ -83,10 +76,10 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
 
   const handleSubmit = async ({
     body,
-    image,
+    files,
   }: {
     body: string;
-    image: File | null;
+    files: File[];
   }) => {
     try {
       setIsPending(true);
@@ -96,27 +89,30 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
         channelId,
         workspaceId,
         body,
-        image: undefined,
+        files: [],
         parentMessageId: messageId,
       };
+      await Promise.all(
+        files.map(async (file) => {
+          if (file) {
+            const url = await generateUploadUrl({}, { throwError: true });
 
-      if (image) {
-        const url = await generateUploadUrl({}, { throwError: true });
+            const result = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': file.type },
+              body: file,
+            });
 
-        const result = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': image.type },
-          body: image,
-        });
+            if (!result) {
+              throw new Error('Failed to upload image');
+            }
 
-        if (!result) {
-          throw new Error('Failed to upload image');
-        }
+            const { storageId } = await result.json();
 
-        const { storageId } = await result.json();
-
-        values.image = storageId;
-      }
+            values.files = [...values.files, storageId];
+          }
+        })
+      );
 
       await createMessage(values, { throwError: true });
       setEditorKey((prevKey) => prevKey + 1);
@@ -218,7 +214,7 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
                     isAuthor={message.memberId === currentMember?._id}
                     reactions={message.reactions}
                     body={message.body}
-                    image={message.image}
+                    files={message.files}
                     updatedAt={message.updatedAt}
                     createdAt={message._creationTime}
                     isEditing={editingId === message._id}
@@ -273,7 +269,7 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
             )}
             isAuthor={message.memberId === currentMember?._id}
             body={message.body}
-            image={message.image}
+            files={message.files}
             createdAt={message._creationTime}
             updatedAt={message.updatedAt}
             id={message._id}

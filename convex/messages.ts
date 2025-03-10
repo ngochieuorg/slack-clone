@@ -76,9 +76,12 @@ export const get = query({
             const reactions = await populateReactions(ctx, message._id);
             const thread = await populateThread(ctx, message._id);
 
-            const image = message.image
-              ? await ctx.storage.getUrl(message.image)
-              : undefined;
+            const files = await Promise.all(
+              (message.files || []).map(async (f) => {
+                const file = await ctx.storage.getUrl(f);
+                return file;
+              })
+            );
 
             const reactionsWithCounts = await Promise.all(
               reactions.map(async (reaction) => {
@@ -143,7 +146,7 @@ export const get = query({
             return {
               ...message,
               body: mentionIds.length ? mentionBody : message.body,
-              image,
+              files,
               member,
               user,
               reactions: dedupedReactions,
@@ -212,9 +215,12 @@ export const getAll = query({
           const reactions = await populateReactions(ctx, message._id);
           const thread = await populateThread(ctx, message._id);
 
-          const image = message.image
-            ? await ctx.storage.getUrl(message.image)
-            : undefined;
+          const files = await Promise.all(
+            (message.files || []).map(async (f) => {
+              const file = await ctx.storage.getUrl(f);
+              return file;
+            })
+          );
           const reactionsWithCounts = await Promise.all(
             reactions.map(async (reaction) => {
               const memberReact = await populateMember(ctx, reaction.memberId);
@@ -274,7 +280,7 @@ export const getAll = query({
           return {
             ...message,
             body: mentionIds.length ? mentionBody : message.body,
-            image,
+            files,
             member,
             user,
             reactions: dedupedReactions,
@@ -336,7 +342,10 @@ export const getById = query({
       };
     });
 
-    const channel = await ctx.db.get(message.channelId as Id<'channels'>);
+    let channel;
+    if (message.channelId) {
+      channel = await ctx.db.get(message.channelId as Id<'channels'>);
+    }
 
     const dedupedReactions = reactionsWithCounts.reduce(
       (acc, reaction) => {
@@ -369,12 +378,17 @@ export const getById = query({
     const mentionIds = extractMentionIds(message.body);
     const mentionBody = await updateMentionsValue(ctx, message.body, user);
 
+    const files = await Promise.all(
+      (message.files || []).map(async (f) => {
+        const file = await ctx.storage.getUrl(f);
+        return file;
+      })
+    );
+
     return {
       ...message,
       body: mentionIds.length ? mentionBody : message.body,
-      image: message.image
-        ? await ctx.storage.getUrl(message.image)
-        : undefined,
+      files,
       user,
       member,
       reactions: reactionWithoutMemberIdProperty,
@@ -386,7 +400,7 @@ export const getById = query({
 export const create = mutation({
   args: {
     body: v.string(),
-    image: v.optional(v.id('_storage')),
+    files: v.optional(v.array(v.id('_storage'))),
     workspaceId: v.id('workspaces'),
     channelId: v.optional(v.id('channels')),
     parentMessageId: v.optional(v.id('messages')),
@@ -417,7 +431,7 @@ export const create = mutation({
     const messageId = await ctx.db.insert('messages', {
       memberId: currentMemmber._id,
       body: args.body,
-      image: args.image,
+      files: args.files,
       channelId: args.channelId,
       workspaceId: args.workspaceId,
       parentMessageId: args.parentMessageId,

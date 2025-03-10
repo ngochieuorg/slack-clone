@@ -12,19 +12,12 @@ import { toast } from 'sonner';
 import { useCreateMessage } from '@/features/messages/api/use-create-message';
 import { useGenerateUploadUrl } from '@/features/upload/api/use-generate-upload-url';
 import { renderDisplayName } from '@/app/utils/label';
+import { CreateMessageValues } from '@/app/models';
 
 interface ThreadComponentProps {
   messageId: Id<'messages'>;
   userInThreads: (Doc<'users'> | null | undefined)[];
 }
-
-type CreateMessageValues = {
-  channelId: Id<'channels'>;
-  workspaceId: Id<'workspaces'>;
-  parentMessageId: Id<'messages'>;
-  body: string;
-  image: Id<'_storage'> | undefined;
-};
 
 const initMessLoad = 2;
 
@@ -57,10 +50,10 @@ const ThreadComponent = ({
 
   const handleSubmit = async ({
     body,
-    image,
+    files,
   }: {
     body: string;
-    image: File | null;
+    files: File[];
   }) => {
     try {
       if (!message?.channelId) return;
@@ -72,27 +65,31 @@ const ThreadComponent = ({
         channelId: message?.channelId,
         workspaceId,
         body,
-        image: undefined,
+        files: [],
         parentMessageId: messageId,
       };
 
-      if (image) {
-        const url = await generateUploadUrl({}, { throwError: true });
+      await Promise.all(
+        files.map(async (file) => {
+          if (file) {
+            const url = await generateUploadUrl({}, { throwError: true });
 
-        const result = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': image.type },
-          body: image,
-        });
+            const result = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': file.type },
+              body: file,
+            });
 
-        if (!result) {
-          throw new Error('Failed to upload image');
-        }
+            if (!result) {
+              throw new Error('Failed to upload image');
+            }
 
-        const { storageId } = await result.json();
+            const { storageId } = await result.json();
 
-        values.image = storageId;
-      }
+            values.files = [...values.files, storageId];
+          }
+        })
+      );
 
       await createMessage(values, { throwError: true });
       setEditorKey((prevKey) => prevKey + 1);
@@ -148,7 +145,7 @@ const ThreadComponent = ({
           )}
           isAuthor={message.memberId === currentMember?._id}
           body={message.body}
-          image={message.image}
+          files={message.files}
           createdAt={message._creationTime}
           updatedAt={message.updatedAt}
           id={message._id}
@@ -173,7 +170,7 @@ const ThreadComponent = ({
                 isAuthor={message.memberId === currentMember?._id}
                 reactions={message.reactions}
                 body={message.body}
-                image={message.image}
+                files={message.files}
                 updatedAt={message.updatedAt}
                 createdAt={message._creationTime}
                 isEditing={editingId === message._id}

@@ -94,7 +94,7 @@ const MessageList = ({
                 isAuthor={message.memberId === currentMember?._id}
                 reactions={message.reactions}
                 body={message.body}
-                image={message.image}
+                files={message.files}
                 updatedAt={message.updatedAt}
                 createdAt={message._creationTime}
                 isEditing={editingId === message._id}

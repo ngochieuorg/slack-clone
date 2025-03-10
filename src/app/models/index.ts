@@ -1,3 +1,5 @@
+import { Id } from '../../../convex/_generated/dataModel';
+
 export interface Mention {
   index: string;
   denotationChar: string;
@@ -17,3 +19,11 @@ export interface RenderMemberPreferences {
   displayName?: string;
   fullName?: string;
 }
+
+export type CreateMessageValues = {
+  channelId: Id<'channels'>;
+  workspaceId: Id<'workspaces'>;
+  parentMessageId?: Id<'messages'>;
+  body: string;
+  files: Id<'_storage'>[];
+};

@@ -9,18 +9,11 @@ const Editor = dynamic(() => import('@/components/editor'), { ssr: true });
 
 import React, { useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { Id } from '../../../../../../convex/_generated/dataModel';
+import { CreateMessageValues } from '@/app/models';
 
 interface ChatInputProps {
   placeholder: string;
 }
-
-type CreateMessageValues = {
-  channelId: Id<'channels'>;
-  workspaceId: Id<'workspaces'>;
-  body: string;
-  image: Id<'_storage'> | undefined;
-};
 
 const ChatInput = ({ placeholder }: ChatInputProps) => {
   const [editorKey, setEditorKey] = useState(0);
@@ -35,10 +28,10 @@ const ChatInput = ({ placeholder }: ChatInputProps) => {
 
   const handleSubmit = async ({
     body,
-    image,
+    files,
   }: {
     body: string;
-    image: File | null;
+    files: File[];
   }) => {
     try {
       setIsPending(true);
@@ -48,26 +41,29 @@ const ChatInput = ({ placeholder }: ChatInputProps) => {
         channelId,
         workspaceId,
         body,
-        image: undefined,
+        files: [],
       };
+      await Promise.all(
+        files.map(async (file) => {
+          if (file) {
+            const url = await generateUploadUrl({}, { throwError: true });
 
-      if (image) {
-        const url = await generateUploadUrl({}, { throwError: true });
+            const result = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': file.type },
+              body: file,
+            });
 
-        const result = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': image.type },
-          body: image,
-        });
+            if (!result) {
+              throw new Error('Failed to upload image');
+            }
 
-        if (!result) {
-          throw new Error('Failed to upload image');
-        }
+            const { storageId } = await result.json();
 
-        const { storageId } = await result.json();
-
-        values.image = storageId;
-      }
+            values.files = [...values.files, storageId];
+          }
+        })
+      );
 
       await createMessage(values, { throwError: true });
       setEditorKey((prevKey) => prevKey + 1);

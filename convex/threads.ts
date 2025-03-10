@@ -48,9 +48,12 @@ export const get = query({
 
             const reactions = await populateReactions(ctx, message._id);
             const thread = await populateThread(ctx, message._id);
-            const image = message.image
-              ? await ctx.storage.getUrl(message.image)
-              : undefined;
+            const files = await Promise.all(
+              (message.files || []).map(async (f) => {
+                const file = await ctx.storage.getUrl(f);
+                return file;
+              })
+            );
 
             const reactionsWithCounts = reactions.map((reaction) => {
               return {
@@ -92,7 +95,7 @@ export const get = query({
 
             return {
               ...message,
-              image,
+              files,
               member,
               user,
               reactions: reactionWithoutMemberIdProperty,

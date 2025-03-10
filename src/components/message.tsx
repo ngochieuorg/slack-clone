@@ -37,7 +37,7 @@ interface MessageProps {
     }
   >;
   body: Doc<'messages'>['body'];
-  image: string | null | undefined;
+  files: (string | null)[];
   createdAt: Doc<'messages'>['_creationTime'];
   updatedAt: Doc<'messages'>['updatedAt'];
   isEditing: boolean;
@@ -65,7 +65,7 @@ const Message = ({
   isAuthor,
   reactions,
   body,
-  image,
+  files,
   createdAt,
   updatedAt,
   isEditing,
@@ -176,7 +176,12 @@ const Message = ({
             ) : (
               <div className="flex  flex-col w-full">
                 <CustomRenderer value={body} />
-                <Thumbnail url={image} />
+                <div className="flex gap-2 flex-wrap">
+                  {files.map((file, idx) => {
+                    return <Thumbnail key={idx} url={file} />;
+                  })}
+                </div>
+
                 {updatedAt ? (
                   <span className="text-xs text-muted-foreground">
                     (edited)
@@ -273,7 +278,11 @@ const Message = ({
                 </Hint>
               </div>
               <CustomRenderer value={body} />
-              <Thumbnail url={image} />
+              <div className="flex gap-2 flex-wrap">
+                {files.map((file, idx) => {
+                  return <Thumbnail key={idx} url={file} />;
+                })}
+              </div>
               {updatedAt ? (
                 <span className="text-xs text-muted-foreground">(edited)</span>
               ) : null}

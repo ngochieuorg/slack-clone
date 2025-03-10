@@ -30,6 +30,7 @@ import { useEffect, useRef, useState } from 'react';
 // Types
 import { Id } from '../../../../convex/_generated/dataModel';
 import { renderDisplayName } from '@/app/utils/label';
+import { CreateMessageValues } from '@/app/models';
 
 // Dynamic Component
 const Editor = dynamic(() => import('@/components/editor'), { ssr: false });
@@ -41,14 +42,6 @@ interface ActivityChannelProps {
   parentMessageId?: string;
   messageId: string;
 }
-
-type CreateMessageValues = {
-  channelId: Id<'channels'>;
-  workspaceId: Id<'workspaces'>;
-  parentMessageId?: Id<'messages'>;
-  body: string;
-  image: Id<'_storage'> | undefined;
-};
 
 const ActivityChannel = ({ channelId, messageId }: ActivityChannelProps) => {
   const workspaceId = useWorkspaceId();
@@ -101,10 +94,10 @@ const ActivityChannel = ({ channelId, messageId }: ActivityChannelProps) => {
 
   const handleSubmit = async ({
     body,
-    image,
+    files,
   }: {
     body: string;
-    image: File | null;
+    files: File[];
   }) => {
     try {
       setIsPending(true);
@@ -114,26 +107,30 @@ const ActivityChannel = ({ channelId, messageId }: ActivityChannelProps) => {
         channelId: channelId as Id<'channels'>,
         workspaceId,
         body,
-        image: undefined,
+        files: [],
       };
 
-      if (image) {
-        const url = await generateUploadUrl({}, { throwError: true });
+      await Promise.all(
+        files.map(async (file) => {
+          if (file) {
+            const url = await generateUploadUrl({}, { throwError: true });
 
-        const result = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': image.type },
-          body: image,
-        });
+            const result = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': file.type },
+              body: file,
+            });
 
-        if (!result) {
-          throw new Error('Failed to upload image');
-        }
+            if (!result) {
+              throw new Error('Failed to upload image');
+            }
 
-        const { storageId } = await result.json();
+            const { storageId } = await result.json();
 
-        values.image = storageId;
-      }
+            values.files = [...values.files, storageId];
+          }
+        })
+      );
 
       await createMessage(values, { throwError: true });
       setEditorKey((prevKey) => prevKey + 1);
@@ -219,7 +216,7 @@ const ActivityChannel = ({ channelId, messageId }: ActivityChannelProps) => {
                   isAuthor={message.memberId === currentMember?._id}
                   reactions={message.reactions}
                   body={message.body}
-                  image={message.image}
+                  files={message.files}
                   updatedAt={message.updatedAt}
                   createdAt={message._creationTime}
                   isEditing={editingId === message._id}
@@ -286,7 +283,7 @@ const ActivityChannel = ({ channelId, messageId }: ActivityChannelProps) => {
           )}
           isAuthor={message.memberId === currentMember?._id}
           body={message.body}
-          image={message.image}
+          files={message.files}
           createdAt={message._creationTime}
           updatedAt={message.updatedAt}
           id={message._id}

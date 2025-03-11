@@ -121,6 +121,10 @@ const schema = defineSchema({
   })
     .index('by_user_workspace', ['userId', 'workspaceId'])
     .index('by_user_channel', ['userId', 'channelId']),
+  files: defineTable({
+    storageId: v.id('_storage'),
+    name: v.string(),
+  }).index('by_storageId', ['storageId']),
 });
 
 export default schema;

@@ -13,6 +13,7 @@ import { useCreateMessage } from '@/features/messages/api/use-create-message';
 import { useGenerateUploadUrl } from '@/features/upload/api/use-generate-upload-url';
 import { renderDisplayName } from '@/app/utils/label';
 import { CreateMessageValues } from '@/app/models';
+import { useCreateFile } from '@/features/upload/api/use-create-file';
 
 interface ThreadComponentProps {
   messageId: Id<'messages'>;
@@ -42,6 +43,7 @@ const ThreadComponent = ({
 
   const { mutate: createMessage } = useCreateMessage();
   const { mutate: generateUploadUrl } = useGenerateUploadUrl();
+  const { mutate: createFile } = useCreateFile();
 
   const [editingId, setEditingId] = useState<Id<'messages'> | null>(null);
   const [editorKey, setEditorKey] = useState(0);
@@ -85,6 +87,7 @@ const ThreadComponent = ({
             }
 
             const { storageId } = await result.json();
+            await createFile({ storageId, name: file.name }, {});
 
             values.files = [...values.files, storageId];
           }

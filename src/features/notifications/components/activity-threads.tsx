@@ -9,6 +9,7 @@ import { useCurrentMember } from '@/features/members/api/use-current-member';
 import { useCreateMessage } from '@/features/messages/api/use-create-message';
 import { useGenerateUploadUrl } from '@/features/upload/api/use-generate-upload-url';
 import { usePanel } from '@/hooks/use-panel';
+import { useCreateFile } from '@/features/upload/api/use-create-file';
 
 // Utilities
 import { format, differenceInMinutes } from 'date-fns';
@@ -75,6 +76,7 @@ const ActivityThread = ({
 
   const { mutate: createMessage } = useCreateMessage();
   const { mutate: generateUploadUrl } = useGenerateUploadUrl();
+  const { mutate: createFile } = useCreateFile();
 
   const { onOpenMessage, channelId: channelIdFromQuery } = usePanel();
 
@@ -140,6 +142,7 @@ const ActivityThread = ({
             }
 
             const { storageId } = await result.json();
+            await createFile({ storageId, name: file.name }, {});
 
             values.files = [...values.files, storageId];
           }

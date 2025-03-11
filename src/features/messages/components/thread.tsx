@@ -16,6 +16,7 @@ import { useGenerateUploadUrl } from '@/features/upload/api/use-generate-upload-
 import { useChannelId } from '@/hooks/use-channel-id';
 import { useGetMessages } from '../api/use-get-messages';
 import { usePanel } from '@/hooks/use-panel';
+import { useCreateFile } from '@/features/upload/api/use-create-file';
 
 // Utilities
 import { toast } from 'sonner';
@@ -70,6 +71,7 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
 
   const { mutate: createMessage } = useCreateMessage();
   const { mutate: generateUploadUrl } = useGenerateUploadUrl();
+  const { mutate: createFile } = useCreateFile();
 
   const canLoadMore = status === 'CanLoadMore';
   const isLoadingMore = status === 'LoadingMore';
@@ -108,6 +110,7 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
             }
 
             const { storageId } = await result.json();
+            await createFile({ storageId, name: file.name }, {});
 
             values.files = [...values.files, storageId];
           }

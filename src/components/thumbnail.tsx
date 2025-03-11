@@ -13,10 +13,9 @@ const Thumbnail = ({ file }: ThumbnailProps) => {
   return (
     <Dialog>
       <DialogTrigger>
-        <div className="relative overflow-hidden max-w-[360px] border rounded-lg my-2 cursor-zoom-in">
+        <div className="relative overflow-hidden h-[240px] aspect-square border rounded-lg my-2 cursor-zoom-in">
           <Image
-            width={360}
-            height={300}
+            fill
             src={file.url}
             alt="Message image"
             className="rounded object-cover"

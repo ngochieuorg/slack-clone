@@ -21,7 +21,8 @@ export interface RenderMemberPreferences {
 }
 
 export type CreateMessageValues = {
-  channelId: Id<'channels'>;
+  conversationId?: Id<'conversations'>;
+  channelId?: Id<'channels'>;
   workspaceId: Id<'workspaces'>;
   parentMessageId?: Id<'messages'>;
   body: string;
@@ -37,4 +38,5 @@ export interface FileStorage {
     sha256: string;
     size: number;
   } | null;
+  name?: string;
 }

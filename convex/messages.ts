@@ -80,10 +80,16 @@ export const get = query({
               (message.files || []).map(async (f) => {
                 const fileUrl = await ctx.storage.getUrl(f);
                 const fileInfo = await ctx.db.system.get(f);
-
+                const file = await ctx.db
+                  .query('files')
+                  .withIndex('by_storageId', (q) =>
+                    q.eq('storageId', fileInfo?._id as Id<'_storage'>)
+                  )
+                  .unique();
                 return {
                   url: fileUrl,
                   info: fileInfo,
+                  name: file?.name,
                 };
               })
             );
@@ -224,10 +230,17 @@ export const getAll = query({
             (message.files || []).map(async (f) => {
               const fileUrl = await ctx.storage.getUrl(f);
               const fileInfo = await ctx.db.system.get(f);
+              const file = await ctx.db
+                .query('files')
+                .withIndex('by_storageId', (q) =>
+                  q.eq('storageId', fileInfo?._id as Id<'_storage'>)
+                )
+                .unique();
 
               return {
                 url: fileUrl,
                 info: fileInfo,
+                name: file?.name,
               };
             })
           );
@@ -392,10 +405,17 @@ export const getById = query({
       (message.files || []).map(async (f) => {
         const fileUrl = await ctx.storage.getUrl(f);
         const fileInfo = await ctx.db.system.get(f);
+        const file = await ctx.db
+          .query('files')
+          .withIndex('by_storageId', (q) =>
+            q.eq('storageId', fileInfo?._id as Id<'_storage'>)
+          )
+          .unique();
 
         return {
           url: fileUrl,
           info: fileInfo,
+          name: file?.name,
         };
       })
     );

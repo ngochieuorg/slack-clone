@@ -15,7 +15,7 @@ const MessageMedia = ({ files }: MessageMediaProps) => {
 
   if (isAllImage) {
     return (
-      <div className="flex flex-wrap">
+      <div className="flex flex-wrap gap-2">
         {files.map((file) => {
           return <Thumbnail file={file} key={file.info?._id} />;
         })}
@@ -28,7 +28,7 @@ const MessageMedia = ({ files }: MessageMediaProps) => {
         return (
           <Media
             key={file.info?._id}
-            fileName={file.info?.contentType as string}
+            fileName={file.name || (file.info?.contentType as string)}
             type={file.info?.contentType as string}
             url={file.url}
           />

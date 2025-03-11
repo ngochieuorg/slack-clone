@@ -8,6 +8,7 @@ import { useGetMessages } from '@/features/messages/api/use-get-messages';
 import { useCurrentMember } from '@/features/members/api/use-current-member';
 import { useCreateMessage } from '@/features/messages/api/use-create-message';
 import { useGenerateUploadUrl } from '@/features/upload/api/use-generate-upload-url';
+import { useCreateFile } from '@/features/upload/api/use-create-file';
 
 // Utilities
 import { format, differenceInMinutes } from 'date-fns';
@@ -64,6 +65,7 @@ const ActivityChannel = ({ channelId, messageId }: ActivityChannelProps) => {
 
   const { mutate: createMessage } = useCreateMessage();
   const { mutate: generateUploadUrl } = useGenerateUploadUrl();
+  const { mutate: createFile } = useCreateFile();
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -126,6 +128,7 @@ const ActivityChannel = ({ channelId, messageId }: ActivityChannelProps) => {
             }
 
             const { storageId } = await result.json();
+            await createFile({ storageId, name: file.name }, {});
 
             values.files = [...values.files, storageId];
           }

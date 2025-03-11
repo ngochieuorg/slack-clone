@@ -27,3 +27,14 @@ export type CreateMessageValues = {
   body: string;
   files: Id<'_storage'>[];
 };
+
+export interface FileStorage {
+  url: string | null;
+  info: {
+    _id: Id<'_storage'>;
+    _creationTime: number;
+    contentType?: string | undefined | undefined;
+    sha256: string;
+    size: number;
+  } | null;
+}

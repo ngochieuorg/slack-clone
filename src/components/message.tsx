@@ -18,9 +18,10 @@ import { formatFulltime } from '@/app/utils/date-time';
 import { useChannelId } from '@/hooks/use-channel-id';
 import CustomRenderer from './custom-renderer';
 import UserDetailCard from './user-detail-card';
+import { FileStorage } from '@/app/models';
+import MessageMedia from './message-media';
 
 const Editor = dynamic(() => import('@/components/editor'), { ssr: false });
-const Thumbnail = dynamic(() => import('./thumbnail'));
 
 interface MessageProps {
   className?: string;
@@ -37,7 +38,7 @@ interface MessageProps {
     }
   >;
   body: Doc<'messages'>['body'];
-  files: (string | null)[];
+  files: FileStorage[];
   createdAt: Doc<'messages'>['_creationTime'];
   updatedAt: Doc<'messages'>['updatedAt'];
   isEditing: boolean;
@@ -176,11 +177,7 @@ const Message = ({
             ) : (
               <div className="flex  flex-col w-full">
                 <CustomRenderer value={body} />
-                <div className="flex gap-2 flex-wrap">
-                  {files.map((file, idx) => {
-                    return <Thumbnail key={idx} url={file} />;
-                  })}
-                </div>
+                <MessageMedia files={files} />
 
                 {updatedAt ? (
                   <span className="text-xs text-muted-foreground">
@@ -278,11 +275,7 @@ const Message = ({
                 </Hint>
               </div>
               <CustomRenderer value={body} />
-              <div className="flex gap-2 flex-wrap">
-                {files.map((file, idx) => {
-                  return <Thumbnail key={idx} url={file} />;
-                })}
-              </div>
+              <MessageMedia files={files} />
               {updatedAt ? (
                 <span className="text-xs text-muted-foreground">(edited)</span>
               ) : null}

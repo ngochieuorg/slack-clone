@@ -78,8 +78,13 @@ export const get = query({
 
             const files = await Promise.all(
               (message.files || []).map(async (f) => {
-                const file = await ctx.storage.getUrl(f);
-                return file;
+                const fileUrl = await ctx.storage.getUrl(f);
+                const fileInfo = await ctx.db.system.get(f);
+
+                return {
+                  url: fileUrl,
+                  info: fileInfo,
+                };
               })
             );
 
@@ -217,8 +222,13 @@ export const getAll = query({
 
           const files = await Promise.all(
             (message.files || []).map(async (f) => {
-              const file = await ctx.storage.getUrl(f);
-              return file;
+              const fileUrl = await ctx.storage.getUrl(f);
+              const fileInfo = await ctx.db.system.get(f);
+
+              return {
+                url: fileUrl,
+                info: fileInfo,
+              };
             })
           );
           const reactionsWithCounts = await Promise.all(
@@ -380,8 +390,13 @@ export const getById = query({
 
     const files = await Promise.all(
       (message.files || []).map(async (f) => {
-        const file = await ctx.storage.getUrl(f);
-        return file;
+        const fileUrl = await ctx.storage.getUrl(f);
+        const fileInfo = await ctx.db.system.get(f);
+
+        return {
+          url: fileUrl,
+          info: fileInfo,
+        };
       })
     );
 

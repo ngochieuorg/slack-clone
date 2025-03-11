@@ -15,6 +15,8 @@ import 'quill-mention/autoregister';
 import { useGetMembers } from '@/features/members/api/use-get-members';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
 import { renderDisplayName } from '@/app/utils/label';
+import { getFileType } from '@/app/utils/upload-file.utils';
+import Media from './media';
 
 type EditorValue = {
   files: File[];
@@ -243,7 +245,6 @@ const Editor = ({
     <div className="flex flex-col">
       <input
         type="file"
-        accept=".docx, .doc, .pdf, .txt, .jpg, .jpeg, .png, .gif, .bmp"
         ref={fileElementRef}
         onChange={(event) =>
           setFiles([...files, ...Array.from(event.target.files || [])])
@@ -257,35 +258,44 @@ const Editor = ({
         )}
       >
         <div ref={containerRef} className="h-full ql-custom" />
-        {files.length > 0 && (
-          <div className="p-2 flex gap-2">
-            {files.map((file, index) => (
-              <div
-                key={index}
-                className="relative size-[62px] flex items-center justify-center group/file"
-              >
-                <Hint label="Remove file">
-                  <button
-                    onClick={() => {
-                      setFiles(files.filter((_, i) => i !== index));
-                      fileElementRef.current!.value = '';
-                    }}
-                    className="hidden group-hover/file:flex rounded-full bg-black/70 hover:bg-black absolute -top-2.5 -right-2.5 text-white size-6 z-[4] border-2 border-white items-center justify-center"
+        <div className="container w-full overflow-x-auto scrollbar-thin">
+          {files.length > 0 && (
+            <div className="content px-2 pt-2 flex gap-2">
+              {files.map((file, index) => {
+                return (
+                  <div
+                    key={index}
+                    className="item relative flex items-center justify-center group/file"
                   >
-                    <XIcon className="size-3.5" />
-                  </button>
-                </Hint>
-
-                <Image
-                  src={URL.createObjectURL(file)}
-                  alt={`Upload ${index + 1}`}
-                  fill
-                  className="rounded overflow-hidden border object-cover"
-                />
-              </div>
-            ))}
-          </div>
-        )}
+                    <Hint label="Remove file">
+                      <button
+                        onClick={() => {
+                          setFiles(files.filter((_, i) => i !== index));
+                          fileElementRef.current!.value = '';
+                        }}
+                        className="hidden group-hover/file:flex rounded-full bg-black/70 hover:bg-black absolute -top-2.5 -right-2.5 text-white size-6 z-[4] border-2 border-white items-center justify-center"
+                      >
+                        <XIcon className="size-3.5" />
+                      </button>
+                    </Hint>
+                    {getFileType(file.type) === 'image' ? (
+                      <div className="w-[62px] h-[62px] aspect-square">
+                        <Image
+                          src={URL.createObjectURL(file)}
+                          alt={'image'}
+                          fill
+                          className="rounded overflow-hidden border object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <Media type={file.type} fileName={file.name} />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
         <div className="flex px-2 pb-2 z-[5px]">
           {variant === 'create' && (
             <Hint label="Files">

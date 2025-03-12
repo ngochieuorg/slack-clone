@@ -13,7 +13,7 @@ const Thumbnail = ({ file }: ThumbnailProps) => {
   return (
     <Dialog>
       <DialogTrigger>
-        <div className="relative overflow-hidden h-[240px] aspect-square border rounded-lg my-2 cursor-zoom-in">
+        <div className="relative overflow-hidden h-[240px] aspect-square border rounded-lg my-2">
           <Image
             fill
             src={file.url}

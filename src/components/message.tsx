@@ -175,10 +175,9 @@ const Message = ({
                 />
               </div>
             ) : (
-              <div className="flex  flex-col w-full">
-                <CustomRenderer value={body} />
+              <div className="flex flex-col w-full">
+                {<CustomRenderer value={body} />}
                 <MessageMedia files={files} />
-
                 {updatedAt ? (
                   <span className="text-xs text-muted-foreground">
                     (edited)

@@ -90,6 +90,7 @@ export const get = query({
                   url: fileUrl,
                   info: fileInfo,
                   name: file?.name,
+                  fileId: file?._id,
                 };
               })
             );
@@ -241,6 +242,7 @@ export const getAll = query({
                 url: fileUrl,
                 info: fileInfo,
                 name: file?.name,
+                fileId: file?._id,
               };
             })
           );
@@ -416,6 +418,7 @@ export const getById = query({
           url: fileUrl,
           info: fileInfo,
           name: file?.name,
+          fileId: file?._id,
         };
       })
     );

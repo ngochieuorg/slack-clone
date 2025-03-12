@@ -177,7 +177,9 @@ const Message = ({
             ) : (
               <div className="flex flex-col w-full">
                 {<CustomRenderer value={body} />}
-                <MessageMedia files={files} />
+                {files.length > 0 && (
+                  <MessageMedia files={files} messageId={id} />
+                )}
                 {updatedAt ? (
                   <span className="text-xs text-muted-foreground">
                     (edited)
@@ -274,7 +276,9 @@ const Message = ({
                 </Hint>
               </div>
               <CustomRenderer value={body} />
-              <MessageMedia files={files} />
+              {files.length > 0 && (
+                <MessageMedia files={files} messageId={id} />
+              )}
               {updatedAt ? (
                 <span className="text-xs text-muted-foreground">(edited)</span>
               ) : null}

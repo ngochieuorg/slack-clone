@@ -39,4 +39,5 @@ export interface FileStorage {
     size: number;
   } | null;
   name?: string;
+  fileId?: Id<'files'>;
 }

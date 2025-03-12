@@ -237,7 +237,7 @@ const SettingChannelModal = ({
         ? `${format(channel._creationTime, 'MMM d, yyyy')} at ${format(channel._creationTime, 'h:mm:ss a')}`
         : '',
       toggleModal: false,
-      contentTitle: 'Rename this channel',
+      contentTitle: '',
       content: (
         <form className="space-y-4" onSubmit={handleSubmit}>
           <Input

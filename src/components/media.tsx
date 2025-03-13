@@ -30,9 +30,16 @@ const Media = ({ type, fileName, url }: MediaProps) => {
           src={url as string}
           alt={`file image`}
           className="rounded"
+          style={{ width: 'auto', height: 'auto' }}
         />
       ) : (
-        <Image width={40} height={40} src={src} alt={`file image`} />
+        <Image
+          width={40}
+          height={40}
+          src={src}
+          alt={`file image`}
+          style={{ width: 'auto', height: 'auto' }}
+        />
       )}
       <div>
         <span className=" font-semibold text-sm truncate">{fileName}</span>

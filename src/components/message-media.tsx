@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { FileStorage } from '@/app/models';
 import { getFileType } from '@/app/utils/upload-file.utils';
 import React, { useMemo, useState } from 'react';
@@ -143,7 +144,6 @@ const MediaWrapper = ({
   );
 
   const handleRemoveMember = async () => {
-    console.log(file);
     if (file?.fileId) {
       const ok = await confirmDeleteFile();
 
@@ -161,6 +161,56 @@ const MediaWrapper = ({
       );
     }
   };
+
+  const handleDownloadFile = async () => {
+    if (file?.url) {
+      try {
+        // Check if the File System Access API is supported
+        if ('showSaveFilePicker' in window) {
+          // Fetch the file from the URL
+          const response = await fetch(file.url);
+          const blob = await response.blob();
+
+          // Show the file save dialog
+          try {
+            const fileHandle = await (window as any).showSaveFilePicker({
+              suggestedName: file.name || 'downloaded-file',
+              types: [
+                {
+                  description: 'All Files',
+                  accept: { '*/*': [] },
+                },
+              ],
+            });
+
+            const writable = await fileHandle.createWritable();
+            await writable.write(blob);
+            await writable.close();
+          } catch (error: any) {
+            if (error.name === 'AbortError') {
+              console.log('User canceled the file save dialog.');
+            } else {
+              console.error('Error saving file:', error);
+            }
+          }
+        } else {
+          // Fallback for browsers that do not support the File System Access API
+          const link = document.createElement('a');
+          link.href = file.url;
+          link.download = file.name || (file.info?.contentType as string);
+          link.target = '_blank';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(link.href);
+        }
+      } catch (error) {
+        console.error('Error downloading file:', error);
+        toast.error('Failed to download file');
+      }
+    }
+  };
+
   return (
     <div className="media-wrapper relative cursor-pointer group/media">
       <ConfirmDeleteFileDialog />
@@ -170,8 +220,8 @@ const MediaWrapper = ({
             <Button
               variant={'ghost'}
               size={'sm'}
-              disabled={false}
-              onClick={() => {}}
+              disabled={!file?.url}
+              onClick={handleDownloadFile}
             >
               <Download className="size-4" />
             </Button>

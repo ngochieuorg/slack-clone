@@ -25,6 +25,9 @@ import { Id } from '../../convex/_generated/dataModel';
 import { useRemoveFile } from '@/features/upload/api/use-remove-file';
 import { toast } from 'sonner';
 import UpdateFileModal from '@/features/upload/component/update-file-modal';
+import { Dialog, DialogClose, DialogContent, DialogTitle } from './ui/dialog';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden'; // Import VisuallyHidden
+import PreviewFile from './preview-file';
 
 interface MessageMediaProps {
   files: FileStorage[];
@@ -128,6 +131,7 @@ const MediaWrapper = ({
   file?: FileStorage;
 }) => {
   const { mutate: removeFile } = useRemoveFile();
+  const [openPreview, setOpenPreview] = useState(false);
 
   const [ConfirmDeleteFileDialog, confirmDeleteFile] = useConfirm(
     'Delete file?',
@@ -212,70 +216,93 @@ const MediaWrapper = ({
   };
 
   return (
-    <div className="media-wrapper relative cursor-pointer group/media">
-      <ConfirmDeleteFileDialog />
-      <div className="z-[50] absolute top-3 right-3">
-        <div className=" group-hover/media:opacity-100 opacity-0 transition-opacity border bg-white rounded-2xl shadow-sm p-1">
-          <Hint label="Download">
-            <Button
-              variant={'ghost'}
-              size={'sm'}
-              disabled={!file?.url}
-              onClick={handleDownloadFile}
-            >
-              <Download className="size-4" />
-            </Button>
-          </Hint>
-          <Hint label="Share file...">
-            <Button
-              variant={'ghost'}
-              size={'sm'}
-              disabled={false}
-              onClick={() => {}}
-            >
-              <Forward className="size-4" />
-            </Button>
-          </Hint>
-          <Hint label="More actions">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={'ghost'}
-                  size={'sm'}
-                  disabled={false}
-                  onClick={() => {}}
-                >
-                  <EllipsisVertical className="size-4" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent side="left" className="py-2 px-0">
-                <MediaOption>
-                  <div className="flex items-center justify-between">
-                    <p>Open in new tab</p>
-                    <ExternalLink className="size-4" />
+    <>
+      <div className="z-40 media-wrapper relative cursor-zoom-in group/media">
+        <ConfirmDeleteFileDialog />
+        <div className="media-action z-50 absolute top-3 right-3">
+          <div className="group-hover/media:opacity-100 opacity-0 transition-opacity border bg-white rounded-2xl shadow-sm p-1">
+            <Hint label="Download">
+              <Button
+                variant={'ghost'}
+                size={'sm'}
+                disabled={!file?.url}
+                onClick={handleDownloadFile}
+              >
+                <Download className="size-4" />
+              </Button>
+            </Hint>
+            <Hint label="Share file...">
+              <Button
+                variant={'ghost'}
+                size={'sm'}
+                disabled={false}
+                onClick={() => {}}
+              >
+                <Forward className="size-4" />
+              </Button>
+            </Hint>
+            <Hint label="More actions">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={'ghost'}
+                    size={'sm'}
+                    disabled={false}
+                    onClick={() => {}}
+                  >
+                    <EllipsisVertical className="size-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent side="left" className="py-2 px-0">
+                  <MediaOption>
+                    <div className="flex items-center justify-between">
+                      <p>Open in new tab</p>
+                      <ExternalLink className="size-4" />
+                    </div>
+                  </MediaOption>
+                  <MediaOption>View file details</MediaOption>
+                  <MediaOption>Copy link to the file</MediaOption>
+                  <MediaOption>Save for later</MediaOption>
+                  <Separator />
+                  <UpdateFileModal file={file}>
+                    <MediaOption>Edit file details</MediaOption>
+                  </UpdateFileModal>
+                  <Separator />
+                  <div
+                    onClick={handleRemoveMember}
+                    className="px-4 py-1 cursor-pointer text-red-800 hover:text-white hover:bg-red-800"
+                  >
+                    Delete file
                   </div>
-                </MediaOption>
-                <MediaOption>View file details</MediaOption>
-                <MediaOption>Copy link to the file</MediaOption>
-                <MediaOption>Save for later</MediaOption>
-                <Separator />
-                <UpdateFileModal file={file}>
-                  <MediaOption>Edit file details</MediaOption>
-                </UpdateFileModal>
-                <Separator />
-                <div
-                  onClick={handleRemoveMember}
-                  className="px-4 py-1 cursor-pointer text-red-800 hover:text-white hover:bg-red-800"
-                >
-                  Delete file
-                </div>
-              </PopoverContent>
-            </Popover>
-          </Hint>
+                </PopoverContent>
+              </Popover>
+            </Hint>
+          </div>
         </div>
+        <div onClick={() => setOpenPreview(true)}>{children}</div>
       </div>
-      {children}
-    </div>
+      <Dialog open={openPreview}>
+        <DialogContent
+          className="h-[98%] max-w-[98vw] border-none bg-black bg-opacity-40  p-0 shadow-none"
+          hiddenClose
+        >
+          <VisuallyHidden>
+            <DialogTitle>File Preview</DialogTitle>
+          </VisuallyHidden>
+          {file && <PreviewFile file={file} />}
+          <DialogClose asChild className=" absolute top-0 right-0">
+            <Button
+              type="button"
+              variant="secondary"
+              className="size-1 p-3"
+              onClick={() => setOpenPreview(false)}
+            >
+              x
+            </Button>
+          </DialogClose>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

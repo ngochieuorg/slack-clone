@@ -19,9 +19,10 @@ interface ReactionsProps {
     }
   >;
   onChange: (value: string) => void;
+  className?: string;
 }
 
-const Reactions = ({ data, onChange }: ReactionsProps) => {
+const Reactions = ({ data, onChange, className }: ReactionsProps) => {
   const workspaceId = useWorkspaceId();
   const { data: currentMember } = useCurrentMember({ workspaceId });
   const { data: currentUser } = useCurrentUser({ workspaceId });
@@ -33,7 +34,7 @@ const Reactions = ({ data, onChange }: ReactionsProps) => {
   }
 
   return (
-    <div className="flex items-center gap-1 mt-1 mb-1">
+    <div className={cn('flex items-center gap-1 mt-1 mb-1', className)}>
       {data.map((reaction) => {
         const usersReact = () => {
           let string = '';

@@ -32,9 +32,14 @@ import PreviewFile from './preview-file';
 interface MessageMediaProps {
   files: FileStorage[];
   messageId: Id<'messages'>;
+  isSmallContainer?: boolean;
 }
 
-const MessageMedia = ({ files, messageId }: MessageMediaProps) => {
+const MessageMedia = ({
+  files,
+  messageId,
+  isSmallContainer,
+}: MessageMediaProps) => {
   const [expend, setExpand] = useState(true);
   const isAllImage =
     files.filter((file) => getFileType(file.info?.contentType) === 'image')
@@ -99,7 +104,12 @@ const MessageMedia = ({ files, messageId }: MessageMediaProps) => {
     <div>
       {Header}
       {expend && (
-        <div className=" w-full lg:w-3/4 grid grid-cols-1 lg:grid-cols-2 gap-2 ">
+        <div
+          className={cn(
+            'w-full lg:w-3/4 grid grid-cols-1 lg:grid-cols-2 gap-2',
+            isSmallContainer && 'lg:grid-cols-1 lg:w-full'
+          )}
+        >
           {files.map((file) => {
             return (
               <MediaWrapper

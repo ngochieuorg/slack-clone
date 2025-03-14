@@ -1,8 +1,16 @@
 import React from 'react';
 import { Button } from './ui/button';
-import { MessageSquareTextIcon, Pencil, Smile, Trash } from 'lucide-react';
+import {
+  Forward,
+  MessageSquareTextIcon,
+  Pencil,
+  Smile,
+  Trash,
+} from 'lucide-react';
 import Hint from './hint';
 import EmojiPopover from './emoji-popover';
+import ForwardMessageModal from '@/features/messages/components/forward-message-modal';
+import { Id } from '../../convex/_generated/dataModel';
 
 interface ToolbarProps {
   isAuthor: boolean;
@@ -12,6 +20,7 @@ interface ToolbarProps {
   handleDelete: () => void;
   handleReaction: (value: string) => void;
   hideThreadButton?: boolean;
+  messageId: Id<'messages'>;
 }
 
 const Toolbar = ({
@@ -22,6 +31,7 @@ const Toolbar = ({
   handleDelete,
   handleReaction,
   hideThreadButton,
+  messageId,
 }: ToolbarProps) => {
   return (
     <div className="absolute top-0 right-5">
@@ -46,6 +56,16 @@ const Toolbar = ({
             </Button>
           </Hint>
         )}
+        <Hint label="Forward message">
+          <ForwardMessageModal
+            trigger={
+              <Button variant={'ghost'} size={'sm'} disabled={isPending}>
+                <Forward className="size-4" />
+              </Button>
+            }
+            messageId={messageId}
+          />
+        </Hint>
         {isAuthor && (
           <>
             <Hint label="Edit message">

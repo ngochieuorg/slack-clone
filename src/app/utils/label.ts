@@ -9,7 +9,7 @@ export const renderDisplayName = (
 
 export const convertJsonToString = (value: string) => {
   const data: DeltaOps = JSON.parse(value);
-  return data.ops
+  const returnData = data.ops
     .map((op) => {
       if (typeof op.insert === 'string') {
         const htmlString = op.insert.replace(/\n/g, `\n`);
@@ -21,4 +21,7 @@ export const convertJsonToString = (value: string) => {
       return '';
     })
     .join(' ');
+  console.log(value);
+  console.log(returnData);
+  return returnData;
 };

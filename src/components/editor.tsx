@@ -24,7 +24,7 @@ type EditorValue = {
 };
 
 interface EditorProps {
-  variant?: 'create' | 'update';
+  variant?: 'create' | 'update' | 'forward';
   onSubmit: ({ files, body }: EditorValue) => void;
   onCancel?: () => void;
   placeholder?: string;

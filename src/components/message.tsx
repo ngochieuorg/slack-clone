@@ -20,6 +20,7 @@ import CustomRenderer from './custom-renderer';
 import UserDetailCard from './user-detail-card';
 import { FileStorage } from '@/app/models';
 import MessageMedia from './message-media';
+import { convertJsonToString } from '@/app/utils/label';
 
 const Editor = dynamic(() => import('@/components/editor'), { ssr: false });
 
@@ -55,6 +56,8 @@ interface MessageProps {
     | null
     | undefined
   )[];
+  isSmallContainer?: boolean;
+  isForward?: boolean;
 }
 
 const Message = ({
@@ -79,6 +82,8 @@ const Message = ({
   threadName,
   formatFullDate,
   threadUsers,
+  isSmallContainer,
+  isForward,
 }: MessageProps) => {
   const channelId = useChannelId();
   const { parentMessageId, onOpenMessage, onClose, onOpenProfileMember } =
@@ -176,16 +181,34 @@ const Message = ({
               </div>
             ) : (
               <div className="flex flex-col w-full">
-                {<CustomRenderer value={body} />}
-                {files.length > 0 && (
-                  <MessageMedia files={files} messageId={id} />
-                )}
-                {updatedAt ? (
-                  <span className="text-xs text-muted-foreground">
-                    (edited)
-                  </span>
-                ) : null}
-                <Reactions data={reactions} onChange={handleReaction} />
+                <div className={cn(isForward && 'relative -left-5')}>
+                  <div
+                    className={cn(
+                      (!convertJsonToString(body) ||
+                        convertJsonToString(body) === '\n') &&
+                        'hidden'
+                    )}
+                  >
+                    <CustomRenderer value={body} />
+                  </div>
+                  {files.length > 0 && (
+                    <MessageMedia
+                      files={files}
+                      messageId={id}
+                      isSmallContainer={isSmallContainer}
+                    />
+                  )}
+                  {updatedAt ? (
+                    <span className="text-xs text-muted-foreground">
+                      (edited)
+                    </span>
+                  ) : null}
+                </div>
+                <Reactions
+                  data={reactions}
+                  onChange={handleReaction}
+                  className={cn(isForward && 'hidden')}
+                />
                 <ThreadBar
                   count={threadCount}
                   image={threadImage}
@@ -206,6 +229,7 @@ const Message = ({
               handleDelete={handleRemove}
               handleReaction={handleReaction}
               hideThreadButton={hideThreadButton}
+              messageId={id}
             />
           )}
         </div>
@@ -223,6 +247,8 @@ const Message = ({
           isEditing && 'bg-[#f2c74433] hover:bg-[#f2c74433]',
           isRemovingMessage &&
             'bg-rose-500/50 transform transition-all scale-y-0 origin-bottom duration-200',
+          isForward &&
+            ' after:absolute after:top-0 after:left-0 after:h-full after:w-1 after:bg-slate-500',
           className
         )}
       >
@@ -231,7 +257,12 @@ const Message = ({
             <UserDetailCard
               memberId={memberId}
               trigger={
-                <Avatar className="size-10 hover:opacity-75 transition">
+                <Avatar
+                  className={cn(
+                    'size-10 hover:opacity-75 transition',
+                    isForward && 'size-4'
+                  )}
+                >
                   <AvatarImage src={authorImage} alt={authorName} />
                   <AvatarFallback className="aspect-square rounded-md bg-sky-500 text-white">
                     {avatarFallback}
@@ -251,7 +282,7 @@ const Message = ({
               />
             </div>
           ) : (
-            <div className="flex flex-col w-full overflow-hidden">
+            <div className="flex flex-col w-full ">
               <div className="text-sm">
                 <UserDetailCard
                   memberId={memberId}
@@ -266,7 +297,12 @@ const Message = ({
                 />
                 <span>&nbsp;&nbsp;</span>
                 <Hint label={formatFulltime(new Date(createdAt))}>
-                  <button className="text-xs text-muted-foreground hover:underline">
+                  <button
+                    className={cn(
+                      'text-xs text-muted-foreground hover:underline',
+                      isForward && 'hidden'
+                    )}
+                  >
                     {formatFullDate ? (
                       <>{formatFulltime(new Date(createdAt))}</>
                     ) : (
@@ -275,14 +311,34 @@ const Message = ({
                   </button>
                 </Hint>
               </div>
-              <CustomRenderer value={body} />
-              {files.length > 0 && (
-                <MessageMedia files={files} messageId={id} />
-              )}
-              {updatedAt ? (
-                <span className="text-xs text-muted-foreground">(edited)</span>
-              ) : null}
-              <Reactions data={reactions} onChange={handleReaction} />
+              <div className={cn(isForward && 'relative -left-5')}>
+                <div
+                  className={cn(
+                    (!convertJsonToString(body) ||
+                      convertJsonToString(body) === '\n') &&
+                      'hidden'
+                  )}
+                >
+                  <CustomRenderer value={body} />
+                </div>
+                {files.length > 0 && (
+                  <MessageMedia
+                    files={files}
+                    messageId={id}
+                    isSmallContainer={isSmallContainer}
+                  />
+                )}
+                {updatedAt ? (
+                  <span className="text-xs text-muted-foreground">
+                    (edited)
+                  </span>
+                ) : null}
+              </div>
+              <Reactions
+                data={reactions}
+                onChange={handleReaction}
+                className={cn(isForward && 'hidden')}
+              />
               <ThreadBar
                 count={threadCount}
                 image={threadImage}
@@ -303,6 +359,7 @@ const Message = ({
             handleDelete={handleRemove}
             handleReaction={handleReaction}
             hideThreadButton={hideThreadButton}
+            messageId={id}
           />
         )}
       </div>

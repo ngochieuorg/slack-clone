@@ -21,6 +21,7 @@ import UserDetailCard from './user-detail-card';
 import { FileStorage } from '@/app/models';
 import MessageMedia from './message-media';
 import { convertJsonToString } from '@/app/utils/label';
+import ForwardMessage from './forward-message';
 
 const Editor = dynamic(() => import('@/components/editor'), { ssr: false });
 
@@ -58,6 +59,7 @@ interface MessageProps {
   )[];
   isSmallContainer?: boolean;
   isForward?: boolean;
+  forwardMessageId?: Id<'messages'>;
 }
 
 const Message = ({
@@ -84,6 +86,7 @@ const Message = ({
   threadUsers,
   isSmallContainer,
   isForward,
+  forwardMessageId,
 }: MessageProps) => {
   const channelId = useChannelId();
   const { parentMessageId, onOpenMessage, onClose, onOpenProfileMember } =
@@ -191,6 +194,9 @@ const Message = ({
                   >
                     <CustomRenderer value={body} />
                   </div>
+                  {forwardMessageId && (
+                    <ForwardMessage messageId={forwardMessageId} />
+                  )}
                   {files.length > 0 && (
                     <MessageMedia
                       files={files}
@@ -236,7 +242,6 @@ const Message = ({
       </>
     );
   }
-
   const avatarFallback = authorName.charAt(0).toUpperCase();
   return (
     <>
@@ -248,7 +253,7 @@ const Message = ({
           isRemovingMessage &&
             'bg-rose-500/50 transform transition-all scale-y-0 origin-bottom duration-200',
           isForward &&
-            ' after:absolute after:top-0 after:left-0 after:h-full after:w-1 after:bg-slate-500',
+            ' after:absolute after:top-0 after:left-0 after:h-full after:w-1 after:bg-slate-300',
           className
         )}
       >
@@ -321,6 +326,9 @@ const Message = ({
                 >
                   <CustomRenderer value={body} />
                 </div>
+                {forwardMessageId && (
+                  <ForwardMessage messageId={forwardMessageId} />
+                )}
                 {files.length > 0 && (
                   <MessageMedia
                     files={files}

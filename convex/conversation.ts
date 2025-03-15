@@ -2,6 +2,7 @@ import { v } from 'convex/values';
 import { mutation, query, QueryCtx } from './_generated/server';
 import { getAuthUserId } from '@convex-dev/auth/server';
 import { Id } from './_generated/dataModel';
+import { populateUser } from '../src/utils/convex.utils';
 
 const populateMember = (ctx: QueryCtx, memberId: Id<'members'>) => {
   return ctx.db.get(memberId);
@@ -103,6 +104,30 @@ export const get = query({
       )
       .collect();
 
-    return conversations;
+    const populateConversations = Promise.all(
+      conversations.map(async (conversation) => {
+        let conversationWithMemberId;
+        if (conversation.memberOneId === member._id) {
+          conversationWithMemberId = conversation.memberTwoId;
+        } else {
+          conversationWithMemberId = conversation.memberOneId;
+        }
+
+        const memberWith = await populateMember(ctx, conversationWithMemberId);
+
+        const user = memberWith
+          ? await populateUser(ctx, memberWith.userId, {
+              memberId: memberWith._id,
+            })
+          : null;
+
+        return {
+          ...conversation,
+          withUser: user,
+        };
+      })
+    );
+
+    return populateConversations;
   },
 });

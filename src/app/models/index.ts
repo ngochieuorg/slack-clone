@@ -27,6 +27,7 @@ export type CreateMessageValues = {
   parentMessageId?: Id<'messages'>;
   body: string;
   files: Id<'_storage'>[];
+  forwardMessageId?: Id<'messages'>;
 };
 
 export interface FileStorage {

@@ -21,7 +21,5 @@ export const convertJsonToString = (value: string) => {
       return '';
     })
     .join(' ');
-  console.log(value);
-  console.log(returnData);
   return returnData;
 };

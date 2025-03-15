@@ -443,6 +443,7 @@ export const create = mutation({
     channelId: v.optional(v.id('channels')),
     parentMessageId: v.optional(v.id('messages')),
     conversationId: v.optional(v.id('conversations')),
+    forwardMessageId: v.optional(v.id('messages')),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -474,6 +475,7 @@ export const create = mutation({
       workspaceId: args.workspaceId,
       parentMessageId: args.parentMessageId,
       conversationId: _conversationId,
+      forwardMessageId: args.forwardMessageId,
     });
 
     const mentionIds = extractMentionIds(args.body);

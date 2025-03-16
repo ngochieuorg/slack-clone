@@ -28,6 +28,7 @@ import UpdateFileModal from '@/features/upload/component/update-file-modal';
 import { Dialog, DialogClose, DialogContent, DialogTitle } from './ui/dialog';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'; // Import VisuallyHidden
 import PreviewFile from './preview-file';
+import ForwardMessageModal from '@/features/messages/components/forward-message-modal';
 
 interface MessageMediaProps {
   files: FileStorage[];
@@ -242,14 +243,21 @@ const MediaWrapper = ({
               </Button>
             </Hint>
             <Hint label="Share file...">
-              <Button
-                variant={'ghost'}
-                size={'sm'}
-                disabled={false}
-                onClick={() => {}}
-              >
-                <Forward className="size-4" />
-              </Button>
+              <ForwardMessageModal
+                trigger={
+                  <Button
+                    variant={'ghost'}
+                    size={'sm'}
+                    disabled={false}
+                    onClick={() => {}}
+                  >
+                    <Forward className="size-4" />
+                  </Button>
+                }
+                messageId={messageId}
+                shareFileId={file?.fileId}
+                title="Share this file"
+              />
             </Hint>
             <Hint label="More actions">
               <Popover>

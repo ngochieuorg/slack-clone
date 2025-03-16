@@ -227,16 +227,18 @@ const Message = ({
             )}
           </div>
           {!isEditing && (
-            <Toolbar
-              isAuthor={isAuthor}
-              isPending={isPending}
-              handleEdit={() => setEditingId(id)}
-              handleThread={() => onOpenMessage(id)}
-              handleDelete={handleRemove}
-              handleReaction={handleReaction}
-              hideThreadButton={hideThreadButton}
-              messageId={id}
-            />
+            <div className={cn(isForward && 'hidden')}>
+              <Toolbar
+                isAuthor={isAuthor}
+                isPending={isPending}
+                handleEdit={() => setEditingId(id)}
+                handleThread={() => onOpenMessage(id)}
+                handleDelete={handleRemove}
+                handleReaction={handleReaction}
+                hideThreadButton={hideThreadButton}
+                messageId={id}
+              />{' '}
+            </div>
           )}
         </div>
       </>
@@ -359,16 +361,18 @@ const Message = ({
           )}
         </div>
         {!isEditing && (
-          <Toolbar
-            isAuthor={isAuthor}
-            isPending={isPending}
-            handleEdit={() => setEditingId(id)}
-            handleThread={() => onOpenMessage(id)}
-            handleDelete={handleRemove}
-            handleReaction={handleReaction}
-            hideThreadButton={hideThreadButton}
-            messageId={id}
-          />
+          <div className={cn(isForward && 'hidden')}>
+            <Toolbar
+              isAuthor={isAuthor}
+              isPending={isPending}
+              handleEdit={() => setEditingId(id)}
+              handleThread={() => onOpenMessage(id)}
+              handleDelete={handleRemove}
+              handleReaction={handleReaction}
+              hideThreadButton={hideThreadButton}
+              messageId={id}
+            />
+          </div>
         )}
       </div>
     </>

@@ -23,24 +23,33 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useGetChannels } from '@/features/channels/api/use-get-channels';
 import { HashIcon, LockKeyhole } from 'lucide-react';
 import { useGetConversations } from '@/features/conversations/api/use-get-conversations';
+import MessageMedia from '@/components/message-media';
 
 interface ForwardMessageModalProps {
   trigger: React.ReactNode;
   messageId: Id<'messages'>;
+  title?: string;
+  shareFileId?: Id<'files'>;
 }
 
 const ForwardMessageModal = ({
   trigger,
   messageId,
+  title = 'Forward Message',
+  shareFileId,
 }: ForwardMessageModalProps) => {
   const [open, setOpen] = useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="max-w-xl">
-        <DialogTitle>Forward Message</DialogTitle>
+        <DialogTitle>{title}</DialogTitle>
         {messageId && (
-          <ForwardMessageContent messageId={messageId} setOpen={setOpen} />
+          <ForwardMessageContent
+            messageId={messageId}
+            setOpen={setOpen}
+            shareFileId={shareFileId}
+          />
         )}
       </DialogContent>
     </Dialog>
@@ -50,9 +59,11 @@ const ForwardMessageModal = ({
 const ForwardMessageContent = ({
   messageId,
   setOpen,
+  shareFileId,
 }: {
   messageId: Id<'messages'>;
   setOpen: Dispatch<SetStateAction<boolean>>;
+  shareFileId?: Id<'files'>;
 }) => {
   const workspaceId = useWorkspaceId();
   const { data: message, isLoading } = useGetMessage({ id: messageId });
@@ -65,6 +76,10 @@ const ForwardMessageContent = ({
 
   const { data: channels } = useGetChannels({ workspaceId });
   const { data: conversations } = useGetConversations({ workspaceId });
+
+  const shareFiles = (message?.files || []).filter(
+    (file) => file.fileId === shareFileId
+  );
 
   const handleSubmit = async ({ body }: { body: string }) => {
     if (!selects.length) return;
@@ -86,11 +101,21 @@ const ForwardMessageContent = ({
               channelId:
                 type === 'channel' ? (id as Id<'channels'>) : undefined,
               body,
-              forwardMessageId: messageId,
+              forwardMessageId: shareFileId ? undefined : messageId,
               files: [],
             };
 
-            await createMessage(values, { throwError: true });
+            const shareFileStoreId = shareFiles[0].info?._id;
+
+            await createMessage(
+              {
+                ...values,
+                files: shareFileStoreId
+                  ? [shareFileStoreId as Id<'_storage'>]
+                  : undefined,
+              },
+              { throwError: true }
+            );
             setEditorKey((prevKey) => prevKey + 1);
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
           } catch (error) {
@@ -175,25 +200,36 @@ const ForwardMessageContent = ({
         placeholder="Add a message, if you like."
         variant="forward"
       />
-      <Message
-        id={messageId}
-        memberId={message.memberId}
-        authorImage={message.user.memberPreference.image || message.user.image}
-        authorName={renderDisplayName(
-          message.user.name,
-          message.user.memberPreference
-        )}
-        isAuthor={true}
-        reactions={message.reactions}
-        body={message.body}
-        files={message.files}
-        isEditing={false}
-        setEditingId={() => {}}
-        updatedAt={message.updatedAt}
-        createdAt={message._creationTime}
-        isSmallContainer
-        isForward
-      />
+      {!shareFileId && (
+        <Message
+          id={messageId}
+          memberId={message.memberId}
+          authorImage={
+            message.user.memberPreference.image || message.user.image
+          }
+          authorName={renderDisplayName(
+            message.user.name,
+            message.user.memberPreference
+          )}
+          isAuthor={true}
+          reactions={message.reactions}
+          body={message.body}
+          files={message.files}
+          isEditing={false}
+          setEditingId={() => {}}
+          updatedAt={message.updatedAt}
+          createdAt={message._creationTime}
+          isSmallContainer
+          isForward
+        />
+      )}
+      {shareFileId && (
+        <MessageMedia
+          files={shareFiles}
+          messageId={messageId}
+          isSmallContainer={true}
+        />
+      )}
       <DialogFooter className="flex items-center">
         <Button type="button" variant="secondary" className="mr-auto">
           Copy link
@@ -206,9 +242,9 @@ const ForwardMessageContent = ({
           variant="secondary"
           className="bg-emerald-800 text-white"
           disabled={!selects.length}
-          onClick={() =>
-            handleSubmit({ body: editorRef.current?.root.innerHTML || '' })
-          }
+          // onClick={() =>
+          //   handleSubmit({ body: editorRef.current?.root.innerHTML || '' })
+          // }
         >
           Forward
         </Button>

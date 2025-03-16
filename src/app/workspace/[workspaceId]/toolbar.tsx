@@ -14,7 +14,7 @@ import { useState } from 'react';
 import { useGetChannels } from '@/features/channels/api/use-get-channels';
 import { useGetMembers } from '@/features/members/api/use-get-members';
 import { useRouter } from 'next/navigation';
-import { renderDisplayName } from '@/app/utils/label';
+import { renderDisplayName } from '@/utils/label';
 
 const Toolbar = () => {
   const router = useRouter();

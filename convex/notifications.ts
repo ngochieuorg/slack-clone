@@ -1,7 +1,7 @@
 import { v } from 'convex/values';
 import { mutation, query } from './_generated/server';
 import { getAuthUserId } from '@convex-dev/auth/server';
-import { groupBy } from '../src/app/utils/index';
+import { groupBy } from '../src/utils/index';
 
 import {
   populateUser,

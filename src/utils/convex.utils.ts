@@ -1,7 +1,7 @@
-import { groupBy } from '../app/utils';
+import { groupBy } from '.';
 import { Doc, Id } from '../../convex/_generated/dataModel';
 import { QueryCtx } from '../../convex/_generated/server';
-import { DeltaOps, InsertOperation } from '../app/models';
+import { DeltaOps, InsertOperation } from '../models';
 
 export const populateThread = async (
   ctx: QueryCtx,

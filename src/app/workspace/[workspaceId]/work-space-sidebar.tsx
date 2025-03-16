@@ -24,7 +24,7 @@ import { Id } from '../../../../convex/_generated/dataModel';
 import { useGetConversations } from '@/features/conversations/api/use-get-conversations';
 import { useCurrentUser } from '@/features/auth/api/use-current-user';
 import { usePathname } from 'next/navigation';
-import { renderDisplayName } from '@/app/utils/label';
+import { renderDisplayName } from '@/utils/label';
 import { useGetActivities } from '@/features/notifications/api/use-get-activities';
 
 const WorkSpaceSidebar = () => {

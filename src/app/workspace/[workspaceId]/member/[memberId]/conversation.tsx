@@ -9,7 +9,7 @@ import ChatInput from './chat-input';
 import MessageList from '@/components/message-list';
 import { usePanel } from '@/hooks/use-panel';
 import { useEffect } from 'react';
-import { renderDisplayName } from '@/app/utils/label';
+import { renderDisplayName } from '@/utils/label';
 
 interface ConversationProps {
   id: Id<'conversations'>;

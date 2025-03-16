@@ -9,11 +9,11 @@ import {
 import { Id } from '../../../../convex/_generated/dataModel';
 import { useGetMessage } from '../api/use-get-message';
 import Message from '@/components/message';
-import { renderDisplayName } from '@/app/utils/label';
+import { renderDisplayName } from '@/utils/label';
 import Editor from '@/components/editor';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import Quill from 'quill';
-import { CreateMessageValues } from '@/app/models';
+import { CreateMessageValues } from '@/models';
 import { toast } from 'sonner';
 import { useCreateMessage } from '../api/use-create-message';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';

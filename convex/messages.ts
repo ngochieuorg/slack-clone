@@ -3,7 +3,7 @@ import { mutation, query, QueryCtx } from './_generated/server';
 import { v } from 'convex/values';
 import { Doc, Id } from './_generated/dataModel';
 import { paginationOptsValidator } from 'convex/server';
-import { getSetByKey } from '../src/app/utils/index';
+import { getSetByKey } from '../src/utils/index';
 import {
   extractMentionIds,
   populateMember,

@@ -7,8 +7,8 @@ import { Doc, Id } from '../../convex/_generated/dataModel';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
 import { useCurrentMember } from '@/features/members/api/use-current-member';
 import { Loader } from 'lucide-react';
-import { formatDateLabel } from '@/app/utils/date-time';
-import { renderDisplayName } from '@/app/utils/label';
+import { formatDateLabel } from '@/utils/date-time';
+import { renderDisplayName } from '@/utils/label';
 import dynamic from 'next/dynamic';
 
 const ConversationHero = dynamic(() => import('./conversation-hero'));

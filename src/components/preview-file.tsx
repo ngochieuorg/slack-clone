@@ -1,5 +1,5 @@
-import { FileStorage } from '@/app/models';
-import { getFileType } from '@/app/utils/upload-file.utils';
+import { FileStorage } from '@/models';
+import { getFileType } from '@/utils/upload-file.utils';
 
 import Image from 'next/image';
 

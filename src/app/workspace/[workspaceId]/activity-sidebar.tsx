@@ -31,8 +31,8 @@ import { useWorkspaceId } from '@/hooks/use-workspace-id';
 
 // Utilities
 import { cn } from '@/lib/utils';
-import { groupBy } from '@/app/utils';
-import { formatDateNotiTime } from '@/app/utils/date-time';
+import { groupBy } from '@/utils';
+import { formatDateNotiTime } from '@/utils/date-time';
 
 // Notifications
 import { toast } from 'sonner';
@@ -43,7 +43,7 @@ import { Id } from '../../../../convex/_generated/dataModel';
 // Store Management
 import { useAtom } from 'jotai';
 import { activitiesAtom } from '@/store/activity.store';
-import { renderDisplayName } from '@/app/utils/label';
+import { renderDisplayName } from '@/utils/label';
 import CustomRenderer from '@/components/custom-renderer';
 import { useActivityId } from '@/hooks/use-activity-id';
 import { useRouter } from 'next/navigation';

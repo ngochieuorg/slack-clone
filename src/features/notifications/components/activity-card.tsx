@@ -12,9 +12,9 @@ import CustomRenderer from '@/components/custom-renderer';
 
 // Utils & Helpers
 import { cn } from '@/lib/utils';
-import { formatDateNotiTime } from '@/app/utils/date-time';
-import { groupBy } from '@/app/utils';
-import { renderDisplayName } from '@/app/utils/label';
+import { formatDateNotiTime } from '@/utils/date-time';
+import { groupBy } from '@/utils';
+import { renderDisplayName } from '@/utils/label';
 
 // Hooks & API Calls
 import { useToggleReaction } from '@/features/reactions/api/use-toggle-reaction';

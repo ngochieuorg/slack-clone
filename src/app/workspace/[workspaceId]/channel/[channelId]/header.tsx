@@ -15,7 +15,7 @@ import { HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import SettingChannelModal from '@/features/channels/components/setting-chanel-modal';
 import { GetChannelReturnType } from '@/features/channels/api/use-get-channel';
 import dynamic from 'next/dynamic';
-import { renderDisplayName } from '@/app/utils/label';
+import { renderDisplayName } from '@/utils/label';
 
 const HoverCard = dynamic(
   () => import('@/components/ui/hover-card').then((mod) => mod.HoverCard),

@@ -1,4 +1,4 @@
-import { getFileType } from '@/app/utils/upload-file.utils';
+import { getFileType } from '@/utils/upload-file.utils';
 import Image from 'next/image';
 import React from 'react';
 

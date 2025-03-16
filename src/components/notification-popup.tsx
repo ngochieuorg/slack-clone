@@ -6,7 +6,7 @@ import { differenceInSeconds } from 'date-fns';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Id } from '../../convex/_generated/dataModel';
-import { convertJsonToString, renderDisplayName } from '@/app/utils/label';
+import { convertJsonToString, renderDisplayName } from '@/utils/label';
 
 const requestNotificationPermission = async () => {
   if ('Notification' in window && Notification.permission !== 'granted') {

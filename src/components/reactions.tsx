@@ -6,7 +6,7 @@ import Hint from './hint';
 import EmojiPopover from './emoji-popover';
 import { MdOutlineAddReaction } from 'react-icons/md';
 import { useCurrentUser } from '@/features/auth/api/use-current-user';
-import { renderDisplayName } from '@/app/utils/label';
+import { renderDisplayName } from '@/utils/label';
 
 interface ReactionsProps {
   data: Array<

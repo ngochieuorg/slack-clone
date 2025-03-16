@@ -29,7 +29,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import useAddPeopleToChannel from '../hooks/add-people-to-channel';
 import { useRemoveMember } from '../api/use-remove-member';
 import { Doc, Id } from '../../../../convex/_generated/dataModel';
-import { renderDisplayName } from '@/app/utils/label';
+import { renderDisplayName } from '@/utils/label';
 
 interface SettingChannelProps {
   channel: GetChannelReturnType;

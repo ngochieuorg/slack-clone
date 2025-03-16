@@ -19,7 +19,7 @@ import { cn } from '@/lib/utils';
 import { useAddMember } from '../api/use-add-member';
 import { Id } from '../../../../convex/_generated/dataModel';
 import { toast } from 'sonner';
-import { renderDisplayName } from '@/app/utils/label';
+import { renderDisplayName } from '@/utils/label';
 
 interface UseAddPeopleToChannelProps {
   trigger: React.ReactNode;

@@ -20,7 +20,7 @@ import { useCurrentMember } from '../api/use-current-member';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
 import { format } from 'date-fns';
 import useSettingMembers from '../hooks/setting-member';
-import { renderDisplayName } from '@/app/utils/label';
+import { renderDisplayName } from '@/utils/label';
 
 interface ProfileProps {
   memberId: Id<'members'>;

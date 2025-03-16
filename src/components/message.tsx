@@ -14,13 +14,13 @@ import { useToggleReaction } from '@/features/reactions/api/use-toggle-reaction'
 import Reactions from './reactions';
 import { usePanel } from '@/hooks/use-panel';
 import ThreadBar from './thread-bar';
-import { formatFulltime } from '@/app/utils/date-time';
+import { formatFulltime } from '@/utils/date-time';
 import { useChannelId } from '@/hooks/use-channel-id';
 import CustomRenderer from './custom-renderer';
 import UserDetailCard from './user-detail-card';
-import { FileStorage } from '@/app/models';
+import { FileStorage } from '@/models';
 import MessageMedia from './message-media';
-import { convertJsonToString } from '@/app/utils/label';
+import { convertJsonToString } from '@/utils/label';
 import ForwardMessage from './forward-message';
 
 const Editor = dynamic(() => import('@/components/editor'), { ssr: false });

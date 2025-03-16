@@ -11,8 +11,8 @@ import Quill from 'quill';
 import { toast } from 'sonner';
 import { useCreateMessage } from '@/features/messages/api/use-create-message';
 import { useGenerateUploadUrl } from '@/features/upload/api/use-generate-upload-url';
-import { renderDisplayName } from '@/app/utils/label';
-import { CreateMessageValues } from '@/app/models';
+import { renderDisplayName } from '@/utils/label';
+import { CreateMessageValues } from '@/models';
 import { useCreateFile } from '@/features/upload/api/use-create-file';
 
 interface ThreadComponentProps {

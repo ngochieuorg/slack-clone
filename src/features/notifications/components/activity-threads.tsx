@@ -35,8 +35,8 @@ import { toast } from 'sonner';
 
 // Types
 import { Id } from '../../../../convex/_generated/dataModel';
-import { renderDisplayName } from '@/app/utils/label';
-import { CreateMessageValues } from '@/app/models';
+import { renderDisplayName } from '@/utils/label';
+import { CreateMessageValues } from '@/models';
 
 // Dynamic Component
 const Editor = dynamic(() => import('@/components/editor'), { ssr: false });

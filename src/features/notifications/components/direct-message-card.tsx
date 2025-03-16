@@ -7,8 +7,8 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import CustomRenderer from '@/components/custom-renderer';
 
 // Utils & Helpers
-import { renderDisplayName } from '@/app/utils/label';
-import { formatDateNotiTime } from '@/app/utils/date-time';
+import { renderDisplayName } from '@/utils/label';
+import { formatDateNotiTime } from '@/utils/date-time';
 import { cn } from '@/lib/utils';
 
 // Hooks & API Calls

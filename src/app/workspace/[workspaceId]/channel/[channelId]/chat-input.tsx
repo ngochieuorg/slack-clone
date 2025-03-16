@@ -9,7 +9,7 @@ const Editor = dynamic(() => import('@/components/editor'), { ssr: true });
 
 import React, { useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { CreateMessageValues } from '@/app/models';
+import { CreateMessageValues } from '@/models';
 import { useCreateFile } from '@/features/upload/api/use-create-file';
 
 interface ChatInputProps {

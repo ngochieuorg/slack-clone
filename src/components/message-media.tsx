@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { FileStorage } from '@/app/models';
-import { getFileType } from '@/app/utils/upload-file.utils';
+import { FileStorage } from '@/models';
+import { getFileType } from '@/utils/upload-file.utils';
 import React, { useMemo, useState } from 'react';
 import Thumbnail from './thumbnail';
 import Media from './media';

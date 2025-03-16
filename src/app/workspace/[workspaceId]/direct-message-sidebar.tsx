@@ -18,10 +18,10 @@ import {
 import InputSearch from '@/components/input-search';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
 import { useGetMembers } from '@/features/members/api/use-get-members';
-import { renderDisplayName } from '@/app/utils/label';
+import { renderDisplayName } from '@/utils/label';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { formatDateNotiTime } from '@/app/utils/date-time';
+import { formatDateNotiTime } from '@/utils/date-time';
 import CustomRenderer from '@/components/custom-renderer';
 import { Separator } from '@/components/ui/separator';
 import { useRouter } from 'next/navigation';

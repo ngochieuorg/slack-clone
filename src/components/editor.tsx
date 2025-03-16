@@ -14,8 +14,8 @@ import Image from 'next/image';
 import 'quill-mention/autoregister';
 import { useGetMembers } from '@/features/members/api/use-get-members';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
-import { renderDisplayName } from '@/app/utils/label';
-import { getFileType } from '@/app/utils/upload-file.utils';
+import { renderDisplayName } from '@/utils/label';
+import { getFileType } from '@/utils/upload-file.utils';
 import Media from './media';
 
 type EditorValue = {

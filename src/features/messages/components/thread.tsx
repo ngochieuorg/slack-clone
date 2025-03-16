@@ -21,7 +21,7 @@ import { useCreateFile } from '@/features/upload/api/use-create-file';
 // Utilities
 import { toast } from 'sonner';
 import { differenceInMinutes, format } from 'date-fns';
-import { formatDateLabel } from '@/app/utils/date-time';
+import { formatDateLabel } from '@/utils/date-time';
 
 // Types
 import { Id } from '../../../../convex/_generated/dataModel';
@@ -31,8 +31,8 @@ import Quill from 'quill';
 
 // React
 import { usePathname } from 'next/navigation';
-import { renderDisplayName } from '@/app/utils/label';
-import { CreateMessageValues } from '@/app/models';
+import { renderDisplayName } from '@/utils/label';
+import { CreateMessageValues } from '@/models';
 
 const Editor = dynamic(() => import('@/components/editor'), { ssr: false });
 

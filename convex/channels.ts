@@ -1,7 +1,7 @@
 import { v } from 'convex/values';
 import { mutation, query } from './_generated/server';
 import { getAuthUserId } from '@convex-dev/auth/server';
-import { arrayToHash } from '../src/app/utils';
+import { arrayToHash } from '../src/utils';
 import { populateMember, populateUser } from '../src/utils/convex.utils';
 
 export const get = query({

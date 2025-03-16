@@ -1,4 +1,4 @@
-import { FileStorage } from '@/app/models';
+import { FileStorage } from '@/models';
 import Image from 'next/image';
 
 interface ThumbnailProps {

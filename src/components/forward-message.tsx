@@ -2,7 +2,7 @@ import React from 'react';
 import { Id } from '../../convex/_generated/dataModel';
 import { useGetMessage } from '@/features/messages/api/use-get-message';
 import Message from './message';
-import { renderDisplayName } from '@/app/utils/label';
+import { renderDisplayName } from '@/utils/label';
 
 interface ForwardMessageProps {
   messageId: Id<'messages'>;

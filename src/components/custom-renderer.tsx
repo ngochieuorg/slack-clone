@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils';
 import React from 'react';
 import UserDetailCard from './user-detail-card';
 import { Id } from '../../convex/_generated/dataModel';
-import { DeltaOps } from '@/app/models';
+import { DeltaOps } from '@/models';
 
 interface ConvertJsonToHtmlProps {
   value: string;

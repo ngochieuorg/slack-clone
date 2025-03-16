@@ -5,7 +5,7 @@ import { useCurrentMember } from '@/features/members/api/use-current-member';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
 import { Doc, Id } from '../../convex/_generated/dataModel';
 import { useGetMember } from '@/features/members/api/use-get-member';
-import { renderDisplayName } from '@/app/utils/label';
+import { renderDisplayName } from '@/utils/label';
 import UserDetailCard from './user-detail-card';
 import useAddPeopleToChannel from '@/features/channels/hooks/add-people-to-channel';
 import { GetChannelReturnType } from '@/features/channels/api/use-get-channel';

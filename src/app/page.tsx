@@ -1,27 +1,16 @@
-'use client';
-
-import { useCreateWorkspaceModal } from '@/features/workspaces/store/use-create-workspace-modal';
-import { useGetWorkspaces } from '@/features/workspaces/api/use-get-workspaces';
-import { useEffect, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
-import LoadingPage from './loading-page';
+import LandingHomepage from '@/features/landing/homepage';
 
 export default function Home() {
-  const router = useRouter();
-  const [open, setOpen] = useCreateWorkspaceModal();
+  // const [open, setOpen] = useCreateWorkspaceModal();
 
-  const { data, isLoading } = useGetWorkspaces();
+  // useEffect(() => {
+  //   if (isLoading) return;
+  //   if (workspaceId) {
+  //     router.replace(`/workspace/${workspaceId}`);
+  //   } else if (!open) {
+  //     setOpen(true);
+  //   }
+  // }, [workspaceId, isLoading, open, setOpen, router]);
 
-  const workspaceId = useMemo(() => data?.[0]?._id, [data]);
-
-  useEffect(() => {
-    if (isLoading) return;
-    if (workspaceId) {
-      router.replace(`/workspace/${workspaceId}`);
-    } else if (!open) {
-      setOpen(true);
-    }
-  }, [workspaceId, isLoading, open, setOpen, router]);
-
-  return <LoadingPage />;
+  return <LandingHomepage />;
 }

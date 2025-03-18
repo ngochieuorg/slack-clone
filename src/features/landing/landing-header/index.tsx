@@ -1,16 +1,59 @@
-import { useState } from 'react';
+'use client';
+
+import { useMemo, useState } from 'react';
 import { Menu, X, Search } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 
-export default function LandingHeader() {
+import { useConvexAuth } from 'convex/react';
+import { useRouter } from 'next/navigation';
+import { cn } from '@/lib/utils';
+
+interface LandingHeaderProps {
+  mode?: 'light' | 'dark';
+}
+
+export default function LandingHeader({ mode = 'light' }: LandingHeaderProps) {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const { isAuthenticated, isLoading: isLoadingAuthenticated } =
+    useConvexAuth();
+
+  const buttonOutlineStyle = useMemo(
+    () =>
+      cn(
+        'px-4 py-2',
+        mode === 'light' && 'text-white border border-[white] bg-transparent',
+        mode === 'dark' && 'text-[#481349] border-[#481349]'
+      ),
+    [mode]
+  );
+
+  const buttonDefaultStyle = useMemo(
+    () =>
+      cn(
+        'px-4 py-2',
+        mode === 'light' && ' border bg-[white] text-[#481349]',
+        mode === 'dark' && 'text-white bg-[#481349]'
+      ),
+    [mode]
+  );
 
   return (
-    <header className="w-full text-white p-4 flex justify-between items-center ">
+    <header
+      className={cn(
+        'w-full p-4 flex justify-between items-center font-semibold',
+        mode === 'light' && 'text-white',
+        mode === 'dark' && 'text-slate-900'
+      )}
+    >
       {/* Logo */}
       <Image
-        src="/slack-salesforce.png"
+        src={
+          mode === 'dark'
+            ? '/slack-salesforce-black.png'
+            : '/slack-salesforce.png'
+        }
         alt="Slack Logo"
         width={100}
         height={100}
@@ -37,12 +80,27 @@ export default function LandingHeader() {
 
       {/* Right side buttons */}
       <div className="hidden lg:flex space-x-4">
-        <button className="border border-white px-4 py-2 rounded">
-          Request a Demo
-        </button>
-        <button className="bg-white text-[#481349] px-4 py-2 rounded font-semibold">
-          Create a New Workspace
-        </button>
+        {!isAuthenticated && !isLoadingAuthenticated && (
+          <Button
+            variant={'link'}
+            className={cn(
+              mode === 'light' && 'text-white',
+              mode === 'dark' && 'text-slate-900'
+            )}
+            onClick={() => router.push('/auth')}
+          >
+            Sign in
+          </Button>
+        )}
+        <Button
+          variant={'outline'}
+          className={cn(buttonOutlineStyle, 'hidden xl:block')}
+        >
+          REQUEST A DEMO
+        </Button>
+        <Button variant={'default'} className={buttonDefaultStyle}>
+          CREATE A NEW WORKSPACE
+        </Button>
       </div>
 
       {/* Mobile Menu Button */}

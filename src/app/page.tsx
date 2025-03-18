@@ -1,4 +1,4 @@
-import LandingHomepage from '@/features/landing/homepage';
+import LandingPage from '@/features/landing/landing-page';
 
 export default function Home() {
   // const [open, setOpen] = useCreateWorkspaceModal();
@@ -12,5 +12,5 @@ export default function Home() {
   //   }
   // }, [workspaceId, isLoading, open, setOpen, router]);
 
-  return <LandingHomepage />;
+  return <LandingPage />;
 }

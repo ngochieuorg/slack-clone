@@ -1,8 +1,5 @@
-'use client';
-
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -14,55 +11,15 @@ import {
   FaYoutube,
 } from 'react-icons/fa';
 import { brandsLogo } from '@/constant';
-import { useGetWorkspaces } from '@/features/workspaces/api/use-get-workspaces';
 import LandingHeader from './landing-header';
 import { AllRightsReserved } from './all-right-reserved';
 import { FooterAccordion, FooterGrid } from './footer';
 
-const Homepage = () => {
-  const { data: workspaces } = useGetWorkspaces();
+const LandingHomepage = () => {
   return (
     <div className="flex flex-col items-center">
-      <div className="home-page px-8 pb-[200px] w-full bg-[#481349] flex flex-col gap-12 items-center">
-        <LandingHeader />
-        <div className="w-full max-w-4xl flex flex-col gap-6">
-          <h2 className="text text-4xl text-white font-bold">Welcome back</h2>
-          <div className="user-workspaces bg-white rounded-md overflow-hidden ring-4 ring-[#fff3]">
-            <div className="h-12 px-4 py-8 text-base text-wrap bg-[#ecdeec] flex items-center">
-              Workspaces for ngochieu2761998@gmail.com
-            </div>
-            {workspaces?.map((workspace) => {
-              return (
-                <div key={workspace?._id}>
-                  <div className="p-4 flex flex-col gap-2 md:flex-row md:justify-between md:items-center hover:bg-slate-100">
-                    <div className="flex items-center gap-4">
-                      <Avatar className="size-20 hover:opacity-75 transition">
-                        <AvatarImage alt={'image'} src={''} />
-                        <AvatarFallback className="aspect-square rounded-md bg-sky-500 text-white flex justify-center items-center"></AvatarFallback>
-                      </Avatar>
-                      <div className="flex flex-col gap-2">
-                        <p className="text-lg font-bold">{workspace?.name}</p>
-                        <p className="text-muted-foreground text-sm">
-                          3 members
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      variant="default"
-                      className="bg-[#481349] w-full h-12 md:w-32"
-                      onClick={() => {
-                        window.open(`/workspace/${workspace?._id}`, '_blank');
-                      }}
-                    >
-                      LAUNCH SLACK
-                    </Button>
-                  </div>
-                  <Separator />
-                </div>
-              );
-            })}
-          </div>
-        </div>
+      <div className="home-page px-8 pb-[200px] w-full flex flex-col gap-12 items-center">
+        <LandingHeader mode="dark" />
         <div className="w-full max-w-4xl p-4 pb-0 bg-white rounded-md ring-4 ring-[#fff3] xl:flex xl: justify-between xl:flex-row-reverse xl:items-center">
           <div className="flex flex-col xl:flex-row gap-4">
             <p className="font-semibold text-lg mb-4">
@@ -71,7 +28,7 @@ const Homepage = () => {
             <Button
               variant="outline"
               className="w-full h-12 text-[#481349] border border-[#481349]"
-              onClick={() => {}}
+              //   onClick={() => {}}
             >
               CREATE A NEW WORKSPACE
             </Button>
@@ -165,4 +122,4 @@ const Blog = ({
   );
 };
 
-export default Homepage;
+export default LandingHomepage;

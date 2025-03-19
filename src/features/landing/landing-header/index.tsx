@@ -98,9 +98,16 @@ export default function LandingHeader({ mode = 'light' }: LandingHeaderProps) {
         >
           REQUEST A DEMO
         </Button>
-        <Button variant={'default'} className={buttonDefaultStyle}>
-          CREATE A NEW WORKSPACE
-        </Button>
+        {isAuthenticated && (
+          <Button variant={'default'} className={buttonDefaultStyle}>
+            CREATE A NEW WORKSPACE
+          </Button>
+        )}
+        {!isAuthenticated && (
+          <Button variant={'default'} className={buttonDefaultStyle}>
+            GET STARTED
+          </Button>
+        )}
       </div>
 
       {/* Mobile Menu Button */}

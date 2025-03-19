@@ -108,3 +108,61 @@ export const brandsLogo = [
   'intuit.png',
   'oracle-logo.png',
 ];
+
+export const landingBrandsLogo = [
+  'logo-airbnb.png',
+  'logo-nasa.png',
+  'logo-uber.png',
+  'target-logo.png',
+  'logo-nyt.png',
+  'logo-etsy.png',
+];
+
+export const featuresData = [
+  {
+    id: 'section1',
+    header: 'Collaboration',
+    title: 'Communicate in countless ways from one place.',
+    description:
+      'Slack is built for bringing people and information together. Type things out. Talk things out. Invite external organizations into the conversation.',
+    subDescription:
+      'of the Fortune 100 use Slack\n Connect to work with partners and\n customers1',
+    numberChange: '80%',
+    links: ['/videos/hp-vp-1@2x.webm', '/videos/hp-vp-1@2x.mp4'],
+    bgColor: '#41b658',
+  },
+  {
+    id: 'section2',
+    header: 'Project management',
+    title: 'Manage projects and move work forward faster.',
+    description:
+      'Prioritize tasks, share ideas, and stay aligned. Slack brings every piece of your project together from start to finish.',
+    subDescription: 'increase in productivity for teams\n using Slack2',
+    numberChange: '47%',
+    links: ['/videos/hp-vp-2@2x.webm', '/videos/hp-vp-2@2x.mp4'],
+    bgColor: '#fcc003',
+  },
+  {
+    id: 'section3',
+    header: 'Integrations',
+    title: 'Tap into the tools you already use.',
+    description:
+      'Over 2,600 apps are ready to connect in Slack so you can automate everyday tasks in the flow of work, and save your team precious time.',
+    subDescription:
+      'increase in time saved due to\n automation for Slack users3',
+    numberChange: '35%',
+    links: ['/videos/hp-vp-3@2x.webm', '/videos/hp-vp-3@2x.mp4'],
+    bgColor: '#1ab9ff',
+  },
+  {
+    id: 'section4',
+    header: 'Slack AI',
+    title: 'Do more with AI that works where you do.',
+    description:
+      'Search your entire company history for answers, instantly catch up on conversations, and get daily recaps of messages missed.',
+    subDescription: 'average time users can save\n weekly with Slack AI4',
+    numberChange: '97 min',
+    links: ['/videos/hp-vp-4@2x.webm', '/videos/hp-vp-4@2x.mp4'],
+    bgColor: '#9602c7',
+  },
+];

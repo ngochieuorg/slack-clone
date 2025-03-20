@@ -166,3 +166,100 @@ export const featuresData = [
     bgColor: '#9602c7',
   },
 ];
+
+export const plans = [
+  {
+    name: 'Free',
+    description: 'A smarter, simpler way to chat and collaborate.',
+    features: [
+      '90 days of message history',
+      '10 app integrations',
+      '1:1 audio and video meetings',
+    ],
+  },
+  {
+    name: 'Pro',
+    description: 'More power for small teams who want to accelerate work.',
+    features: [
+      'Unlimited message history, app integrations, and automations',
+      'Group audio and video meetings',
+      'Collaborate with people outside your organization',
+      'Create and manage projects in documents and lists',
+    ],
+    extra: 'Slack AI add-on available',
+  },
+  {
+    name: 'Business+',
+    description: 'Scale your business, productivity, and team connection.',
+    features: [
+      'User provisioning and deprovisioning',
+      'SAML-based single sign-on',
+      'Data exports for all messages',
+      'Message activity analytics',
+    ],
+    extra: 'Slack AI add-on available',
+  },
+  {
+    name: 'Enterprise Grid',
+    description:
+      'Maximize performance and productivity at every level of your enterprise.',
+    features: [
+      'Unlimited workspaces',
+      'Built-in employee directory',
+      'HIPAA-compliant',
+      'Advanced management tools',
+    ],
+    extra: 'Slack AI add-on available',
+  },
+];
+
+export const awards = [
+  '/image/landing/best_results.png',
+  '/image/landing/leader_small_business.png',
+  '/image/landing/leader_mid_market.png',
+  '/image/landing/leader_enterprise.png',
+  '/image/landing/best_usability.png',
+  '/image/landing/leader.png',
+];
+
+export const successes = [
+  { number: '700M', text: 'Messages sent daily' },
+  {
+    number: '4M',
+    text: 'Slack Connect users working directly with external teams each week',
+  },
+  { number: '3M', text: 'Daily Workflows' },
+  { number: '1.7M', text: 'Apps actively used each week' },
+];
+
+export const articles = [
+  {
+    id: 1,
+    category: 'Event',
+    title: 'Ready for the future of AI in Slack?',
+    image: '/image/landing/promo-card-dreamforce-2023.png',
+    link: '#',
+  },
+  {
+    id: 2,
+    category: 'On-demand',
+    title:
+      'Big things are launching. Relive the highlights of World Tour New York!',
+    image: '/image/landing/wty-resource-tile.png',
+    link: '#',
+  },
+  {
+    id: 3,
+    category: 'Customer Story',
+    title: 'How OpenAI Expands ChatGPT with Slack',
+    image: '/image/landing/promo-boost-productivity.png',
+    link: '#',
+  },
+  {
+    id: 4,
+    category: 'Webinar',
+    title: 'Top Slack Tips to Boost Productivity',
+    image: '/image/landing/promo-open-ai.png',
+    link: '#',
+  },
+];

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Menu, X, Search } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -14,11 +14,62 @@ interface LandingHeaderProps {
 }
 
 export default function LandingHeader({ mode = 'light' }: LandingHeaderProps) {
+  const [mod, setMod] = useState<'light' | 'dark'>(mode);
+  const [isSticky, setIsSticky] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 0);
+      setIsSticky(window.scrollY > 80);
+      if (window.scrollY > 80) {
+        setMod('dark');
+      } else {
+        setMod(mode);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [mod, mode]);
+
+  return (
+    <HeaderWrapper isSticky={isSticky} mode={mod} isScrolled={isScrolled}>
+      <Content mode={mod} />
+    </HeaderWrapper>
+  );
+}
+
+const HeaderWrapper = ({
+  children,
+  isSticky,
+  mode,
+  isScrolled,
+}: {
+  children: React.ReactNode;
+  isSticky: boolean;
+  mode: 'light' | 'dark';
+  isScrolled: boolean;
+}) => {
+  return (
+    <div
+      className={cn(
+        'w-full p-4 flex justify-between items-center font-semibold fixed top-0 left-0 right-0 mx-auto z-[999] transition-transform duration-300',
+        isSticky ? 'shadow-md lg:rounded-full max-w-[1200px] shadow-md' : '',
+        isScrolled ? 'translate-y-0' : 'translate-y-0',
+        mode === 'light' ? 'text-white' : 'text-slate-900 bg-white'
+      )}
+    >
+      {children}
+    </div>
+  );
+};
+
+const Content = ({ mode }: { mode: 'light' | 'dark' }) => {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const { isAuthenticated, isLoading: isLoadingAuthenticated } =
     useConvexAuth();
-
   const buttonOutlineStyle = useMemo(
     () =>
       cn(
@@ -38,15 +89,8 @@ export default function LandingHeader({ mode = 'light' }: LandingHeaderProps) {
       ),
     [mode]
   );
-
   return (
-    <header
-      className={cn(
-        'w-full p-4 flex justify-between items-center font-semibold',
-        mode === 'light' && 'text-white',
-        mode === 'dark' && 'text-slate-900'
-      )}
-    >
+    <>
       {/* Logo */}
       <Image
         src={
@@ -58,7 +102,6 @@ export default function LandingHeader({ mode = 'light' }: LandingHeaderProps) {
         width={100}
         height={100}
       />
-
       {/* Desktop Navigation */}
       <nav className="hidden lg:flex space-x-6">
         <a href="#" className="hover:underline">
@@ -77,7 +120,6 @@ export default function LandingHeader({ mode = 'light' }: LandingHeaderProps) {
           Pricing
         </a>
       </nav>
-
       {/* Right side buttons */}
       <div className="hidden lg:flex space-x-4">
         {!isAuthenticated && !isLoadingAuthenticated && (
@@ -109,7 +151,6 @@ export default function LandingHeader({ mode = 'light' }: LandingHeaderProps) {
           </Button>
         )}
       </div>
-
       {/* Mobile Menu Button */}
       <div className="lg:hidden flex items-center gap-4">
         <Search className="w-6 h-6 cursor-pointer" />
@@ -117,7 +158,6 @@ export default function LandingHeader({ mode = 'light' }: LandingHeaderProps) {
           <Menu className="w-6 h-6" />
         </button>
       </div>
-
       {/* Mobile Menu Popup */}
       {isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-end z-[999]">
@@ -164,6 +204,6 @@ export default function LandingHeader({ mode = 'light' }: LandingHeaderProps) {
           </div>
         </div>
       )}
-    </header>
+    </>
   );
-}
+};

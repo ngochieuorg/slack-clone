@@ -34,7 +34,7 @@ import FeatureBg from '@/asset/svg/feature-bg';
 const LandingHomepage = () => {
   return (
     <div className="flex flex-col gap-8 items-center">
-      <div className="landing-page overflow-hidden px-4 lg:pl-8 w-full flex flex-col gap-12 items-center">
+      <div className="landing-page overflow-hidden px-4 pt-20 lg:pl-8 w-full flex flex-col gap-12 items-center">
         <LandingHeader mode="dark" />
         <div>
           <Image

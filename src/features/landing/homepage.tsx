@@ -23,8 +23,8 @@ const Homepage = () => {
   const { data: workspaces } = useGetWorkspaces();
   return (
     <div className="flex flex-col items-center">
-      <div className="home-page px-8 pb-[200px] w-full bg-[#481349] flex flex-col gap-12 items-center">
-        <LandingHeader />
+      <div className="home-page px-8 pb-[200px] w-full bg-[#481349] flex flex-col gap-12 items-center pt-20">
+        <LandingHeader mode="light" />
         <div className="w-full max-w-4xl flex flex-col gap-6">
           <h2 className="text text-4xl text-white font-bold">Welcome back</h2>
           <div className="user-workspaces bg-white rounded-md overflow-hidden ring-4 ring-[#fff3]">

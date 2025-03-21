@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Sidebar } from './sidebar';
 import Toolbar from './toolbar';
 import {
@@ -17,6 +17,9 @@ import Profile from '@/features/members/components/profile';
 import { usePathname } from 'next/navigation';
 import ActivitySidebar from './activity-sidebar';
 import DirectMessageSidebar from './direct-message-sidebar';
+import { useWorkspaceId } from '@/hooks/use-workspace-id';
+import { useCurrentMember } from '@/features/members/api/use-current-member';
+import { useUpdateOnlineStatus } from '@/features/members/api/use-update-online-status';
 
 interface WorkspaceIdLayoutProps {
   children: React.ReactNode;
@@ -24,7 +27,26 @@ interface WorkspaceIdLayoutProps {
 
 const WorkspaceLayout = ({ children }: WorkspaceIdLayoutProps) => {
   const path = usePathname();
+  const workspaceId = useWorkspaceId();
+  const { data: member } = useCurrentMember({
+    workspaceId,
+  });
+  const { mutate: updateOnlineStatus } = useUpdateOnlineStatus();
+
   const { parentMessageId, profileMemberId, onClose } = usePanel();
+
+  useEffect(() => {
+    if (member?._id) {
+      updateOnlineStatus({ memberId: member._id }, {});
+      const interval = setInterval(() => {
+        updateOnlineStatus({ memberId: member._id }, {});
+      }, 60000);
+
+      return () => {
+        clearInterval(interval);
+      };
+    }
+  }, [member?._id, updateOnlineStatus]);
 
   const isActivityPage = useMemo(() => path.includes('/activity'), [path]);
   const isDirectMessagePage = useMemo(

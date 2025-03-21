@@ -25,7 +25,7 @@ export default function InnovationsGrid() {
             }`}
             onMouseEnter={() => setHoveredId(item.id)}
             onMouseLeave={() => {
-              setIsExpanded(false); // Reset trạng thái khi không hover nữa
+              setIsExpanded(false);
             }}
             initial={{ opacity: 0.8 }}
             animate={{

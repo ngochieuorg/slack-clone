@@ -13,6 +13,8 @@ import { usePanel } from '@/hooks/use-panel';
 import { useCurrentMember } from '@/features/members/api/use-current-member';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
 import { useRouter } from 'next/navigation';
+import { renderDisplayName } from '@/utils/label';
+import OnlineDot from '@/asset/svg/online-dot';
 
 const UserButton = () => {
   const router = useRouter();
@@ -50,8 +52,8 @@ const UserButton = () => {
         className="w-80 px-0 py-4"
       >
         <div onClick={() => {}} className="h-10 px-4">
-          <div className="flex gap-3">
-            <Avatar className="size-8 hover:opacity-75 transition">
+          <div className="flex gap-3 items-start">
+            <Avatar className="size-10 hover:opacity-75 transition">
               <AvatarImage
                 alt={'image'}
                 src={memberPreference?.image || image}
@@ -60,7 +62,14 @@ const UserButton = () => {
                 {avatarFallback}
               </AvatarFallback>
             </Avatar>
-            <span className="font-semibold">{name}</span>
+            <div className="flex flex-col justify-start relative -top-1">
+              <span className="font-semibold">
+                {renderDisplayName(name, memberPreference)}
+              </span>
+              <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                <OnlineDot /> Active
+              </span>
+            </div>
           </div>
         </div>
         <UserButtonItem onClick={() => {}}>

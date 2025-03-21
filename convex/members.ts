@@ -227,3 +227,10 @@ export const current = query({
     return { ...member, user };
   },
 });
+
+export const updateOnlineStatus = mutation({
+  args: { memberId: v.id('members') },
+  handler: async (ctx, { memberId }) => {
+    await ctx.db.patch(memberId, { onlineAt: Date.now() });
+  },
+});

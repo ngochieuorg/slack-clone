@@ -30,6 +30,7 @@ import Star from '@/asset/svg/star';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import FeatureBg from '@/asset/svg/feature-bg';
+import Innovations from './innovations';
 
 const LandingHomepage = () => {
   return (
@@ -110,6 +111,7 @@ const LandingHomepage = () => {
           </div>
         </div>
         <FeatureBlocks />
+        <Innovations />
         <PricingPlans />
         <LandingAction noDes />
         <GrowData />

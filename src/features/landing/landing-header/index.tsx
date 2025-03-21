@@ -54,8 +54,8 @@ const HeaderWrapper = ({
   return (
     <div
       className={cn(
-        'w-full p-4 flex justify-between items-center font-semibold fixed top-0 left-0 right-0 mx-auto z-[999] transition-transform duration-300',
-        isSticky ? 'shadow-md lg:rounded-full max-w-[1200px] shadow-md' : '',
+        'max-w-[1200px] p-4 flex justify-between items-center font-semibold fixed top-0 left-0 right-0 mx-auto z-[999] transition-transform duration-300',
+        isSticky ? 'shadow-md lg:rounded-full top-2' : '',
         isScrolled ? 'translate-y-0' : 'translate-y-0',
         mode === 'light' ? 'text-white' : 'text-slate-900 bg-white'
       )}

@@ -263,3 +263,35 @@ export const articles = [
     link: '#',
   },
 ];
+
+export const innovationsData = [
+  {
+    id: 'section1',
+    title: 'How OpenAI Connects with Customers and Expands ChatGPT with Slack',
+    logo: '/image/brands/logo-openai.png',
+    thumbnail: '/image/landing/background-openai.png',
+    links: ['videos/openai.webm', 'videos/openai.mp4'],
+  },
+  {
+    id: 'section2',
+    title: 'How Spotify Boosted Ad Sales and Streamlined Operations with Slack',
+    logo: '/image/brands/logo-spotify.png',
+    thumbnail: '/image/landing/background-spotify.png',
+    links: ['/videos/spotify.webm', '/videos/spotify.mp4'],
+  },
+  {
+    id: 'section3',
+    title:
+      'IBM shifted into a higher gear of productivity by partnering with Slack',
+    logo: '/image/brands/logo-ibm.png',
+    thumbnail: '/image/landing/background-ibm.png',
+    links: ['/videos/ibm.webm', '/videos/ibm.mp4'],
+  },
+  {
+    id: 'section4',
+    title: 'Ari Bikes Uses Slack as a Creative Space for Collaboration',
+    logo: '/image/brands/logo-ari.png',
+    thumbnail: '/image/landing/background-ari.png',
+    links: ['/videos/ari.webm', '/videos/ari.mp4'],
+  },
+];

@@ -40,7 +40,7 @@ const WorkspaceLayout = ({ children }: WorkspaceIdLayoutProps) => {
       updateOnlineStatus({ memberId: member._id }, {});
       const interval = setInterval(() => {
         updateOnlineStatus({ memberId: member._id }, {});
-      }, 60000);
+      }, 58000);
 
       return () => {
         clearInterval(interval);

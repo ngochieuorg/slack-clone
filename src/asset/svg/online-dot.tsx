@@ -1,6 +1,7 @@
 import React from 'react';
+import { cn } from '@/lib/utils';
 
-const OnlineDot = () => {
+const OnlineDot = ({ className }: { className?: string }) => {
   return (
     <svg
       data-xh2="true"
@@ -12,7 +13,7 @@ const OnlineDot = () => {
       data-qa-presence-active="true"
       data-qa-presence-dnd="false"
       viewBox="0 0 20 20"
-      className="size-4"
+      className={cn('size-4', className)}
     >
       <path
         fill="#00a67e"

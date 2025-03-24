@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
+import ActiveStatus from '@/components/active-status';
 
 const userItemVariants = cva(
   'flex items-center gap-1.5 justify-start font-normal h-7 px-4 text-sm overflow-hidden',
@@ -28,6 +29,7 @@ interface UserItemProps {
   variant?: VariantProps<typeof userItemVariants>['variant'];
   countNotifs?: number;
   isYou?: boolean;
+  onlineAt?: number;
 }
 
 const UserItem = ({
@@ -37,6 +39,7 @@ const UserItem = ({
   variant,
   countNotifs,
   isYou,
+  onlineAt,
 }: UserItemProps) => {
   const workspaceId = useWorkspaceId();
   const avatarFallback = label.charAt(0).toUpperCase();
@@ -50,11 +53,17 @@ const UserItem = ({
     >
       <Link href={`/workspace/${workspaceId}/member/${id}`}>
         <div className="flex items-center w-full">
-          <Avatar className="size-5 hover:opacity-75 transition">
-            <AvatarImage alt={'image'} src={image} />
-            <AvatarFallback className="aspect-square rounded-md bg-sky-500 text-white flex justify-center items-center">
+          <Avatar className="relative size-5 hover:opacity-75 transition overflow-visible">
+            <AvatarImage alt={'image'} src={image} className="rounded" />
+            <AvatarFallback className="aspect-square rounded bg-sky-500 text-white flex justify-center items-center">
               {avatarFallback}
             </AvatarFallback>
+            <ActiveStatus
+              onlineAt={onlineAt}
+              defaultBg="#5E2C5F"
+              activeBg="white/90"
+              isSelected={variant === 'active'}
+            />
           </Avatar>
           <span
             className={cn(

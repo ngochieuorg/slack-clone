@@ -10,7 +10,6 @@ import { Id } from '../../../../convex/_generated/dataModel';
 import { useGetMessage } from '../api/use-get-message';
 import Message from '@/components/message';
 import { renderDisplayName } from '@/utils/label';
-import Editor from '@/components/editor';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import Quill from 'quill';
 import { CreateMessageValues } from '@/models';
@@ -24,6 +23,9 @@ import { useGetChannels } from '@/features/channels/api/use-get-channels';
 import { HashIcon, LockKeyhole } from 'lucide-react';
 import { useGetConversations } from '@/features/conversations/api/use-get-conversations';
 import MessageMedia from '@/components/message-media';
+import dynamic from 'next/dynamic';
+
+const Editor = dynamic(() => import('@/components/editor'), { ssr: false });
 
 interface ForwardMessageModalProps {
   trigger: React.ReactNode;

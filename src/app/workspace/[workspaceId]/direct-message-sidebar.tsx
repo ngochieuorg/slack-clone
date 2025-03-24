@@ -28,6 +28,7 @@ import { useRouter } from 'next/navigation';
 import useConversationId from '@/features/notifications/store/use-conversation-id';
 import { useMarkAsReadNotifications } from '@/features/notifications/api/use-mark-as-read-notifications';
 import { Id } from '../../../../convex/_generated/dataModel';
+import ActiveStatus from '@/components/active-status';
 
 const DirectMessageSidebar = () => {
   const router = useRouter();
@@ -158,7 +159,7 @@ const DirectMessageSidebar = () => {
                 }}
               >
                 <div className="flex justify-start gap-2 items-start py-4 px-2">
-                  <Avatar className="size-10 hover:opacity-75 transition rounded-md mt-1">
+                  <Avatar className="size-10 hover:opacity-75 transition rounded-md mt-1 overflow-visible">
                     <AvatarImage
                       className="rounded-md"
                       alt={'image'}
@@ -168,6 +169,15 @@ const DirectMessageSidebar = () => {
                       }
                     />
                     <AvatarFallback className="aspect-square rounded-md bg-sky-500"></AvatarFallback>
+                    <ActiveStatus
+                      onlineAt={
+                        members?.find(
+                          (member) => member._id === noti.conversationWithMember
+                        )?.onlineAt
+                      }
+                      defaultBg="#5E2C5F"
+                      className="size-5"
+                    />
                   </Avatar>
                   <div className="flex-1">
                     <div

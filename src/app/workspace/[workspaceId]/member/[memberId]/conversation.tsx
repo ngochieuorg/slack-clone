@@ -50,6 +50,7 @@ const Conversation = ({ id }: ConversationProps) => {
         )}
         memberImage={member?.user.memberPreference.image || member?.user.image}
         onclick={() => onOpenProfileMember(memberId)}
+        onlineAt={member?.onlineAt}
       />
       <MessageList
         data={results}

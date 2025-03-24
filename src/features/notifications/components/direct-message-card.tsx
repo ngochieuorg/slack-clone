@@ -24,12 +24,15 @@ import { Id } from '../../../../convex/_generated/dataModel';
 // Store Management
 import { useAtom } from 'jotai';
 import { directMessageAtom } from '@/store/direct-message.store';
+import ActiveStatus from '@/components/active-status';
+import { useGetMembers } from '@/features/members/api/use-get-members';
 
 const DirectMessageCard = () => {
   const router = useRouter();
   const workspaceId = useWorkspaceId();
   const [{ directMessages, isUnread, isLoading }, setDirectMessages] =
     useAtom(directMessageAtom);
+  const { data: members } = useGetMembers({ workspaceId });
 
   const { mutate: markAsReadNoti } = useMarkAsReadNotifications();
 
@@ -94,7 +97,7 @@ const DirectMessageCard = () => {
                 }}
               >
                 <div className="flex justify-start gap-2 items-start py-4">
-                  <Avatar className="size-10 hover:opacity-75 transition rounded-md mt-1">
+                  <Avatar className="size-10 hover:opacity-75 transition rounded-md mt-1 overflow-visible">
                     <AvatarImage
                       className="rounded-md"
                       alt={'image'}
@@ -104,6 +107,15 @@ const DirectMessageCard = () => {
                       }
                     />
                     <AvatarFallback className="aspect-square rounded-md bg-sky-500 text-white flex justify-center items-center"></AvatarFallback>
+                    <ActiveStatus
+                      onlineAt={
+                        members?.find(
+                          (member) => member._id === noti.conversationWithMember
+                        )?.onlineAt
+                      }
+                      defaultBg="#ffffff"
+                      className="size-5"
+                    />
                   </Avatar>
                   <div className="flex-1">
                     <div

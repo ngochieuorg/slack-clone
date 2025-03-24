@@ -167,6 +167,7 @@ const WorkSpaceSidebar = () => {
                 variant={member._id === memberId ? 'active' : 'default'}
                 countNotifs={countNotifs}
                 isYou={member.userId === currentUser?._id}
+                onlineAt={member.onlineAt}
               />
             </div>
           );

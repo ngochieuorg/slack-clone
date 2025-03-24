@@ -4,7 +4,7 @@ import { useWorkspaceId } from '@/hooks/use-workspace-id';
 import dynamic from 'next/dynamic';
 import Quill from 'quill';
 
-const Editor = dynamic(() => import('@/components/editor'), { ssr: true });
+const Editor = dynamic(() => import('@/components/editor'), { ssr: false });
 
 import React, { useRef, useState } from 'react';
 import { toast } from 'sonner';

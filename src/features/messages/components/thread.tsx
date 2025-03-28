@@ -1,22 +1,40 @@
+// Dynamic Imports
 import dynamic from 'next/dynamic';
+
+// UI Components
 import { Button } from '@/components/ui/button';
-import { Id } from '../../../../convex/_generated/dataModel';
 import { AlertTriangle, Loader, XIcon } from 'lucide-react';
-import { useGetMessage } from '../api/use-get-message';
 import Message from '@/components/message';
+
+// Hooks
+import { useGetMessage } from '../api/use-get-message';
 import { useCurrentMember } from '@/features/members/api/use-current-member';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
 import { useRef, useState } from 'react';
-import Quill from 'quill';
 import { useCreateMessage } from '../api/use-create-message';
 import { useGenerateUploadUrl } from '@/features/upload/api/use-generate-upload-url';
 import { useChannelId } from '@/hooks/use-channel-id';
-import { toast } from 'sonner';
 import { useGetMessages } from '../api/use-get-messages';
-import { differenceInMinutes, format } from 'date-fns';
-import { formatDateLabel } from '@/app/utils/date-time';
+import { usePanel } from '@/hooks/use-panel';
+import { useCreateFile } from '@/features/upload/api/use-create-file';
 
-const Editor = dynamic(() => import('@/components/editor'), { ssr: true });
+// Utilities
+import { toast } from 'sonner';
+import { differenceInMinutes, format } from 'date-fns';
+import { formatDateLabel } from '@/utils/date-time';
+
+// Types
+import { Id } from '../../../../convex/_generated/dataModel';
+
+// Editor
+import Quill from 'quill';
+
+// React
+import { usePathname } from 'next/navigation';
+import { renderDisplayName } from '@/utils/label';
+import { CreateMessageValues } from '@/models';
+
+const Editor = dynamic(() => import('@/components/editor'), { ssr: false });
 
 const TIME_THRESHHOLD = 5;
 
@@ -25,15 +43,8 @@ interface ThreadProps {
   onClose: () => void;
 }
 
-type CreateMesageValues = {
-  channelId: Id<'channels'>;
-  workspaceId: Id<'workspaces'>;
-  parentMessageId: Id<'messages'>;
-  body: string;
-  image: Id<'_storage'> | undefined;
-};
-
 const Thread = ({ messageId, onClose }: ThreadProps) => {
+  const path = usePathname();
   const channelId = useChannelId();
   const workspaceId = useWorkspaceId();
 
@@ -46,53 +57,65 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
   const { data: message, isLoading: loadingMessage } = useGetMessage({
     id: messageId,
   });
+  const { channelId: channelIdFromQuery } = usePanel();
+  const isActivityPage = path.includes('/activity');
+
   const { results, status, loadMore } = useGetMessages({
-    channelId,
+    channelId: isActivityPage
+      ? channelIdFromQuery
+        ? (channelIdFromQuery as Id<'channels'>)
+        : undefined
+      : channelId,
     parentMessageId: messageId,
   });
 
   const { mutate: createMessage } = useCreateMessage();
   const { mutate: generateUploadUrl } = useGenerateUploadUrl();
+  const { mutate: createFile } = useCreateFile();
 
   const canLoadMore = status === 'CanLoadMore';
   const isLoadingMore = status === 'LoadingMore';
 
   const handleSubmit = async ({
     body,
-    image,
+    files,
   }: {
     body: string;
-    image: File | null;
+    files: File[];
   }) => {
     try {
       setIsPending(true);
       editorRef?.current?.enable(false);
 
-      const values: CreateMesageValues = {
+      const values: CreateMessageValues = {
         channelId,
         workspaceId,
         body,
-        image: undefined,
+        files: [],
         parentMessageId: messageId,
       };
+      await Promise.all(
+        files.map(async (file) => {
+          if (file) {
+            const url = await generateUploadUrl({}, { throwError: true });
 
-      if (image) {
-        const url = await generateUploadUrl({}, { throwError: true });
+            const result = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': file.type },
+              body: file,
+            });
 
-        const result = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': image.type },
-          body: image,
-        });
+            if (!result) {
+              throw new Error('Failed to upload image');
+            }
 
-        if (!result) {
-          throw new Error('Failed to upload image');
-        }
+            const { storageId } = await result.json();
+            await createFile({ storageId, name: file.name }, {});
 
-        const { storageId } = await result.json();
-
-        values.image = storageId;
-      }
+            values.files = [...values.files, storageId];
+          }
+        })
+      );
 
       await createMessage(values, { throwError: true });
       setEditorKey((prevKey) => prevKey + 1);
@@ -121,7 +144,7 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
 
   if (loadingMessage || status === 'LoadingFirstPage') {
     return (
-      <div className="h-full flex flex-col">
+      <div className="h-full flex flex-col bg-white">
         <div className="h-[49px] flex justify-between items-center px-4 border-b">
           <p className="text-lg font-bold">Thread</p>
           <Button onClick={onClose} size={'iconSm'} variant={'ghost'}>
@@ -137,7 +160,7 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
 
   if (!message) {
     return (
-      <div className="h-full flex flex-col">
+      <div className="h-full flex flex-col bg-white">
         <div className="h-[49px] flex justify-between items-center px-4 border-b">
           <p className="text-lg font-bold">Thread</p>
           <Button onClick={onClose} size={'iconSm'} variant={'ghost'}>
@@ -153,107 +176,120 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
   }
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="h-[49px] flex justify-between items-center px-4 border-b">
-        <p className="text-lg font-bold">Thread</p>
-        <Button onClick={onClose} size={'iconSm'} variant={'ghost'}>
-          <XIcon className="size-5 stroke-[1.5]" />
-        </Button>
-      </div>
-      <div className="flex-1 flex flex-col-reverse pb-4 overflow-y-auto messages-scrollbar">
-        {Object.entries(groupedMessage || {}).map(([dateKey, messages]) => (
-          <div key={dateKey}>
+    <div className="h-[calc(100vh-40px)] mb-1 bg-white">
+      <div className="flex flex-col max-h-full ">
+        <div className="min-h-[49px] flex justify-between items-center px-4 border-b">
+          <p className="text-lg font-bold">Thread</p>
+          <Button onClick={onClose} size={'iconSm'} variant={'ghost'}>
+            <XIcon className="size-5 stroke-[1.5]" />
+          </Button>
+        </div>
+        <div className="flex-1 flex flex-col-reverse pb-4 overflow-y-auto messages-scrollbar">
+          {Object.entries(groupedMessage || {}).map(([dateKey, messages]) => (
+            <div key={dateKey}>
+              <div className="text-center my-2 relative">
+                <hr className="absolute top-1/2 left-0 right-0 border-t border-gray-300" />
+                <span className="relative inline-block bg-white px-4 py-1 rounded-full text-xs border border-gray-300 shadow-sm">
+                  {formatDateLabel(dateKey)}
+                </span>
+              </div>
+              {messages.map((message, index) => {
+                const prevMessage = messages[index - 1];
+                const isCompact =
+                  prevMessage &&
+                  prevMessage.user._id === message.user._id &&
+                  differenceInMinutes(
+                    new Date(prevMessage._creationTime),
+                    new Date(message._creationTime)
+                  ) < TIME_THRESHHOLD;
+                return (
+                  <Message
+                    key={message._id}
+                    id={message._id}
+                    memberId={message.memberId}
+                    authorImage={
+                      message.user.memberPreference.image || message.user.image
+                    }
+                    authorName={renderDisplayName(
+                      message.user.name,
+                      message.user.memberPreference
+                    )}
+                    isAuthor={message.memberId === currentMember?._id}
+                    reactions={message.reactions}
+                    body={message.body}
+                    files={message.files}
+                    updatedAt={message.updatedAt}
+                    createdAt={message._creationTime}
+                    isEditing={editingId === message._id}
+                    setEditingId={setEditingId}
+                    isCompact={isCompact}
+                    hideThreadButton={true}
+                    threadCount={message.threadCount}
+                    threadImage={message.threadImage}
+                    threadTimestamp={message.threadTimestamp}
+                    threadName={message.threadName}
+                    threadUsers={message.usersInThread}
+                  />
+                );
+              })}
+            </div>
+          ))}
+          <div
+            className="h-1"
+            ref={(el) => {
+              if (el) {
+                const observer = new IntersectionObserver(
+                  ([entry]) => {
+                    if (entry.isIntersecting && canLoadMore) {
+                      loadMore();
+                    }
+                  },
+                  { threshold: 1.0 }
+                );
+
+                observer.observe(el);
+                return () => observer.disconnect();
+              }
+            }}
+          />
+          {isLoadingMore && (
             <div className="text-center my-2 relative">
               <hr className="absolute top-1/2 left-0 right-0 border-t border-gray-300" />
               <span className="relative inline-block bg-white px-4 py-1 rounded-full text-xs border border-gray-300 shadow-sm">
-                {formatDateLabel(dateKey)}
+                <Loader className="size-4 animate-spin" />
               </span>
             </div>
-            {messages.map((message, index) => {
-              const prevMessage = messages[index - 1];
-              const isCompact =
-                prevMessage &&
-                prevMessage.user._id === message.user._id &&
-                differenceInMinutes(
-                  new Date(prevMessage._creationTime),
-                  new Date(message._creationTime)
-                ) < TIME_THRESHHOLD;
-              return (
-                <Message
-                  key={message._id}
-                  id={message._id}
-                  memberId={message.memberId}
-                  authorImage={message.user.image}
-                  authorName={message.user.name}
-                  isAuthor={message.memberId === currentMember?._id}
-                  reactions={message.reactions}
-                  body={message.body}
-                  image={message.image}
-                  updatedAt={message.updatedAt}
-                  createdAt={message._creationTime}
-                  isEditing={editingId === message._id}
-                  setEditingId={setEditingId}
-                  isCompact={isCompact}
-                  hideThreadButton={true}
-                  threadCount={message.threadCount}
-                  threadImage={message.threadImage}
-                  threadTimestamp={message.threadTimestamp}
-                  threadName={message.threadName}
-                />
-              );
-            })}
-          </div>
-        ))}
-        <div
-          className="h-1"
-          ref={(el) => {
-            if (el) {
-              const observer = new IntersectionObserver(
-                ([entry]) => {
-                  if (entry.isIntersecting && canLoadMore) {
-                    loadMore();
-                  }
-                },
-                { threshold: 1.0 }
-              );
-
-              observer.observe(el);
-              return () => observer.disconnect();
+          )}
+          <Message
+            hideThreadButton
+            memberId={message.memberId}
+            authorImage={
+              message?.user?.memberPreference.image || message?.user?.image
             }
-          }}
-        />
-        {isLoadingMore && (
-          <div className="text-center my-2 relative">
-            <hr className="absolute top-1/2 left-0 right-0 border-t border-gray-300" />
-            <span className="relative inline-block bg-white px-4 py-1 rounded-full text-xs border border-gray-300 shadow-sm">
-              <Loader className="size-4 animate-spin" />
-            </span>
-          </div>
-        )}
-        <Message
-          hideThreadButton
-          memberId={message.memberId}
-          authorImage={message?.user?.image}
-          authorName={message.user?.name}
-          isAuthor={message.memberId === currentMember?._id}
-          body={message.body}
-          image={message.image}
-          createdAt={message._creationTime}
-          updatedAt={message.updatedAt}
-          id={message._id}
-          reactions={message.reactions}
-          isEditing={editingId === message._id}
-          setEditingId={setEditingId}
-        />
-      </div>
-      <div className="px-4">
-        <Editor
-          key={editorKey}
-          onSubmit={handleSubmit}
-          innerRef={editorRef}
-          disabled={isPending}
-          placeholder="Reply..."
-        />
+            authorName={renderDisplayName(
+              message.user?.name,
+              message.user?.memberPreference
+            )}
+            isAuthor={message.memberId === currentMember?._id}
+            body={message.body}
+            files={message.files}
+            createdAt={message._creationTime}
+            updatedAt={message.updatedAt}
+            id={message._id}
+            reactions={message.reactions}
+            isEditing={editingId === message._id}
+            setEditingId={setEditingId}
+          />
+        </div>
+        <div className="px-4">
+          <Editor
+            key={editorKey}
+            onSubmit={handleSubmit}
+            innerRef={editorRef}
+            disabled={isPending}
+            placeholder="Reply..."
+          />
+        </div>
       </div>
     </div>
   );

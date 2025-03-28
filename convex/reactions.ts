@@ -85,6 +85,7 @@ export const toggle = mutation({
           status: 'unread',
           content: args.value,
           senderId: userId,
+          senderMemberId: member._id,
           reactionId: newReactionId,
           channelId: args.channelId,
         });

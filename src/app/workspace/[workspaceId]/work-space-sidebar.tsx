@@ -5,9 +5,9 @@ import { useWorkspaceId } from '@/hooks/use-workspace-id';
 import {
   AlertTriangle,
   HashIcon,
-  Loader,
   MessageSquareText,
   SendHorizontal,
+  LockKeyhole,
 } from 'lucide-react';
 import WorkspaceHeader from './workspace-header';
 import SidebarItem from './sidebar-item';
@@ -23,15 +23,19 @@ import { useMarkAsReadNotifications } from '@/features/notifications/api/use-mar
 import { Id } from '../../../../convex/_generated/dataModel';
 import { useGetConversations } from '@/features/conversations/api/use-get-conversations';
 import { useCurrentUser } from '@/features/auth/api/use-current-user';
+import { usePathname } from 'next/navigation';
+import { renderDisplayName } from '@/utils/label';
+import { useGetActivities } from '@/features/notifications/api/use-get-activities';
 
 const WorkSpaceSidebar = () => {
+  const path = usePathname();
   const memberId = useMemberId();
   const workspaceId = useWorkspaceId();
   const channelId = useChannelId();
 
   const [_open, setOpen] = useCreateChannelModal();
 
-  const { data: currentUser } = useCurrentUser();
+  const { data: currentUser } = useCurrentUser({ workspaceId });
 
   const { data: member, isLoading: memberLoading } = useCurrentMember({
     workspaceId,
@@ -55,6 +59,11 @@ const WorkSpaceSidebar = () => {
       isUnRead: true,
     });
 
+  const { data: activities, isLoading: activitiesLoading } = useGetActivities({
+    workspaceId,
+    isUnRead: true,
+  });
+
   const { mutate: markAsReadNoti } = useMarkAsReadNotifications();
 
   const markAsReadChannel = (channelId: Id<'channels'>) => {
@@ -66,30 +75,36 @@ const WorkSpaceSidebar = () => {
   };
 
   if (memberLoading || workspaceLoading) {
-    return (
-      <div className="flex flex-col bg-[#5E2C5F] h-full items-center justify-center">
-        <Loader className=" size-5 animate-spin text-white" />
-      </div>
-    );
+    return <></>;
   }
 
   if (!member || !workspace) {
     return (
-      <div className="flex flex-col gap-y-2 bg-[#5E2C5F] h-full items-center justify-center">
+      <div className="gap-y-2 items-center justify-center">
         <AlertTriangle className=" size-5 text-white" />
         <p className="text-white text-sm">Workspaces not found</p>
       </div>
     );
   }
 
+  const checkIsThreadPage = () => {
+    return path.includes('/thread');
+  };
+
   return (
-    <div className="flex flex-col bg-[#5E2C5F] h-full ">
+    <>
       <WorkspaceHeader
         workspace={workspace}
         isAdmin={member.role === 'admin'}
       />
       <div className="flex flex-col px-2 mt-3">
-        <SidebarItem label="Threads" icon={MessageSquareText} id="threads" />
+        <SidebarItem
+          label="Threads"
+          icon={MessageSquareText}
+          id="threads"
+          linkTo={`/workspace/${workspaceId}/thread`}
+          variant={checkIsThreadPage() ? 'active' : 'default'}
+        />
         <SidebarItem label="Drafts & Sent" icon={SendHorizontal} id="sent" />
       </div>
       <WorkspaceSection
@@ -98,17 +113,18 @@ const WorkSpaceSidebar = () => {
         onNew={member.role === 'admin' ? () => setOpen(true) : undefined}
       >
         {channels?.map((item) => {
-          const countNotifs = notifications?.filter(
-            (noti) => noti.channelId === item._id
-          ).length;
+          const countNotifs = activities?.filter((activity) => {
+            return activity.channel?._id === item._id;
+          }).length;
           return (
             <div onClick={() => markAsReadChannel(item._id)} key={item._id}>
               <SidebarItem
-                icon={HashIcon}
+                icon={item.isPrivate ? LockKeyhole : HashIcon}
                 label={item.name}
                 id={item._id}
                 variant={channelId === item._id ? 'active' : 'default'}
                 countNotifs={countNotifs}
+                linkTo={`/workspace/${workspaceId}/channel/${item._id}`}
               />
             </div>
           );
@@ -143,17 +159,21 @@ const WorkSpaceSidebar = () => {
               <UserItem
                 key={member._id}
                 id={member._id}
-                label={member.user.name}
-                image={member.user.image}
+                label={renderDisplayName(
+                  member.user.name,
+                  member.user.memberPreference
+                )}
+                image={member.user.memberPreference.image || member.user.image}
                 variant={member._id === memberId ? 'active' : 'default'}
                 countNotifs={countNotifs}
                 isYou={member.userId === currentUser?._id}
+                onlineAt={member.onlineAt}
               />
             </div>
           );
         })}
       </WorkspaceSection>
-    </div>
+    </>
   );
 };
 

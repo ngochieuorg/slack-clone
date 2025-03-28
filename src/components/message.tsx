@@ -1,10 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import dynamic from 'next/dynamic';
 import { Doc, Id } from '../../convex/_generated/dataModel';
 import { format } from 'date-fns';
 import Hint from './hint';
-import { Avatar, AvatarImage } from './ui/avatar';
-import { AvatarFallback } from '@radix-ui/react-avatar';
-import Thumbnail from './thumbnail';
+import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
 import Toolbar from './toolbar';
 import { useUpdateMessage } from '@/features/messages/api/use-update-message';
 import { toast } from 'sonner';
@@ -15,13 +14,19 @@ import { useToggleReaction } from '@/features/reactions/api/use-toggle-reaction'
 import Reactions from './reactions';
 import { usePanel } from '@/hooks/use-panel';
 import ThreadBar from './thread-bar';
-import { formatFulltime } from '@/app/utils/date-time';
+import { formatFulltime } from '@/utils/date-time';
 import { useChannelId } from '@/hooks/use-channel-id';
+import CustomRenderer from './custom-renderer';
+import UserDetailCard from './user-detail-card';
+import { FileStorage } from '@/models';
+import MessageMedia from './message-media';
+import { convertJsonToString } from '@/utils/label';
+import ForwardMessage from './forward-message';
 
-const Renderer = dynamic(() => import('@/components/renderer'), { ssr: true });
 const Editor = dynamic(() => import('@/components/editor'), { ssr: false });
 
 interface MessageProps {
+  className?: string;
   id: Id<'messages'>;
   memberId: Id<'members'>;
   authorImage?: string;
@@ -31,10 +36,11 @@ interface MessageProps {
     Omit<Doc<'reactions'>, 'memberId'> & {
       count: number;
       memberIds: Id<'members'>[];
+      users?: Doc<'users'>[];
     }
   >;
   body: Doc<'messages'>['body'];
-  image: string | null | undefined;
+  files: FileStorage[];
   createdAt: Doc<'messages'>['_creationTime'];
   updatedAt: Doc<'messages'>['updatedAt'];
   isEditing: boolean;
@@ -45,9 +51,19 @@ interface MessageProps {
   threadImage?: string;
   threadName?: string;
   threadTimestamp?: number;
+  formatFullDate?: boolean;
+  threadUsers?: (
+    | (Doc<'users'> & { memberPreference: Doc<'memberPreferences'> | any })
+    | null
+    | undefined
+  )[];
+  isSmallContainer?: boolean;
+  isForward?: boolean;
+  forwardMessageId?: Id<'messages'>;
 }
 
 const Message = ({
+  className,
   id,
   memberId,
   authorImage,
@@ -55,7 +71,7 @@ const Message = ({
   isAuthor,
   reactions,
   body,
-  image,
+  files,
   createdAt,
   updatedAt,
   isEditing,
@@ -66,6 +82,11 @@ const Message = ({
   threadImage,
   threadTimestamp,
   threadName,
+  formatFullDate,
+  threadUsers,
+  isSmallContainer,
+  isForward,
+  forwardMessageId,
 }: MessageProps) => {
   const channelId = useChannelId();
   const { parentMessageId, onOpenMessage, onClose, onOpenProfileMember } =
@@ -141,7 +162,8 @@ const Message = ({
             'flex flex-col gap-2 p-1.5 px-5 hover:bg-gray-100/60 group relative',
             isEditing && 'bg-[#f2c74433] hover:bg-[#f2c74433]',
             isRemovingMessage &&
-              'bg-rose-500/50 transform transition-all scale-y-0 origin-bottom duration-200'
+              'bg-rose-500/50 transform transition-all scale-y-0 origin-bottom duration-200',
+            className
           )}
         >
           <div className="flex items-start gap-2">
@@ -161,41 +183,67 @@ const Message = ({
                 />
               </div>
             ) : (
-              <div className="flex  flex-col w-full">
-                <Renderer value={body} />
-                <Thumbnail url={image} />
-                {updatedAt ? (
-                  <span className="text-xs text-muted-foreground">
-                    (edited)
-                  </span>
-                ) : null}
-                <Reactions data={reactions} onChange={handleReaction} />
+              <div className="flex flex-col w-full">
+                <div className={cn(isForward && 'relative -left-5')}>
+                  <div
+                    className={cn(
+                      (!convertJsonToString(body) ||
+                        convertJsonToString(body) === '\n') &&
+                        'hidden'
+                    )}
+                  >
+                    <CustomRenderer value={body} />
+                  </div>
+                  {forwardMessageId && (
+                    <ForwardMessage messageId={forwardMessageId} />
+                  )}
+                  {files.length > 0 && (
+                    <MessageMedia
+                      files={files}
+                      messageId={id}
+                      isSmallContainer={isSmallContainer}
+                    />
+                  )}
+                  {updatedAt ? (
+                    <span className="text-xs text-muted-foreground">
+                      (edited)
+                    </span>
+                  ) : null}
+                </div>
+                <Reactions
+                  data={reactions}
+                  onChange={handleReaction}
+                  className={cn(isForward && 'hidden')}
+                />
                 <ThreadBar
                   count={threadCount}
                   image={threadImage}
                   timstamp={threadTimestamp}
                   onClick={() => onOpenMessage(id)}
                   name={threadName}
+                  threadUsers={threadUsers}
                 />
               </div>
             )}
           </div>
           {!isEditing && (
-            <Toolbar
-              isAuthor={isAuthor}
-              isPending={isPending}
-              handleEdit={() => setEditingId(id)}
-              handleThread={() => onOpenMessage(id)}
-              handleDelete={handleRemove}
-              handleReaction={handleReaction}
-              hideThreadButton={hideThreadButton}
-            />
+            <div className={cn(isForward && 'hidden')}>
+              <Toolbar
+                isAuthor={isAuthor}
+                isPending={isPending}
+                handleEdit={() => setEditingId(id)}
+                handleThread={() => onOpenMessage(id)}
+                handleDelete={handleRemove}
+                handleReaction={handleReaction}
+                hideThreadButton={hideThreadButton}
+                messageId={id}
+              />{' '}
+            </div>
           )}
         </div>
       </>
     );
   }
-
   const avatarFallback = authorName.charAt(0).toUpperCase();
   return (
     <>
@@ -205,17 +253,30 @@ const Message = ({
           'flex flex-col gap-2 p-1.5 px-5 hover:bg-gray-100/60 group relative',
           isEditing && 'bg-[#f2c74433] hover:bg-[#f2c74433]',
           isRemovingMessage &&
-            'bg-rose-500/50 transform transition-all scale-y-0 origin-bottom duration-200'
+            'bg-rose-500/50 transform transition-all scale-y-0 origin-bottom duration-200',
+          isForward &&
+            ' after:absolute after:top-0 after:left-0 after:h-full after:w-1 after:bg-slate-300',
+          className
         )}
       >
         <div className="flex items-start gap-2">
           <button onClick={() => onOpenProfileMember(memberId)}>
-            <Avatar className="size-10 hover:opacity-75 transition">
-              <AvatarImage src={authorImage} />
-              <AvatarFallback className="aspect-square rounded-md bg-sky-500 text-white">
-                {avatarFallback}
-              </AvatarFallback>
-            </Avatar>
+            <UserDetailCard
+              memberId={memberId}
+              trigger={
+                <Avatar
+                  className={cn(
+                    'size-10 hover:opacity-75 transition',
+                    isForward && 'size-4'
+                  )}
+                >
+                  <AvatarImage src={authorImage} alt={authorName} />
+                  <AvatarFallback className="aspect-square rounded-md bg-sky-500 text-white">
+                    {avatarFallback}
+                  </AvatarFallback>
+                </Avatar>
+              }
+            />
           </button>
           {isEditing ? (
             <div className="w-full h-full">
@@ -228,47 +289,90 @@ const Message = ({
               />
             </div>
           ) : (
-            <div className="flex flex-col w-full overflow-hidden">
+            <div className="flex flex-col w-full ">
               <div className="text-sm">
-                <button
-                  onClick={() => onOpenProfileMember(memberId)}
-                  className="font-bold text-primary hover:underline"
-                >
-                  {authorName}
-                </button>
+                <UserDetailCard
+                  memberId={memberId}
+                  trigger={
+                    <button
+                      onClick={() => onOpenProfileMember(memberId)}
+                      className="font-bold text-primary hover:underline"
+                    >
+                      {authorName}
+                    </button>
+                  }
+                />
                 <span>&nbsp;&nbsp;</span>
                 <Hint label={formatFulltime(new Date(createdAt))}>
-                  <button className="text-xs text-muted-foreground hover:underline">
-                    {format(new Date(createdAt), 'h:mm a')}
+                  <button
+                    className={cn(
+                      'text-xs text-muted-foreground hover:underline',
+                      isForward && 'hidden'
+                    )}
+                  >
+                    {formatFullDate ? (
+                      <>{formatFulltime(new Date(createdAt))}</>
+                    ) : (
+                      <>{format(new Date(createdAt), 'h:mm a')}</>
+                    )}
                   </button>
                 </Hint>
               </div>
-              <Renderer value={body} />
-              <Thumbnail url={image} />
-              {updatedAt ? (
-                <span className="text-xs text-muted-foreground">(edited)</span>
-              ) : null}
-              <Reactions data={reactions} onChange={handleReaction} />
+              <div className={cn(isForward && 'relative -left-5')}>
+                <div
+                  className={cn(
+                    (!convertJsonToString(body) ||
+                      convertJsonToString(body) === '\n') &&
+                      'hidden'
+                  )}
+                >
+                  <CustomRenderer value={body} />
+                </div>
+                {forwardMessageId && (
+                  <ForwardMessage messageId={forwardMessageId} />
+                )}
+                {files.length > 0 && (
+                  <MessageMedia
+                    files={files}
+                    messageId={id}
+                    isSmallContainer={isSmallContainer}
+                  />
+                )}
+                {updatedAt ? (
+                  <span className="text-xs text-muted-foreground">
+                    (edited)
+                  </span>
+                ) : null}
+              </div>
+              <Reactions
+                data={reactions}
+                onChange={handleReaction}
+                className={cn(isForward && 'hidden')}
+              />
               <ThreadBar
                 count={threadCount}
                 image={threadImage}
                 timstamp={threadTimestamp}
                 onClick={() => onOpenMessage(id)}
                 name={threadName}
+                threadUsers={threadUsers}
               />
             </div>
           )}
         </div>
         {!isEditing && (
-          <Toolbar
-            isAuthor={isAuthor}
-            isPending={isPending}
-            handleEdit={() => setEditingId(id)}
-            handleThread={() => onOpenMessage(id)}
-            handleDelete={handleRemove}
-            handleReaction={handleReaction}
-            hideThreadButton={hideThreadButton}
-          />
+          <div className={cn(isForward && 'hidden')}>
+            <Toolbar
+              isAuthor={isAuthor}
+              isPending={isPending}
+              handleEdit={() => setEditingId(id)}
+              handleThread={() => onOpenMessage(id)}
+              handleDelete={handleRemove}
+              handleReaction={handleReaction}
+              hideThreadButton={hideThreadButton}
+              messageId={id}
+            />
+          </div>
         )}
       </div>
     </>

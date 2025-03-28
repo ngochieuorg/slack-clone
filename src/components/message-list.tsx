@@ -3,19 +3,23 @@ import { differenceInMinutes, format } from 'date-fns';
 import Message from './message';
 import ChannelHero from './channel-hero';
 import { useState } from 'react';
-import { Id } from '../../convex/_generated/dataModel';
+import { Doc, Id } from '../../convex/_generated/dataModel';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
 import { useCurrentMember } from '@/features/members/api/use-current-member';
 import { Loader } from 'lucide-react';
-import ConversationHero from './conversation-hero';
-import { formatDateLabel } from '@/app/utils/date-time';
+import { formatDateLabel } from '@/utils/date-time';
+import { renderDisplayName } from '@/utils/label';
+import dynamic from 'next/dynamic';
+
+const ConversationHero = dynamic(() => import('./conversation-hero'));
 
 const TIME_THRESHHOLD = 5;
 
 interface MessageListProps {
-  channelName?: string;
-  channelCreationTime?: number;
+  channel?: Doc<'channels'>;
   memberImage?: string;
+  memberId?: string;
+  memberTitle?: string;
   data: GetMessageReturnType | undefined;
   loadMore: () => void;
   isLoadingMore: boolean;
@@ -25,9 +29,11 @@ interface MessageListProps {
 }
 
 const MessageList = ({
-  channelName,
-  channelCreationTime,
+  channel,
+
   memberImage,
+  memberId,
+  memberTitle,
   data,
   loadMore,
   isLoadingMore,
@@ -78,12 +84,17 @@ const MessageList = ({
                 key={message._id}
                 id={message._id}
                 memberId={message.memberId}
-                authorImage={message.user.image}
-                authorName={message.user.name}
+                authorImage={
+                  message.user.memberPreference.image || message.user.image
+                }
+                authorName={renderDisplayName(
+                  message.user.name,
+                  message.user.memberPreference
+                )}
                 isAuthor={message.memberId === currentMember?._id}
                 reactions={message.reactions}
                 body={message.body}
-                image={message.image}
+                files={message.files}
                 updatedAt={message.updatedAt}
                 createdAt={message._creationTime}
                 isEditing={editingId === message._id}
@@ -94,6 +105,8 @@ const MessageList = ({
                 threadImage={message.threadImage}
                 threadTimestamp={message.threadTimestamp}
                 threadName={message.threadName}
+                threadUsers={message.usersInThread}
+                forwardMessageId={message.forwardMessageId}
               />
             );
           })}
@@ -125,11 +138,14 @@ const MessageList = ({
           </span>
         </div>
       )}
-      {variant === 'channel' && channelName && channelCreationTime && (
-        <ChannelHero name={channelName} creationTime={channelCreationTime} />
-      )}
+      {variant === 'channel' && channel && <ChannelHero channel={channel} />}
       {variant === 'conversation' && (
-        <ConversationHero name={memberName} image={memberImage} />
+        <ConversationHero
+          name={memberName}
+          image={memberImage}
+          memberId={memberId}
+          memberTitle={memberTitle}
+        />
       )}
     </div>
   );

@@ -5,20 +5,27 @@ import { cn } from '@/lib/utils';
 import Hint from './hint';
 import EmojiPopover from './emoji-popover';
 import { MdOutlineAddReaction } from 'react-icons/md';
+import { useCurrentUser } from '@/features/auth/api/use-current-user';
+import { renderDisplayName } from '@/utils/label';
 
 interface ReactionsProps {
   data: Array<
     Omit<Doc<'reactions'>, 'memberId'> & {
       count: number;
       memberIds: Id<'members'>[];
+      users?: (Doc<'users'> & {
+        memberPreference?: Doc<'memberPreferences'>;
+      })[];
     }
   >;
   onChange: (value: string) => void;
+  className?: string;
 }
 
-const Reactions = ({ data, onChange }: ReactionsProps) => {
+const Reactions = ({ data, onChange, className }: ReactionsProps) => {
   const workspaceId = useWorkspaceId();
   const { data: currentMember } = useCurrentMember({ workspaceId });
+  const { data: currentUser } = useCurrentUser({ workspaceId });
 
   const currentMemberId = currentMember?._id;
 
@@ -27,12 +34,19 @@ const Reactions = ({ data, onChange }: ReactionsProps) => {
   }
 
   return (
-    <div className="flex items-center gap-1 mt-1 mb-1">
+    <div className={cn('flex items-center gap-1 mt-1 mb-1', className)}>
       {data.map((reaction) => {
+        const usersReact = () => {
+          let string = '';
+          (reaction?.users || []).forEach((user, idx) => {
+            string += `${user._id === currentUser?._id ? 'You' : renderDisplayName(user.name, user?.memberPreference)}${idx !== (reaction?.users ? reaction.users.length : 0) - 1 ? ', ' : ''} `;
+          });
+          return string;
+        };
         return (
           <Hint
             key={reaction._id}
-            label={`${reaction.count} ${reaction.count === 1 ? 'person' : 'people'} react with ${reaction.value}`}
+            label={`${usersReact()} react with ${reaction.value}`}
           >
             <button
               onClick={() => onChange(reaction.value)}

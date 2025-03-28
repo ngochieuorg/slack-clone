@@ -1,6 +1,8 @@
 import { v } from 'convex/values';
 import { mutation, query } from './_generated/server';
 import { getAuthUserId } from '@convex-dev/auth/server';
+import { arrayToHash } from '../src/utils';
+import { populateMember, populateUser } from '../src/utils/convex.utils';
 
 export const get = query({
   args: {
@@ -24,6 +26,16 @@ export const get = query({
       return [];
     }
 
+    const channelsThatMemberIn = await ctx.db
+      .query('channelMembers')
+      .withIndex('by_member_id', (q) => q.eq('memberId', member._id))
+      .collect();
+
+    const channelIdsThatMemberIn = arrayToHash(
+      channelsThatMemberIn,
+      'channelId'
+    );
+
     const channels = await ctx.db
       .query('channels')
       .withIndex('by_workspace_id', (q) =>
@@ -31,7 +43,9 @@ export const get = query({
       )
       .collect();
 
-    return channels;
+    return channels.filter((channel) => {
+      return channelIdsThatMemberIn[channel._id];
+    });
   },
 });
 
@@ -39,6 +53,7 @@ export const create = mutation({
   args: {
     name: v.string(),
     workspaceId: v.id('workspaces'),
+    isPrivate: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -63,6 +78,13 @@ export const create = mutation({
     const channelId = await ctx.db.insert('channels', {
       name: parsedName,
       workspaceId: args.workspaceId,
+      isPrivate: args.isPrivate,
+      createdBy: member._id,
+    });
+
+    await ctx.db.insert('channelMembers', {
+      channelId,
+      memberId: member._id,
     });
 
     return channelId;
@@ -95,7 +117,24 @@ export const getById = query({
 
     if (!member) return null;
 
-    return channel;
+    const membersInChannel = await ctx.db
+      .query('channelMembers')
+      .withIndex('by_channel_id', (q) => q.eq('channelId', args.id))
+      .collect();
+
+    const usersInChannel = await Promise.all(
+      membersInChannel.map(async (mem) => {
+        const member = await populateMember(ctx, mem.memberId);
+        if (member) {
+          const user = await populateUser(ctx, member?.userId, {
+            memberId: member._id,
+          });
+          return { ...mem, user };
+        }
+      })
+    );
+
+    return { ...channel, users: usersInChannel };
   },
 });
 

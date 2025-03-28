@@ -14,6 +14,7 @@ import { useState } from 'react';
 import { useGetChannels } from '@/features/channels/api/use-get-channels';
 import { useGetMembers } from '@/features/members/api/use-get-members';
 import { useRouter } from 'next/navigation';
+import { renderDisplayName } from '@/utils/label';
 
 const Toolbar = () => {
   const router = useRouter();
@@ -69,7 +70,10 @@ const Toolbar = () => {
                   key={member._id}
                   asChild
                 >
-                  {member.user.name}
+                  {renderDisplayName(
+                    member.user.name,
+                    member.user.memberPreference
+                  )}
                 </CommandItem>
               ))}
             </CommandGroup>

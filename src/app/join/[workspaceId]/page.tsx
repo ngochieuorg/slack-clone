@@ -44,8 +44,7 @@ const JoinPage = () => {
           router.replace(`/workspace/${id}`);
           toast.success('Workspace join');
         },
-        onError: (error) => {
-          console.log(error);
+        onError: () => {
           toast.error('Fail to join workspace');
         },
       }

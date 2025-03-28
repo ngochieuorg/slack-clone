@@ -7,6 +7,7 @@ import Modals from '@/components/modals';
 import { Toaster } from '@/components/ui/sonner';
 import JotaiProvider from '@/components/jotai-provider';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
+import BrowserNotification from '@/components/notification-popup';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -39,6 +40,7 @@ export default function RootLayout({
               <JotaiProvider>
                 <Toaster />
                 <Modals />
+                <BrowserNotification />
                 {children}
               </JotaiProvider>
             </ConvexClientProvider>

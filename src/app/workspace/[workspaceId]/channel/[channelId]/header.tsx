@@ -1,165 +1,167 @@
 import { Button } from '@/components/ui/button';
+import { Dialog } from '@/components/ui/dialog';
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { useRemoveChannel } from '@/features/channels/api/use-remove-channel';
-import { useUpdateChannel } from '@/features/channels/api/use-update-channel';
-import { useCurrentMember } from '@/features/members/api/use-current-member';
-import { useChannelId } from '@/hooks/use-channel-id';
-import useConfirm from '@/hooks/use-confirm';
-import { useWorkspaceId } from '@/hooks/use-workspace-id';
-import { TrashIcon } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
+import { ChevronRight, HashIcon, LockKeyhole } from 'lucide-react';
 import { FaChevronDown } from 'react-icons/fa';
-import { toast } from 'sonner';
+import { EllipsisVertical } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import SettingChannelModal from '@/features/channels/components/setting-chanel-modal';
+import { GetChannelReturnType } from '@/features/channels/api/use-get-channel';
+import dynamic from 'next/dynamic';
+import { renderDisplayName } from '@/utils/label';
+
+const HoverCard = dynamic(
+  () => import('@/components/ui/hover-card').then((mod) => mod.HoverCard),
+  { ssr: false }
+);
 
 interface HeaderProps {
-  title: string;
+  channel: GetChannelReturnType;
 }
 
-const Header = ({ title }: HeaderProps) => {
-  const router = useRouter();
-  const channelId = useChannelId();
-  const workspaceId = useWorkspaceId();
-  const [value, setValue] = useState(title);
-  const [editOpen, setEditOpen] = useState(false);
-  const [ConfirmDialog, confirm] = useConfirm(
-    'Delete this channel?',
-    'You are about to delete this channel. This action is irreversible'
-  );
-
-  const { data: member } = useCurrentMember({ workspaceId });
-  const { mutate: updateChannel, isPending: updatingChannel } =
-    useUpdateChannel();
-  const { mutate: removeChannel, isPending: isRemovingChannel } =
-    useRemoveChannel();
-
-  const handleEditOpen = (value: boolean) => {
-    if (member?.role !== 'admin') return;
-    setEditOpen(value);
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\s+/g, '-').toLowerCase();
-    setValue(value);
-  };
-
-  const handleDelete = async () => {
-    const ok = await confirm();
-
-    if (!ok) return;
-
-    removeChannel(
-      { id: channelId },
-      {
-        onSuccess: () => {
-          toast.success('Channel Deleted');
-          router.push(`/workspace/${workspaceId}`);
-        },
-        onError: () => {
-          toast.error('Failed to delete channel');
-        },
-      }
-    );
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    updateChannel(
-      {
-        id: channelId,
-        name: value,
-      },
-      {
-        onSuccess: () => {
-          toast.success('Channel updated');
-          setEditOpen(false);
-        },
-        onError: () => {
-          toast.error('Failed to update channel');
-        },
-      }
-    );
-  };
-
+const Header = ({ channel }: HeaderProps) => {
   return (
     <div className="bg-white border-b h-[48px] flex items-center px-4 overflow-hidden">
-      <ConfirmDialog />
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button
-            variant={'ghost'}
-            className="text-lg font-semibold px-2 overflow-hidden w-auto"
-            size={'sm'}
-          >
-            <span className="truncate"># {title}</span>
-            <FaChevronDown className="size-2.5 ml-2" />
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="p-0 bg-gray-50 overflow-hidden">
-          <DialogHeader className="p-4 border-b bg-white">
-            <DialogTitle># {title}</DialogTitle>
-            <div className="px-4 pb-4 flex flex-col gap-y-2">
-              <Dialog open={editOpen} onOpenChange={handleEditOpen}>
-                <DialogTrigger asChild>
-                  <div className="px-5 py-4 bg-white rounded-lg border cursor-pointer hover:bg-gray-50">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-semibold">Channel name</p>
-                      <p className="text-sm text-[#1264a3] hover:underline font-semibold">
-                        Edit
-                      </p>
-                    </div>
+      <div className=" w-full flex justify-between items-center">
+        <SettingChannelModal
+          channel={channel}
+          defaultTab="about"
+          trigger={
+            <Button
+              variant={'ghost'}
+              className="text-lg font-semibold px-2 overflow-hidden w-auto "
+              size={'sm'}
+            >
+              <HoverCard>
+                <HoverCardTrigger asChild>
+                  <div className="flex items-center">
+                    <span className="truncate flex items-center gap-1">
+                      {channel?.isPrivate ? <LockKeyhole /> : <HashIcon />}{' '}
+                      {channel?.name}
+                    </span>
+                    <FaChevronDown className="size-2.5 ml-2" />
                   </div>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Rename this channel</DialogTitle>
-                  </DialogHeader>
-                  <form className="space-y-4" onSubmit={handleSubmit}>
-                    <Input
-                      value={value}
-                      disabled={updatingChannel}
-                      onChange={handleChange}
-                      required
-                      autoFocus
-                      minLength={3}
-                      maxLength={80}
-                      placeholder="e.g Plan budget"
-                    />
-                    <DialogFooter>
-                      <DialogClose asChild>
-                        <Button variant={'outline'} disabled={updatingChannel}>
-                          Cancel
-                        </Button>
-                      </DialogClose>
-                      <Button disabled={updatingChannel}>Save</Button>
-                    </DialogFooter>
-                  </form>
-                </DialogContent>
-              </Dialog>
-              {member?.role === 'admin' && (
-                <button
-                  onClick={handleDelete}
-                  disabled={isRemovingChannel}
-                  className="flex items-center gap-x-2 px-5 py-4 bg-white rounded-lg cursor-pointer border hover:bg-gray-50 text-rose-600"
-                >
-                  <TrashIcon className="size-4" />
-                  <p className="text-sm font-semibold"> Delete channel</p>
-                </button>
-              )}
-            </div>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
+                </HoverCardTrigger>
+                <HoverCardContent className="bg-zinc-900 p-3">
+                  <p className="text-white text-sm">Get channel details</p>
+                </HoverCardContent>
+              </HoverCard>
+            </Button>
+          }
+        />
+        <div className="flex justify-end">
+          <Dialog>
+            <SettingChannelModal
+              channel={channel}
+              defaultTab="members"
+              trigger={
+                <Button variant={'outline'} className="h-8 px-1">
+                  <HoverCard>
+                    <HoverCardTrigger asChild>
+                      <div className="flex items-center gap-2">
+                        <div className="flex -space-x-1">
+                          {channel?.users.slice(0, 3).map((user, index) => {
+                            return (
+                              <div
+                                key={user?._id}
+                                className={`p-0.5 rounded-md bg-white z-${index * 10}`}
+                              >
+                                <Avatar className="size-5">
+                                  <AvatarImage
+                                    src={
+                                      user?.user?.memberPreference.image ||
+                                      user?.user?.image
+                                    }
+                                    alt={user?.user?.name}
+                                  />
+                                  <AvatarFallback className="rounded-md bg-sky-500 text-white flex justify-center items-center text-xs font-light"></AvatarFallback>
+                                </Avatar>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <span className=" font-normal mr-1">
+                          {channel?.users.length}
+                        </span>
+                      </div>
+                    </HoverCardTrigger>
+                    <HoverCardContent className=" bg-zinc-900 text-center font-semibold text-sm ">
+                      <p className="text-white ">
+                        View all member of this channel
+                      </p>
+                      <p className="text-slate-400">
+                        Includes{' '}
+                        {channel?.users
+                          .slice(0, 3)
+                          .map((user) => (
+                            <span key={user?._id}>
+                              {' '}
+                              {renderDisplayName(
+                                user?.user?.name,
+                                user?.user?.memberPreference
+                              )}
+                              ,
+                            </span>
+                          ))}
+                      </p>
+                    </HoverCardContent>
+                  </HoverCard>
+                </Button>
+              }
+            />
+          </Dialog>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant={'ghost'} className="h-8 py-0">
+                <EllipsisVertical />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="py-2 px-0">
+              <MoreActionButton>Open channel details</MoreActionButton>
+              <Separator />
+              <MoreActionButton>Edit notifications</MoreActionButton>
+              <MoreActionButton>Star channel</MoreActionButton>
+              <Separator />
+              <MoreActionButton>Add a workflow</MoreActionButton>
+              <MoreActionButton>Edit settings</MoreActionButton>
+              <Separator />
+              <MoreActionButton>
+                <HoverCard>
+                  <HoverCardTrigger asChild>
+                    <div className="flex justify-between items-center">
+                      <span>Copy</span>
+                      <ChevronRight className="size-4" />
+                    </div>
+                  </HoverCardTrigger>
+                  <HoverCardContent className="py-2 px-0" side="left">
+                    <MoreActionButton>Copy name</MoreActionButton>
+                    <MoreActionButton>Copy link</MoreActionButton>
+                  </HoverCardContent>
+                </HoverCard>
+              </MoreActionButton>
+              <MoreActionButton>Search in channel</MoreActionButton>
+              <MoreActionButton>Open in new window</MoreActionButton>
+              <Separator />
+              <MoreActionButton>Leave channel</MoreActionButton>
+            </PopoverContent>
+          </Popover>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const MoreActionButton = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <div className="py-2 px-5 text-base hover:bg-sky-800 hover:text-white cursor-pointer">
+      {children}
     </div>
   );
 };

@@ -13,14 +13,37 @@ const schema = defineSchema({
     userId: v.id('users'),
     workspaceId: v.id('workspaces'),
     role: v.union(v.literal('admin'), v.literal('members')),
+    onlineAt: v.optional(v.number()),
   })
     .index('by_user_id', ['userId'])
     .index('by_workspace_id', ['workspaceId'])
     .index('by_workspace_id_user_id', ['workspaceId', 'userId']),
+  memberPreferences: defineTable({
+    userId: v.id('users'),
+    memberId: v.id('members'),
+    workspaceId: v.id('workspaces'),
+    fullName: v.optional(v.string()),
+    displayName: v.optional(v.string()),
+    title: v.optional(v.string()),
+    pronunciation: v.optional(v.string()),
+    timeZone: v.optional(v.string()),
+    image: v.optional(v.id('_storage')),
+  })
+    .index('by_member_id_user_id', ['memberId', 'userId'])
+    .index('by_user_id_workspace_id', ['userId', 'workspaceId']),
   channels: defineTable({
     name: v.string(),
     workspaceId: v.id('workspaces'),
+    isPrivate: v.optional(v.boolean()),
+    createdBy: v.optional(v.id('members')),
   }).index('by_workspace_id', ['workspaceId']),
+  channelMembers: defineTable({
+    channelId: v.id('channels'),
+    memberId: v.id('members'),
+  })
+    .index('by_channel_id', ['channelId'])
+    .index('by_member_id', ['memberId'])
+    .index('by_channel_member', ['channelId', 'memberId']),
   conversations: defineTable({
     workspaceId: v.id('workspaces'),
     memberOneId: v.id('members'),
@@ -30,13 +53,14 @@ const schema = defineSchema({
   }).index('by_workspace_id', ['workspaceId']),
   messages: defineTable({
     body: v.string(),
-    image: v.optional(v.id('_storage')),
+    files: v.optional(v.array(v.id('_storage'))),
     memberId: v.id('members'),
     workspaceId: v.id('workspaces'),
     channelId: v.optional(v.id('channels')),
     parentMessageId: v.optional(v.id('messages')),
     conversationId: v.optional(v.id('conversations')),
     updatedAt: v.optional(v.number()),
+    forwardMessageId: v.optional(v.id('messages')),
   })
     .index('by_workspace_id', ['workspaceId'])
     .index('by_member_id', ['memberId'])
@@ -73,6 +97,7 @@ const schema = defineSchema({
     ),
     status: v.union(v.literal('read'), v.literal('unread')),
     senderId: v.id('users'),
+    senderMemberId: v.optional(v.id('members')),
     content: v.string(),
   })
     .index('by_user_status', ['userId', 'status'])
@@ -98,6 +123,10 @@ const schema = defineSchema({
   })
     .index('by_user_workspace', ['userId', 'workspaceId'])
     .index('by_user_channel', ['userId', 'channelId']),
+  files: defineTable({
+    storageId: v.id('_storage'),
+    name: v.string(),
+  }).index('by_storageId', ['storageId']),
 });
 
 export default schema;

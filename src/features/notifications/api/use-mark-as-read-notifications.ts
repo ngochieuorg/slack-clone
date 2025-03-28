@@ -9,6 +9,7 @@ type RequestType = {
   workspaceId: Id<'workspaces'>;
   channelId?: Id<'channels'>;
   conversationId?: Id<'conversations'>;
+  messageId?: Id<'messages'>;
 };
 type ResponseType = Id<'notifications'> | null | any;
 

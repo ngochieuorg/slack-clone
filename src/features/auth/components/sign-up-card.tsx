@@ -1,14 +1,6 @@
 import { FcGoogle } from 'react-icons/fc';
 import { TriangleAlert } from 'lucide-react';
-
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { FaGithub } from 'react-icons/fa';
@@ -54,20 +46,14 @@ const SignUpCard = ({ setState }: SignUpCardProps) => {
   };
 
   return (
-    <Card className="w-full h-full p-8">
-      <CardHeader className="px-0 pt-0">
-        <CardTitle>Sign up to continue</CardTitle>
-        <CardDescription>
-          Use your email or another service to continue
-        </CardDescription>
-      </CardHeader>
+    <div className="w-full h-full p-8">
       {!!error && (
         <div className=" bg-destructive/15 p-3 rounded-md flex items-center gap-x-2 text-sm text-destructive mb-6">
           <TriangleAlert className="size-4" />
           <p>{error}</p>
         </div>
       )}
-      <CardContent className="space-y-5 px-0 pb-0">
+      <div className="space-y-10 px-0 pb-0">
         <form onSubmit={onPasswordSignup} className="space-y-2.5">
           <Input
             disabled={pending}
@@ -100,7 +86,12 @@ const SignUpCard = ({ setState }: SignUpCardProps) => {
             type="password"
             required
           />
-          <Button type="submit" className="w-full" size={'lg'} disabled={false}>
+          <Button
+            type="submit"
+            className="w-full bg-[#611f69] text-lg"
+            size={'lg'}
+            disabled={false}
+          >
             Continue
           </Button>
         </form>
@@ -111,9 +102,9 @@ const SignUpCard = ({ setState }: SignUpCardProps) => {
             onClick={() => handleProviderSignup('google')}
             variant={'outline'}
             size={'lg'}
-            className="w-full relative"
+            className="w-full relative text-lg"
           >
-            <FcGoogle className="size-5 absolute left-2.5" />
+            <FcGoogle className="size-5" />
             Continue with Google
           </Button>
           <Button
@@ -121,9 +112,9 @@ const SignUpCard = ({ setState }: SignUpCardProps) => {
             onClick={() => handleProviderSignup('github')}
             variant={'outline'}
             size={'lg'}
-            className="w-full relative"
+            className="w-full relative text-lg"
           >
-            <FaGithub className="size-5 absolute left-2.5" />
+            <FaGithub className="size-5" />
             Continue with Github
           </Button>
         </div>
@@ -136,8 +127,8 @@ const SignUpCard = ({ setState }: SignUpCardProps) => {
             Sign in
           </span>
         </p>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 

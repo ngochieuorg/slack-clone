@@ -1,7 +1,9 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    domains: ['joyous-giraffe-173.convex.cloud'],
+  },
 };
 
 export default nextConfig;

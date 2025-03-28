@@ -24,7 +24,7 @@ const InviteModal = ({ open, setOpen, name, joinCode }: InviteModalProps) => {
   const workspaceId = useWorkspaceId();
   const [ConfirmDialog, confirm] = useConfirm(
     'Are you sure?',
-    'this will deactive the current code and generate new one'
+    'this will de-active the current code and generate new one'
   );
 
   const { mutate, isPending } = useNewJoinCode();

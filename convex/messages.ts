@@ -3,12 +3,14 @@ import { mutation, query, QueryCtx } from './_generated/server';
 import { v } from 'convex/values';
 import { Doc, Id } from './_generated/dataModel';
 import { paginationOptsValidator } from 'convex/server';
-import { getSetByKey } from '../src/app/utils/index';
+import { getSetByKey } from '../src/utils/index';
 import {
+  extractMentionIds,
   populateMember,
   populateReactions,
   populateThread,
   populateUser,
+  updateMentionsValue,
 } from '../src/utils/convex.utils';
 
 const getMember = async (
@@ -63,7 +65,9 @@ export const get = query({
         await Promise.all(
           results.page.map(async (message) => {
             const member = await populateMember(ctx, message.memberId);
-            const user = member ? await populateUser(ctx, member.userId) : null;
+            const user = member
+              ? await populateUser(ctx, member.userId, { memberId: member._id })
+              : null;
 
             if (!member || !user) {
               return null;
@@ -71,17 +75,45 @@ export const get = query({
 
             const reactions = await populateReactions(ctx, message._id);
             const thread = await populateThread(ctx, message._id);
-            const image = message.image
-              ? await ctx.storage.getUrl(message.image)
-              : undefined;
 
-            const reactionsWithCounts = reactions.map((reaction) => {
-              return {
-                ...reaction,
-                count: reactions.filter((r) => r.value === reaction.value)
-                  .length,
-              };
-            });
+            const files = await Promise.all(
+              (message.files || []).map(async (f) => {
+                const fileUrl = await ctx.storage.getUrl(f);
+                const fileInfo = await ctx.db.system.get(f);
+                const file = await ctx.db
+                  .query('files')
+                  .withIndex('by_storageId', (q) =>
+                    q.eq('storageId', fileInfo?._id as Id<'_storage'>)
+                  )
+                  .unique();
+                return {
+                  url: fileUrl,
+                  info: fileInfo,
+                  name: file?.name,
+                  fileId: file?._id,
+                };
+              })
+            );
+
+            const reactionsWithCounts = await Promise.all(
+              reactions.map(async (reaction) => {
+                const memberReact = await populateMember(
+                  ctx,
+                  reaction.memberId
+                );
+                const userReact = memberReact
+                  ? await populateUser(ctx, memberReact.userId, {
+                      memberId: memberReact._id,
+                    })
+                  : null;
+                return {
+                  ...reaction,
+                  count: reactions.filter((r) => r.value === reaction.value)
+                    .length,
+                  userReact,
+                };
+              })
+            );
 
             const dedupedReactions = reactionsWithCounts.reduce(
               (acc, reaction) => {
@@ -93,10 +125,17 @@ export const get = query({
                   existingReaction.memberIds = Array.from(
                     new Set([...existingReaction.memberIds, reaction.memberId])
                   );
+                  if (reaction.userReact) {
+                    existingReaction.users = [
+                      ...existingReaction.users,
+                      reaction.userReact,
+                    ];
+                  }
                 } else {
                   acc.push({
                     ...reaction,
                     memberIds: [reaction.memberId],
+                    users: [reaction.userReact as Doc<'users'>],
                   });
                 }
 
@@ -105,24 +144,29 @@ export const get = query({
               [] as (Doc<'reactions'> & {
                 count: number;
                 memberIds: Id<'members'>[];
+                users: Doc<'users'>[];
               })[]
             );
 
-            const reactionWithoutMemberIdProperty = dedupedReactions.map(
-              // eslint-disable-next-line @typescript-eslint/no-unused-vars
-              ({ memberId, ...rest }) => rest
+            const mentionIds = extractMentionIds(message.body);
+            const mentionBody = await updateMentionsValue(
+              ctx,
+              message.body,
+              user
             );
 
             return {
               ...message,
-              image,
+              body: mentionIds.length ? mentionBody : message.body,
+              files,
               member,
               user,
-              reactions: reactionWithoutMemberIdProperty,
+              reactions: dedupedReactions,
               threadCount: thread.count,
               threadImage: thread.image,
               threadName: thread.name,
               threadTimestamp: thread.timeStamp,
+              usersInThread: thread.usersInThread,
             };
           })
         )
@@ -130,6 +174,151 @@ export const get = query({
         (message): message is NonNullable<typeof message> => message !== null
       ),
     };
+  },
+});
+
+export const getAll = query({
+  args: {
+    channelId: v.optional(v.id('channels')),
+    conversationId: v.optional(v.id('conversations')),
+    parentMessageId: v.optional(v.id('messages')),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+
+    if (userId === null) {
+      throw Error('Unauthorized');
+    }
+
+    let _conversationId = args.conversationId;
+
+    if (!args.conversationId && !args.channelId && args.parentMessageId) {
+      const parentMessage = await ctx.db.get(args.parentMessageId);
+      if (!parentMessage) throw new Error('Parent message not found');
+      _conversationId = parentMessage.conversationId;
+    }
+
+    const results = await ctx.db
+      .query('messages')
+      .withIndex('by_channel_id_parent_message_id_conversation_id', (q) =>
+        q
+          .eq('channelId', args.channelId)
+          .eq('parentMessageId', args.parentMessageId)
+          .eq('conversationId', _conversationId)
+      )
+      .order('desc')
+      .collect();
+
+    const populateResults = await Promise.all(
+      results
+        .filter(
+          (message): message is NonNullable<typeof message> => message !== null
+        )
+        .map(async (message) => {
+          const member = await populateMember(ctx, message.memberId);
+          const user = member
+            ? await populateUser(ctx, member.userId, { memberId: member._id })
+            : null;
+
+          if (!member || !user) {
+            return null;
+          }
+
+          const reactions = await populateReactions(ctx, message._id);
+          const thread = await populateThread(ctx, message._id);
+
+          const files = await Promise.all(
+            (message.files || []).map(async (f) => {
+              const fileUrl = await ctx.storage.getUrl(f);
+              const fileInfo = await ctx.db.system.get(f);
+              const file = await ctx.db
+                .query('files')
+                .withIndex('by_storageId', (q) =>
+                  q.eq('storageId', fileInfo?._id as Id<'_storage'>)
+                )
+                .unique();
+
+              return {
+                url: fileUrl,
+                info: fileInfo,
+                name: file?.name,
+                fileId: file?._id,
+              };
+            })
+          );
+          const reactionsWithCounts = await Promise.all(
+            reactions.map(async (reaction) => {
+              const memberReact = await populateMember(ctx, reaction.memberId);
+              const userReact = memberReact
+                ? await populateUser(ctx, memberReact.userId, {
+                    memberId: memberReact._id,
+                  })
+                : null;
+              return {
+                ...reaction,
+                count: reactions.filter((r) => r.value === reaction.value)
+                  .length,
+                userReact,
+              };
+            })
+          );
+
+          const dedupedReactions = reactionsWithCounts.reduce(
+            (acc, reaction) => {
+              const existingReaction = acc.find(
+                (r) => r.value === reaction.value
+              );
+
+              if (existingReaction) {
+                existingReaction.memberIds = Array.from(
+                  new Set([...existingReaction.memberIds, reaction.memberId])
+                );
+                if (reaction.userReact) {
+                  existingReaction.users = [
+                    ...existingReaction.users,
+                    reaction.userReact,
+                  ];
+                }
+              } else {
+                acc.push({
+                  ...reaction,
+                  memberIds: [reaction.memberId],
+                  users: [reaction.userReact as Doc<'users'>],
+                });
+              }
+
+              return acc;
+            },
+            [] as (Doc<'reactions'> & {
+              count: number;
+              memberIds: Id<'members'>[];
+              users: Doc<'users'>[];
+            })[]
+          );
+          const mentionIds = extractMentionIds(message.body);
+          const mentionBody = await updateMentionsValue(
+            ctx,
+            message.body,
+            user
+          );
+
+          return {
+            ...message,
+            body: mentionIds.length ? mentionBody : message.body,
+            files,
+            member,
+            user,
+            reactions: dedupedReactions,
+            threadCount: thread.count,
+            threadImage: thread.image,
+            threadName: thread.name,
+            threadTimestamp: thread.timeStamp,
+            usersInThread: thread.usersInThread,
+          };
+        })
+    );
+
+    return populateResults;
   },
 });
 
@@ -161,9 +350,11 @@ export const getById = query({
       return null;
     }
 
-    const user = await populateUser(ctx, member.userId);
+    const user = await populateUser(ctx, member.userId, {
+      memberId: member._id,
+    });
 
-    if (!member) {
+    if (!member || !user) {
       return null;
     }
 
@@ -175,6 +366,11 @@ export const getById = query({
         count: reactions.filter((r) => r.value === reaction.value).length,
       };
     });
+
+    let channel;
+    if (message.channelId) {
+      channel = await ctx.db.get(message.channelId as Id<'channels'>);
+    }
 
     const dedupedReactions = reactionsWithCounts.reduce(
       (acc, reaction) => {
@@ -204,14 +400,37 @@ export const getById = query({
       ({ memberId, ...rest }) => rest
     );
 
+    const mentionIds = extractMentionIds(message.body);
+    const mentionBody = await updateMentionsValue(ctx, message.body, user);
+
+    const files = await Promise.all(
+      (message.files || []).map(async (f) => {
+        const fileUrl = await ctx.storage.getUrl(f);
+        const fileInfo = await ctx.db.system.get(f);
+        const file = await ctx.db
+          .query('files')
+          .withIndex('by_storageId', (q) =>
+            q.eq('storageId', fileInfo?._id as Id<'_storage'>)
+          )
+          .unique();
+
+        return {
+          url: fileUrl,
+          info: fileInfo,
+          name: file?.name,
+          fileId: file?._id,
+        };
+      })
+    );
+
     return {
       ...message,
-      image: message.image
-        ? await ctx.storage.getUrl(message.image)
-        : undefined,
+      body: mentionIds.length ? mentionBody : message.body,
+      files,
       user,
       member,
       reactions: reactionWithoutMemberIdProperty,
+      channel,
     };
   },
 });
@@ -219,11 +438,12 @@ export const getById = query({
 export const create = mutation({
   args: {
     body: v.string(),
-    image: v.optional(v.id('_storage')),
+    files: v.optional(v.array(v.id('_storage'))),
     workspaceId: v.id('workspaces'),
     channelId: v.optional(v.id('channels')),
     parentMessageId: v.optional(v.id('messages')),
     conversationId: v.optional(v.id('conversations')),
+    forwardMessageId: v.optional(v.id('messages')),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -233,7 +453,6 @@ export const create = mutation({
     }
 
     const currentMemmber = await getMember(ctx, args.workspaceId, userId);
-    const currentUser = await populateUser(ctx, userId);
 
     if (!currentMemmber) {
       throw Error('Unauthorized');
@@ -251,24 +470,25 @@ export const create = mutation({
     const messageId = await ctx.db.insert('messages', {
       memberId: currentMemmber._id,
       body: args.body,
-      image: args.image,
+      files: args.files,
       channelId: args.channelId,
       workspaceId: args.workspaceId,
       parentMessageId: args.parentMessageId,
       conversationId: _conversationId,
+      forwardMessageId: args.forwardMessageId,
     });
 
-    const checkIsMention = true;
+    const mentionIds = extractMentionIds(args.body);
 
-    let notiType = 'direct';
-    if (checkIsMention) {
-      notiType = 'reply';
-    } else if (args.parentMessageId) {
-      notiType = 'mention';
+    const notiTypes = ['direct'];
+    if (mentionIds.length) {
+      notiTypes.push('mention');
+    }
+    if (args.parentMessageId) {
+      notiTypes.push('reply');
     }
 
-    if (notiType === 'reply') {
-      // tìm những member trong thread
+    if (notiTypes.includes('reply')) {
       const messagesByParentMessage = await ctx.db
         .query('messages')
         .filter((q) =>
@@ -292,7 +512,6 @@ export const create = mutation({
         })
       );
 
-      // gửi noti tơi các member trong thread
       await Promise.all(
         membersInTheadWithPopulate.map(async (member) => {
           if (member) {
@@ -301,10 +520,11 @@ export const create = mutation({
               conversationId: _conversationId,
               userId: member.userId,
               messageId: messageId,
-              type: notiType,
+              type: 'reply',
               status: 'unread',
-              content: `New message in thread from ${currentUser?.name}`,
+              content: args.body,
               senderId: userId,
+              senderMemberId: currentMemmber._id,
               parentMessageId: args.parentMessageId,
             });
           }
@@ -312,10 +532,26 @@ export const create = mutation({
       );
     }
 
-    if (notiType === 'mention') {
+    if (notiTypes.includes('mention')) {
+      mentionIds.forEach(async (id) => {
+        if (id) {
+          await ctx.db.insert('notifications', {
+            channelId: args.channelId,
+            conversationId: _conversationId,
+            userId: id as Id<'users'>,
+            messageId: messageId,
+            type: 'mention',
+            status: 'unread',
+            content: args.body,
+            senderId: userId,
+            senderMemberId: currentMemmber._id,
+            parentMessageId: args.parentMessageId,
+          });
+        }
+      });
     }
 
-    if (notiType === 'direct') {
+    if (notiTypes.includes('direct')) {
       const conversation = await ctx.db
         .query('conversations')
         .filter((q) => q.eq(q.field('_id'), args.conversationId))
@@ -351,10 +587,11 @@ export const create = mutation({
             conversationId: _conversationId,
             userId: member.userId,
             messageId: messageId,
-            type: notiType,
+            type: 'direct',
             status: 'unread',
-            content: `New message from ${currentUser?.name}`,
+            content: args.body,
             senderId: userId,
+            senderMemberId: currentMemmber._id,
           });
         })
       );

@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Id } from '../../convex/_generated/dataModel';
 import { convertJsonToString, renderDisplayName } from '@/utils/label';
+import { useCurrentMember } from '@/features/members/api/use-current-member';
 
 const requestNotificationPermission = async () => {
   if ('Notification' in window && Notification.permission !== 'granted') {
@@ -86,9 +87,15 @@ function BrowserNotificationContent({
 export default function BrowserNotification() {
   const workspaceId = useWorkspaceId();
 
+  const { data: currentMember } = useCurrentMember({
+    workspaceId,
+  });
+
   return (
     <>
-      {workspaceId && <BrowserNotificationContent workspaceId={workspaceId} />}
+      {workspaceId && currentMember?._id && (
+        <BrowserNotificationContent workspaceId={workspaceId} />
+      )}
     </>
   );
 }

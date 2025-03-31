@@ -42,7 +42,7 @@ const SignInCard = ({ setState }: SignInCardProps) => {
   };
 
   return (
-    <div className="w-full h-full p-8">
+    <div className="w-full h-full p-8 ">
       {!!error && (
         <div className=" bg-destructive/15 p-3 rounded-md flex items-center gap-x-2 text-sm text-destructive mb-6">
           <TriangleAlert className="size-4" />
@@ -74,6 +74,7 @@ const SignInCard = ({ setState }: SignInCardProps) => {
         </div>
 
         <Separator />
+
         <form onSubmit={onPasswordSignin} className="space-y-2.5">
           <Input
             disabled={pending}
@@ -99,6 +100,16 @@ const SignInCard = ({ setState }: SignInCardProps) => {
           >
             Sign in with Email
           </Button>
+          <div className=" border rounded-lg p-2 shadow">
+            <p className="font-bold italic">For demo, use this account</p>
+            <div className="flex">
+              <p className="w-20 font-semibold">Email:</p>{' '}
+              demo.account@gmail.com
+            </div>
+            <div className="flex ">
+              <p className="w-20 font-semibold">Password:</p> Test123456
+            </div>
+          </div>
         </form>
 
         <p className="text-xs text-muted-foreground">

@@ -10,13 +10,19 @@ import MessageList from '@/components/message-list';
 import { useEffect } from 'react';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
 import { useGetWorkspace } from '@/features/workspaces/api/use-get-workspace';
+import { Id } from '../../../../../../convex/_generated/dataModel';
 
-const ChannelIdPage = () => {
+const ChannelDetailPage = ({
+  channelId: channelIdFromQuery,
+}: {
+  channelId?: string;
+}) => {
+  console.log(channelIdFromQuery);
   const channelId = useChannelId();
   const workspaceId = useWorkspaceId();
 
   const { data: channel, isLoading: channelLoading } = useGetChannel({
-    id: channelId,
+    id: channelIdFromQuery ? (channelIdFromQuery as Id<'channels'>) : channelId,
   });
   const { data: workspace } = useGetWorkspace({
     id: workspaceId,
@@ -31,7 +37,9 @@ const ChannelIdPage = () => {
   }, [channel?.name, workspace?.name]);
 
   const { results, status, loadMore } = useGetMessages({
-    channelId: channelId,
+    channelId: channelIdFromQuery
+      ? (channelIdFromQuery as Id<'channels'>)
+      : channelId,
   });
 
   if (channelLoading || status === 'LoadingFirstPage') {
@@ -66,4 +74,4 @@ const ChannelIdPage = () => {
   );
 };
 
-export default ChannelIdPage;
+export default ChannelDetailPage;

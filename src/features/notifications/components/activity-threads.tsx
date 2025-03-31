@@ -19,7 +19,6 @@ import { cn } from '@/lib/utils';
 import Message from '@/components/message';
 import { Button } from '@/components/ui/button';
 import ChannelIcon from '@/asset/svg/channel-icon';
-import ChannelIdPage from '@/app/workspace/[workspaceId]/channel/[channelId]/page';
 
 // Icons
 import { Loader, XIcon } from 'lucide-react';
@@ -37,6 +36,7 @@ import { toast } from 'sonner';
 import { Id } from '../../../../convex/_generated/dataModel';
 import { renderDisplayName } from '@/utils/label';
 import { CreateMessageValues } from '@/models';
+import ChannelDetailPage from '@/app/workspace/[workspaceId]/channel/[channelId]/channel-detail';
 
 // Dynamic Component
 const Editor = dynamic(() => import('@/components/editor'), { ssr: false });
@@ -187,7 +187,7 @@ const ActivityThread = ({
   }
 
   if (channelIdFromQuery) {
-    return <ChannelIdPage channelId={channelIdFromQuery} />;
+    return <ChannelDetailPage channelId={channelIdFromQuery} />;
   }
 
   return (

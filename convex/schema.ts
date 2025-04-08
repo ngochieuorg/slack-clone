@@ -28,6 +28,7 @@ const schema = defineSchema({
     pronunciation: v.optional(v.string()),
     timeZone: v.optional(v.string()),
     image: v.optional(v.id('_storage')),
+    navigation: v.optional(v.array(v.string())),
   })
     .index('by_member_id_user_id', ['memberId', 'userId'])
     .index('by_user_id_workspace_id', ['userId', 'workspaceId']),

@@ -3,17 +3,22 @@
 import { useGetChannels } from '@/features/channels/api/use-get-channels';
 import { useCreateChannelModal } from '@/features/channels/store/use-create-channel-modal';
 import { useCurrentMember } from '@/features/members/api/use-current-member';
+import { useGetMemberPreferences } from '@/features/members/api/use-get-member-preferences';
 import { useGetWorkspace } from '@/features/workspaces/api/use-get-workspace';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
+import { preferencesAtom } from '@/store/preferences.store';
+import { useAtom } from 'jotai';
 import { Loader, TriangleAlert } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
+import { Id } from '../../../../convex/_generated/dataModel';
 
 const WorkspaceIdPage = () => {
   const router = useRouter();
   const workspaceId = useWorkspaceId();
 
   const [open, setOpen] = useCreateChannelModal();
+  const [{}, setPreferences] = useAtom(preferencesAtom);
 
   const { data: member, isLoading: memberLoading } = useCurrentMember({
     workspaceId,
@@ -24,9 +29,18 @@ const WorkspaceIdPage = () => {
   const { data: channels, isLoading: channelsLoading } = useGetChannels({
     workspaceId,
   });
+  const { data: memberPreferences } = useGetMemberPreferences({
+    memberId: member?._id as Id<'members'>,
+  });
 
   const channelId = useMemo(() => channels?.[0]?._id, [channels]);
   const isAdmin = useMemo(() => member?.role === 'admin', [member?.role]);
+
+  useEffect(() => {
+    if (memberPreferences) {
+      setPreferences({ preferences: memberPreferences });
+    }
+  }, [memberPreferences, setPreferences]);
 
   useEffect(() => {
     if (

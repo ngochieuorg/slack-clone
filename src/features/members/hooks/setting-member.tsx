@@ -11,7 +11,6 @@ import { Input } from '@/components/ui/input';
 import { useCurrentUser } from '@/features/auth/api/use-current-user';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { useGetMemberPreferences } from '../api/use-get-member-preferences';
 import { Id } from '../../../../convex/_generated/dataModel';
 import { useCurrentMember } from '../api/use-current-member';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
@@ -22,6 +21,8 @@ import { useUpdateMemberPreferences } from '../api/use-update-member-preferences
 import useConfirm from '@/hooks/use-confirm';
 import { useGenerateUploadUrl } from '@/features/upload/api/use-generate-upload-url';
 import { useUpdateMemberAvatar } from '../api/use-update-member-avatar';
+import { useAtom } from 'jotai';
+import { preferencesAtom } from '@/store/preferences.store';
 
 interface UseAddPeopleToChannelProps {
   trigger: React.ReactNode;
@@ -55,9 +56,7 @@ const useSettingMembers = ({ trigger }: UseAddPeopleToChannelProps) => {
   const { data: currentUser } = useCurrentUser({ workspaceId });
   const { data: currentMember } = useCurrentMember({ workspaceId });
 
-  const { data: memberPreferences } = useGetMemberPreferences({
-    memberId: currentMember?._id as Id<'members'>,
-  });
+  const [{ preferences: memberPreferences }] = useAtom(preferencesAtom);
   const {
     mutate: updateMemberPreferences,
     isPending: isUpdatingMemberPreferences,

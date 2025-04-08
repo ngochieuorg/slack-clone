@@ -17,7 +17,6 @@ const Header = ({
   onlineAt,
 }: HeaderProps) => {
   const avatarFallback = memberName?.charAt(0).toUpperCase();
-  console.log(onlineAt);
 
   return (
     <div className="bg-white border-b h-[48px] flex items-center px-2 overflow-hidden">

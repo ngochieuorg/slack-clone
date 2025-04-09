@@ -11,9 +11,13 @@ import Preferences from '../components/preferences';
 
 interface UsePreferencesModalProps {
   trigger: React.ReactNode;
+  preSelect?: number;
 }
 
-const usePreferencesModal = ({ trigger }: UsePreferencesModalProps) => {
+const usePreferencesModal = ({
+  trigger,
+  preSelect,
+}: UsePreferencesModalProps) => {
   const [open, setOpen] = useState<boolean | undefined>(false);
 
   const component = (
@@ -25,7 +29,7 @@ const usePreferencesModal = ({ trigger }: UsePreferencesModalProps) => {
           <DialogDescription className=" text-sm font-extralight"></DialogDescription>
         </DialogHeader>
         <div className="px-3 pb-3">
-          <Preferences />
+          <Preferences preSelect={preSelect} />
         </div>
       </DialogContent>
     </Dialog>

@@ -3,37 +3,11 @@
 import { Checkbox } from '@/components/ui/checkbox';
 import { useEffect, useState } from 'react';
 
-import {
-  Home,
-  MessageCircle,
-  Bell,
-  Bookmark,
-  LayoutTemplate,
-  Workflow,
-  FileText,
-  Files,
-  Layers,
-  Users,
-  File,
-} from 'lucide-react';
 import { useUpdateNavigation } from '../api/use-update-navigation';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
 import { useAtom } from 'jotai';
 import { preferencesAtom } from '@/store/preferences.store';
-
-export const tabs = [
-  { id: 'home', label: 'Home', icon: Home, disable: true },
-  { id: 'dms', label: 'DMs', icon: MessageCircle, disable: true },
-  { id: 'activity', label: 'Activity', icon: Bell, disable: true },
-  { id: 'later', label: 'Later', icon: Bookmark },
-  { id: 'templates', label: 'Templates', icon: LayoutTemplate },
-  { id: 'automations', label: 'Automations', icon: Workflow },
-  { id: 'canvases', label: 'Canvases', icon: FileText },
-  { id: 'files', label: 'Files', icon: Files },
-  { id: 'channels', label: 'Channels', icon: Layers },
-  { id: 'people', label: 'People', icon: Users },
-  { id: 'external', label: 'External', icon: File },
-];
+import { navigationItems } from '@/constant/navigation';
 
 export const Navigation = () => {
   const workspaceId = useWorkspaceId();
@@ -72,7 +46,7 @@ export const Navigation = () => {
       </p>
 
       <div className="space-y-2 pt-2">
-        {tabs.map((tab) => {
+        {navigationItems.map((tab) => {
           const Icon = tab.icon;
           return (
             <div

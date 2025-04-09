@@ -45,6 +45,7 @@ import { DirectMessageReturnType } from '@/features/notifications/api/api-get-di
 // React Hooks
 import { useEffect, useMemo } from 'react';
 import { preferencesAtom } from '@/store/preferences.store';
+import MoreCard from '@/components/more-card';
 
 export const Sidebar = () => {
   const router = useRouter();
@@ -269,7 +270,11 @@ export const Sidebar = () => {
             );
           }
         })}
-      <SidebarButton icon={MoreHorizontal} label="More" />
+      <HoverWrapper
+        item={<SidebarButton icon={MoreHorizontal} label="More" />}
+        hoverContent={<MoreCard />}
+      />
+
       <div className="flex flex-col items-center justify-center gap-y-1 mt-auto">
         <UserButton />
       </div>

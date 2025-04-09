@@ -55,8 +55,8 @@ const preferencesItemVariant = cva(
   }
 );
 
-const Preferences = () => {
-  const [selected, setSelected] = useState(preferenceItems[0]);
+const Preferences = ({ preSelect }: { preSelect?: number }) => {
+  const [selected, setSelected] = useState(preferenceItems[preSelect || 0]);
 
   return (
     <div className="flex">

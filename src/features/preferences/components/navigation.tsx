@@ -75,21 +75,19 @@ export const Navigation = () => {
         {tabs.map((tab) => {
           const Icon = tab.icon;
           return (
-            <label
+            <div
               key={tab.id}
               className="flex items-center space-x-2 cursor-pointer"
               onClick={() => toggleTab(tab.id)}
-              htmlFor={tab.id}
             >
               <Checkbox
                 checked={selected.includes(tab.id)}
-                id={tab.id}
                 disabled={tab.disable}
                 className="data-[state=checked]:bg-sky-500 data-[state=checked]:border-none data-[state=checked]:rounded-none"
               />
               <Icon className="w-4 h-4 " />
               <span>{tab.label}</span>
-            </label>
+            </div>
           );
         })}
       </div>

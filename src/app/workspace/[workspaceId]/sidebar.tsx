@@ -2,7 +2,21 @@
 import UserButton from '@/features/auth/components/user-button';
 import WorkspaceSwitcher from './workspace-switcher';
 import SidebarButton from './sidebar-button';
-import { Bell, Home, MessageCircle, MoreHorizontal } from 'lucide-react';
+import {
+  Bell,
+  Home,
+  MessageCircle,
+  Bookmark,
+  LayoutTemplate,
+  Workflow,
+  FileText,
+  Files,
+  Layers,
+  Users,
+  File,
+  MoreHorizontal,
+} from 'lucide-react';
+
 import {
   HoverCard,
   HoverCardContent,
@@ -30,11 +44,14 @@ import { DirectMessageReturnType } from '@/features/notifications/api/api-get-di
 
 // React Hooks
 import { useEffect, useMemo } from 'react';
+import { preferencesAtom } from '@/store/preferences.store';
 
 export const Sidebar = () => {
   const router = useRouter();
   const workspaceId = useWorkspaceId();
   const { data: currentUser } = useCurrentUser({ workspaceId });
+
+  const [{ preferences }] = useAtom(preferencesAtom);
 
   const [{ activities, isUnread: isUnreadActivities }, setActivities] =
     useAtom(activitiesAtom);
@@ -117,53 +134,162 @@ export const Sidebar = () => {
 
   const pathName = usePathname();
 
+  const sidebarItems = useMemo(
+    () => [
+      {
+        id: 'home',
+        route: 'home',
+        label: 'Home',
+        onClick: () => {
+          return router.replace(
+            `/workspace/${workspaceId}/channel/${channelId}`
+          );
+        },
+        icon: Home,
+      },
+      {
+        id: 'dms',
+        route: 'direct-message',
+        label: 'DMs',
+        onClick: () => {
+          onNavigateToDirectMessagePage();
+        },
+        icon: MessageCircle,
+        notiCount: countDirectMessageNoti(directMessages),
+        hoverContent: <DirectMessageCard />,
+      },
+      {
+        id: 'activity',
+        route: 'activity',
+        label: 'Activity',
+        onClick: () => {
+          onNavigateToActivityPage();
+        },
+        icon: Bell,
+        notiCount: countActivitiesNoti(activities),
+        hoverContent: <ActivityCard currentUser={currentUser} />,
+      },
+      {
+        id: 'later',
+        route: 'later',
+        label: 'Later',
+        onClick: () => {},
+        icon: Bookmark,
+      },
+      {
+        id: 'templates',
+        route: 'templates',
+        label: 'Templates',
+        onClick: () => {},
+        icon: LayoutTemplate,
+      },
+      {
+        id: 'automations',
+        route: 'automations',
+        label: 'Automations',
+        onClick: () => {},
+        icon: Workflow,
+      },
+      {
+        id: 'canvases',
+        route: 'canvases',
+        label: 'Canvases',
+        onClick: () => {},
+        icon: FileText,
+      },
+      {
+        id: 'files',
+        route: 'files',
+        label: 'Files',
+        onClick: () => {},
+        icon: Files,
+      },
+      {
+        id: 'channels',
+        route: 'channels',
+        label: 'Channels',
+        onClick: () => {},
+        icon: Layers,
+      },
+      {
+        id: 'people',
+        route: 'people',
+        label: 'People',
+        onClick: () => {},
+        icon: Users,
+      },
+
+      {
+        id: 'external',
+        route: 'external',
+        label: 'External',
+        onClick: () => {},
+        icon: File,
+      },
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [workspaceId, currentUser]
+  );
+
   return (
     <aside className="w-[70px] h-full bg-[#481349] flex flex-col gap-y-4 items-center pt-[8px] p-1">
       <WorkspaceSwitcher />
-      <SidebarButton
-        icon={Home}
-        label="Home"
-        isActive={activeSideButton() === 'home'}
-        onClick={() =>
-          router.replace(`/workspace/${workspaceId}/channel/${channelId}`)
-        }
-      />
-      <div>
-        <HoverCard>
-          <HoverCardTrigger>
-            <SidebarButton
-              onClick={() => onNavigateToDirectMessagePage()}
-              icon={MessageCircle}
-              label="DMs"
-              notiCount={countDirectMessageNoti(directMessages)}
-              isActive={activeSideButton() === 'direct-message'}
-            />
-          </HoverCardTrigger>
-          <HoverCardContent className="p-0" side="right" align="start">
-            <DirectMessageCard />
-          </HoverCardContent>
-        </HoverCard>
-      </div>
-      <div>
-        <HoverCard>
-          <HoverCardTrigger>
-            <SidebarButton
-              onClick={() => onNavigateToActivityPage()}
-              icon={Bell}
-              label="Activity"
-              notiCount={countActivitiesNoti(activities)}
-              isActive={activeSideButton() === 'activity'}
-            />
-          </HoverCardTrigger>
-          <HoverCardContent className="p-0" side="right" align="start">
-            <ActivityCard currentUser={currentUser} />
-          </HoverCardContent>
-        </HoverCard>
-      </div>
+      {sidebarItems
+        .filter((item) => {
+          if (preferences?.navigation?.includes(item.id)) return true;
+          return false;
+        })
+        .map((item) => {
+          if (item.hoverContent) {
+            return (
+              <HoverWrapper
+                key={item.id}
+                item={
+                  <SidebarButton
+                    onClick={item.onClick}
+                    icon={item.icon}
+                    label={item.label}
+                    notiCount={item.notiCount}
+                    isActive={activeSideButton() === item.route}
+                  />
+                }
+                hoverContent={item.hoverContent}
+              />
+            );
+          } else {
+            return (
+              <SidebarButton
+                key={item.id}
+                onClick={item.onClick}
+                icon={item.icon}
+                label={item.label}
+                notiCount={item.notiCount}
+                isActive={activeSideButton() === item.route}
+              />
+            );
+          }
+        })}
       <SidebarButton icon={MoreHorizontal} label="More" />
       <div className="flex flex-col items-center justify-center gap-y-1 mt-auto">
         <UserButton />
       </div>
     </aside>
+  );
+};
+
+const HoverWrapper = ({
+  item,
+  hoverContent,
+}: {
+  item: React.ReactNode;
+  hoverContent: React.ReactNode;
+}) => {
+  return (
+    <HoverCard>
+      <HoverCardTrigger>{item}</HoverCardTrigger>
+      <HoverCardContent className="p-0" side="right" align="start">
+        {hoverContent}
+      </HoverCardContent>
+    </HoverCard>
   );
 };

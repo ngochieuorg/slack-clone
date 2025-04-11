@@ -23,7 +23,7 @@ const usePreferencesModal = ({
   const component = (
     <Dialog open={open} onOpenChange={(value) => setOpen(value)}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="flex flex-col p-0 max-w-3xl">
+      <DialogContent className="flex flex-col p-0 max-w-3xl h-[70vh]">
         <DialogHeader className="border-b p-3 py-6">
           <DialogTitle className="">Preferences</DialogTitle>
           <DialogDescription className=" text-sm font-extralight"></DialogDescription>

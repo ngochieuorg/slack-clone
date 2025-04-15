@@ -6,6 +6,9 @@ interface UseGetMemberProps {
   memberId: Id<'members'>;
 }
 
+export type MemberPreferencesReturnType =
+  typeof api.memberPreferences.get._returnType;
+
 export const useGetMemberPreferences = ({ memberId }: UseGetMemberProps) => {
   const data = useQuery(api.memberPreferences.get, { memberId });
   const isLoading = data === undefined;

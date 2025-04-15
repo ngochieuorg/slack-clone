@@ -15,6 +15,7 @@ import { useWorkspaceId } from '@/hooks/use-workspace-id';
 import { useRouter } from 'next/navigation';
 import { renderDisplayName } from '@/utils/label';
 import OnlineDot from '@/asset/svg/online-dot';
+import usePreferencesModal from '@/features/preferences/hooks/use-preferences-modal';
 
 const UserButton = () => {
   const router = useRouter();
@@ -23,6 +24,10 @@ const UserButton = () => {
   const { data, isLoading } = useCurrentUser({ workspaceId });
   const { data: currentMember } = useCurrentMember({ workspaceId });
   const { onOpenProfileMember } = usePanel();
+
+  const { component: Preferences } = usePreferencesModal({
+    trigger: <UserButtonItem onClick={() => {}}>Preferences</UserButtonItem>,
+  });
 
   if (isLoading) {
     return <Loader className="size-4 animate-spin text-muted-foreground" />;
@@ -86,7 +91,7 @@ const UserButton = () => {
         >
           Profile
         </UserButtonItem>
-        <UserButtonItem onClick={() => {}}>Preferences</UserButtonItem>
+        {Preferences}
         <Separator />
         <UserButtonItem onClick={() => {}}>Upgrade</UserButtonItem>
         <UserButtonItem

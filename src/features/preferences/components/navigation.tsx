@@ -57,7 +57,6 @@ export const Navigation = () => {
               <Checkbox
                 checked={selected.includes(tab.id)}
                 disabled={tab.disable}
-                className="data-[state=checked]:bg-sky-500 data-[state=checked]:border-none data-[state=checked]:rounded-none"
               />
               <Icon className="w-4 h-4 " />
               <span>{tab.label}</span>

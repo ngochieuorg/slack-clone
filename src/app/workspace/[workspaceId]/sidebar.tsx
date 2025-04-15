@@ -43,17 +43,18 @@ import { ActivitiesReturnType } from '@/features/notifications/api/use-get-activ
 import { DirectMessageReturnType } from '@/features/notifications/api/api-get-direct-messages';
 
 // React Hooks
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { preferencesAtom } from '@/store/preferences.store';
 import MoreCard from '@/components/more-card';
 
 export const Sidebar = () => {
   const router = useRouter();
   const workspaceId = useWorkspaceId();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [maxItem, setMaxItem] = useState<number | undefined>(undefined);
   const { data: currentUser } = useCurrentUser({ workspaceId });
 
   const [{ preferences }] = useAtom(preferencesAtom);
-
   const [{ activities, isUnread: isUnreadActivities }, setActivities] =
     useAtom(activitiesAtom);
   const [
@@ -104,6 +105,23 @@ export const Sidebar = () => {
     directMessagesData,
     directMessageLoading,
   ]);
+
+  useEffect(() => {
+    const navigationItem = document.querySelector('.navigation-item');
+    const navigationItems = document.querySelector('.navigation-items');
+
+    const blockHeight = navigationItems?.clientHeight || 0;
+    const itemHeight = navigationItem?.clientHeight || 0;
+
+    const totalItems = (preferences?.navigation || []).length;
+    const totalItemsHeight = itemHeight * totalItems;
+
+    if (totalItemsHeight / blockHeight > 0.5) {
+      setMaxItem(preferences?.navigation?.length);
+    } else {
+      setMaxItem(undefined);
+    }
+  }, [preferences?.navigation]);
 
   const countActivitiesNoti = (activities?: ActivitiesReturnType) => {
     return (activities || []).filter((activity) => activity.unreadCount).length;
@@ -233,49 +251,55 @@ export const Sidebar = () => {
   );
 
   return (
-    <aside className="w-[70px] h-full bg-[#481349] flex flex-col gap-y-4 items-center pt-[8px] p-1">
+    <aside className="w-[78px] h-full bg-[#481349] flex flex-col gap-y-4 items-center pt-[8px] p-1">
       <WorkspaceSwitcher />
-      {sidebarItems
-        .filter((item) => {
-          if (preferences?.navigation?.includes(item.id)) return true;
-          return false;
-        })
-        .map((item) => {
-          if (item.hoverContent) {
-            return (
-              <HoverWrapper
-                key={item.id}
-                item={
-                  <SidebarButton
-                    onClick={item.onClick}
-                    icon={item.icon}
-                    label={item.label}
-                    notiCount={item.notiCount}
-                    isActive={activeSideButton() === item.route}
-                  />
-                }
-                hoverContent={item.hoverContent}
-              />
-            );
-          } else {
-            return (
-              <SidebarButton
-                key={item.id}
-                onClick={item.onClick}
-                icon={item.icon}
-                label={item.label}
-                notiCount={item.notiCount}
-                isActive={activeSideButton() === item.route}
-              />
-            );
-          }
-        })}
-      <HoverWrapper
-        item={<SidebarButton icon={MoreHorizontal} label="More" />}
-        hoverContent={<MoreCard />}
-      />
-
-      <div className="flex flex-col items-center justify-center gap-y-1 mt-auto">
+      <div className="navigation-items flex-1">
+        <div className="flex flex-col gap-y-2">
+          {sidebarItems
+            .filter((item) => {
+              if (preferences?.navigation?.includes(item.id)) return true;
+              return false;
+            })
+            .slice(0, 7)
+            .map((item) => {
+              if (item.hoverContent) {
+                return (
+                  <div key={item.id} className="navigation-item">
+                    <HoverWrapper
+                      item={
+                        <SidebarButton
+                          onClick={item.onClick}
+                          icon={item.icon}
+                          label={item.label}
+                          notiCount={item.notiCount}
+                          isActive={activeSideButton() === item.route}
+                        />
+                      }
+                      hoverContent={item.hoverContent}
+                    />
+                  </div>
+                );
+              } else {
+                return (
+                  <div key={item.id} className="navigation-item">
+                    <SidebarButton
+                      onClick={item.onClick}
+                      icon={item.icon}
+                      label={item.label}
+                      notiCount={item.notiCount}
+                      isActive={activeSideButton() === item.route}
+                    />
+                  </div>
+                );
+              }
+            })}
+          <HoverWrapper
+            item={<SidebarButton icon={MoreHorizontal} label="More" />}
+            hoverContent={<MoreCard />}
+          />
+        </div>
+      </div>
+      <div className="flex flex-col items-center justify-center gap-y-1">
         <UserButton />
       </div>
     </aside>

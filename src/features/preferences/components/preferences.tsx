@@ -16,11 +16,14 @@ import React, { useState } from 'react';
 import { cva } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 import { Navigation } from './navigation';
+import NotificationSettings from './notification';
+import Home from './home';
+import LanguageAndTimezoneSettings from './language-and-region';
 
 const preferenceItems = [
-  { icon: Bell, label: 'Notifications', component: <div></div> },
+  { icon: Bell, label: 'Notifications', component: <NotificationSettings /> },
   { icon: NavigationIcon, label: 'Navigation', component: <Navigation /> },
-  { icon: HomeIcon, label: 'Home', component: <div></div> },
+  { icon: HomeIcon, label: 'Home', component: <Home /> },
   { icon: PenTool, label: 'Appearance', component: <div></div> },
   {
     icon: MessageCircleMore,
@@ -30,7 +33,7 @@ const preferenceItems = [
   {
     icon: Globe,
     label: 'Language & region',
-    component: <div></div>,
+    component: <LanguageAndTimezoneSettings />,
   },
   { icon: Laptop, label: 'Accessibility', component: <div></div> },
   { icon: CheckCircle, label: 'Mark as read', component: <div></div> },
@@ -78,7 +81,7 @@ const Preferences = ({ preSelect }: { preSelect?: number }) => {
           );
         })}
       </div>
-      <div className="flex-1 px-5 text-[15px]">
+      <div className="flex-1 px-5 text-[15px] h-[60vh] overflow-y-scroll">
         {
           preferenceItems.find((item) => {
             return item.label === selected.label;

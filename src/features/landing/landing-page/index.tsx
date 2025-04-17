@@ -217,7 +217,7 @@ const FeatureBlock = ({
         <FeatureBg
           color={bgColor}
           className={cn(
-            'z-0 absolute -bottom-[17%] left-[35%]',
+            'hidden lg:block z-0 absolute -bottom-[17%] left-[35%]',
             'transition-opacity duration-700',
             isActive ? 'opacity-100' : 'opacity-100 xl:opacity-0 '
           )}
@@ -276,29 +276,31 @@ const FeatureBlocks = () => {
   const [isVideoVisible, setIsVideoVisible] = useState(false);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visibleSection = entries.find((entry) => entry.isIntersecting);
-        if (visibleSection) {
-          const id = visibleSection.target.id;
-          const video = featuresData.find((v) => v.id === id);
-          if (video) {
-            setActiveSection(video.id);
-            setIsVideoVisible(true);
+    if (window.innerWidth > 1280) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          const visibleSection = entries.find((entry) => entry.isIntersecting);
+          if (visibleSection) {
+            const id = visibleSection.target.id;
+            const video = featuresData.find((v) => v.id === id);
+            if (video) {
+              setActiveSection(video.id);
+              setIsVideoVisible(true);
+            }
+          } else {
+            setIsVideoVisible(false);
           }
-        } else {
-          setIsVideoVisible(false);
-        }
-      },
-      { threshold: 0.9 } // 60% section vào viewport thì thay đổi video
-    );
+        },
+        { threshold: 0.9 } // 60% section vào viewport thì thay đổi video
+      );
 
-    featuresData.forEach(({ id }) => {
-      const section = document.getElementById(id);
-      if (section) observer.observe(section);
-    });
+      featuresData.forEach(({ id }) => {
+        const section = document.getElementById(id);
+        if (section) observer.observe(section);
+      });
 
-    return () => observer.disconnect();
+      return () => observer.disconnect();
+    }
   }, []);
 
   return (

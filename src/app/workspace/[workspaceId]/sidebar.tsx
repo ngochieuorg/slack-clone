@@ -247,7 +247,7 @@ export const Sidebar = () => {
       },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [workspaceId, currentUser]
+    [workspaceId, currentUser, activities, directMessages]
   );
 
   return (

@@ -40,7 +40,7 @@ function BrowserNotificationContent({
       const isReactNotification = noti.type === 'reaction';
 
       if (
-        Math.abs(differenceInSeconds(noti._creationTime, new Date())) < 5 &&
+        Math.abs(differenceInSeconds(noti._creationTime, new Date())) < 2 &&
         !isReactNotification
       ) {
         const body = convertJsonToString(noti.content);

@@ -139,6 +139,10 @@ export const Sidebar = () => {
     router.push(`/workspace/${workspaceId}/direct-message`);
   };
 
+  const onNavigateToAnotherPage = (url: string) => {
+    router.push(url);
+  };
+
   const activeSideButton = (): 'home' | 'activity' | 'direct-message' => {
     if (pathName.includes('/activity')) {
       return 'activity';
@@ -192,7 +196,9 @@ export const Sidebar = () => {
         id: 'later',
         route: 'later',
         label: 'Later',
-        onClick: () => {},
+        onClick: () => {
+          onNavigateToAnotherPage(`/workspace/${workspaceId}/later`);
+        },
         icon: Bookmark,
       },
       {

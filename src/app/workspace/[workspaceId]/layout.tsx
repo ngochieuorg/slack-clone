@@ -20,6 +20,7 @@ import DirectMessageSidebar from './direct-message-sidebar';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
 import { useCurrentMember } from '@/features/members/api/use-current-member';
 import { useUpdateOnlineStatus } from '@/features/members/api/use-update-online-status';
+import LaterSidebar from './later-sidebar';
 
 interface WorkspaceIdLayoutProps {
   children: React.ReactNode;
@@ -53,6 +54,7 @@ const WorkspaceLayout = ({ children }: WorkspaceIdLayoutProps) => {
     () => path.includes('/direct-message'),
     [path]
   );
+  const isLaterPage = useMemo(() => path.includes('/later'), [path]);
   const showPanel = useMemo(
     () => !!parentMessageId || !!profileMemberId,
     [parentMessageId, profileMemberId]
@@ -63,9 +65,11 @@ const WorkspaceLayout = ({ children }: WorkspaceIdLayoutProps) => {
       return <ActivitySidebar />;
     } else if (isDirectMessagePage) {
       return <DirectMessageSidebar />;
+    } else if (isLaterPage) {
+      return <LaterSidebar />;
     }
     return <WorkSpaceSidebar />;
-  }, [isActivityPage, isDirectMessagePage]);
+  }, [isActivityPage, isDirectMessagePage, isLaterPage]);
 
   const defaultSidebarSize = useMemo(() => {
     return isActivityPage || isDirectMessagePage ? 45 : 15;

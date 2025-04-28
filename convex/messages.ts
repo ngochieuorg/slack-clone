@@ -75,6 +75,10 @@ export const get = query({
 
             const reactions = await populateReactions(ctx, message._id);
             const thread = await populateThread(ctx, message._id);
+            const saveLater = await ctx.db
+              .query('savedLaters')
+              .withIndex('by_message_id', (q) => q.eq('messageId', message._id))
+              .unique();
 
             const files = await Promise.all(
               (message.files || []).map(async (f) => {
@@ -167,6 +171,7 @@ export const get = query({
               threadName: thread.name,
               threadTimestamp: thread.timeStamp,
               usersInThread: thread.usersInThread,
+              saveLater: saveLater,
             };
           })
         )
@@ -226,6 +231,10 @@ export const getAll = query({
 
           const reactions = await populateReactions(ctx, message._id);
           const thread = await populateThread(ctx, message._id);
+          const saveLater = await ctx.db
+            .query('savedLaters')
+            .withIndex('by_message_id', (q) => q.eq('messageId', message._id))
+            .unique();
 
           const files = await Promise.all(
             (message.files || []).map(async (f) => {
@@ -314,6 +323,7 @@ export const getAll = query({
             threadName: thread.name,
             threadTimestamp: thread.timeStamp,
             usersInThread: thread.usersInThread,
+            saveLater: saveLater,
           };
         })
     );
@@ -423,6 +433,11 @@ export const getById = query({
       })
     );
 
+    const saveLater = await ctx.db
+      .query('savedLaters')
+      .withIndex('by_message_id', (q) => q.eq('messageId', message._id))
+      .unique();
+
     return {
       ...message,
       body: mentionIds.length ? mentionBody : message.body,
@@ -431,6 +446,7 @@ export const getById = query({
       member,
       reactions: reactionWithoutMemberIdProperty,
       channel,
+      saveLater: saveLater,
     };
   },
 });

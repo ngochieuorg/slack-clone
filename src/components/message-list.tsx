@@ -107,6 +107,7 @@ const MessageList = ({
                 threadName={message.threadName}
                 threadUsers={message.usersInThread}
                 forwardMessageId={message.forwardMessageId}
+                saveLater={message.saveLater}
               />
             );
           })}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from './ui/button';
 import {
+  Bookmark,
   Forward,
   MessageSquareTextIcon,
   Pencil,
@@ -10,7 +11,8 @@ import {
 import Hint from './hint';
 import EmojiPopover from './emoji-popover';
 import ForwardMessageModal from '@/features/messages/components/forward-message-modal';
-import { Id } from '../../convex/_generated/dataModel';
+import { Doc, Id } from '../../convex/_generated/dataModel';
+import { cn } from '@/lib/utils';
 
 interface ToolbarProps {
   isAuthor: boolean;
@@ -18,9 +20,11 @@ interface ToolbarProps {
   handleEdit: () => void;
   handleThread: () => void;
   handleDelete: () => void;
+  handleSaveForLater: () => void;
   handleReaction: (value: string) => void;
   hideThreadButton?: boolean;
   messageId: Id<'messages'>;
+  isSaveLater?: Doc<'savedLaters'> | null;
 }
 
 const Toolbar = ({
@@ -29,9 +33,11 @@ const Toolbar = ({
   handleEdit,
   handleThread,
   handleDelete,
+  handleSaveForLater,
   handleReaction,
   hideThreadButton,
   messageId,
+  isSaveLater,
 }: ToolbarProps) => {
   return (
     <div className="absolute top-0 right-5">
@@ -65,6 +71,21 @@ const Toolbar = ({
             }
             messageId={messageId}
           />
+        </Hint>
+        <Hint label="Save for later">
+          <Button
+            variant={'ghost'}
+            size={'sm'}
+            disabled={isPending}
+            onClick={handleSaveForLater}
+          >
+            <Bookmark
+              className={cn(
+                'size-4',
+                isSaveLater && 'fill-sky-600 stroke-sky-600'
+              )}
+            />
+          </Button>
         </Hint>
         {isAuthor && (
           <>

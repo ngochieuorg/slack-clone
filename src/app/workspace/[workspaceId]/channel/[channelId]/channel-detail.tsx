@@ -17,7 +17,6 @@ const ChannelDetailPage = ({
 }: {
   channelId?: string;
 }) => {
-  console.log(channelIdFromQuery);
   const channelId = useChannelId();
   const workspaceId = useWorkspaceId();
 

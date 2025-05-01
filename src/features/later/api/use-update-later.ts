@@ -6,9 +6,12 @@ import { Id } from '../../../../convex/_generated/dataModel';
 
 type RequestType = {
   workspaceId: Id<'workspaces'>;
-  messageId?: Id<'messages'>;
+  messageId: Id<'messages'>;
   fileId?: Id<'files'>;
   status: 'inprogress' | 'archived' | 'completed';
+  channelId?: Id<'channels'>;
+  conversationId?: Id<'conversations'>;
+  parentMessageId?: Id<'messages'>;
 };
 type ResponseType = Id<'savedLaters'> | null;
 

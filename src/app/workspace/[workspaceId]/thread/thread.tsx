@@ -155,6 +155,7 @@ const ThreadComponent = ({
           reactions={message.reactions}
           isEditing={editingId === message._id}
           setEditingId={setEditingId}
+          saveLater={message.saveLater}
         />
         <div className="flex flex-col-reverse">
           {results.map((message) => {
@@ -185,6 +186,7 @@ const ThreadComponent = ({
                 threadTimestamp={message.threadTimestamp}
                 threadName={message.threadName}
                 threadUsers={message.usersInThread}
+                saveLater={message.saveLater}
               />
             );
           })}

@@ -26,6 +26,7 @@ interface MessageListProps {
   canLoadMore: boolean;
   variant?: 'channel' | 'thread' | 'conversation';
   memberName?: string;
+  conversationId?: Id<'conversations'>;
 }
 
 const MessageList = ({
@@ -40,6 +41,7 @@ const MessageList = ({
   canLoadMore,
   variant = 'channel',
   memberName,
+  conversationId,
 }: MessageListProps) => {
   const workspaceId = useWorkspaceId();
   const { data: currentMember } = useCurrentMember({ workspaceId });
@@ -108,6 +110,7 @@ const MessageList = ({
                 threadUsers={message.usersInThread}
                 forwardMessageId={message.forwardMessageId}
                 saveLater={message.saveLater}
+                conversationId={conversationId}
               />
             );
           })}

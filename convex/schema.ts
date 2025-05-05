@@ -130,8 +130,11 @@ const schema = defineSchema({
   }).index('by_storageId', ['storageId']),
   savedLaters: defineTable({
     memberId: v.id('members'),
-    messageId: v.optional(v.id('messages')),
+    messageId: v.id('messages'),
     fileId: v.optional(v.id('files')),
+    channelId: v.optional(v.id('channels')),
+    conversationId: v.optional(v.id('conversations')),
+    parentMessageId: v.optional(v.id('messages')),
     status: v.union(
       v.literal('inprogress'),
       v.literal('archived'),

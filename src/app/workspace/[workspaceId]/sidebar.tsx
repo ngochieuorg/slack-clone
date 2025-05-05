@@ -143,7 +143,14 @@ export const Sidebar = () => {
     router.push(url);
   };
 
-  const activeSideButton = (): 'home' | 'activity' | 'direct-message' => {
+  const activeSideButton = ():
+    | 'home'
+    | 'activity'
+    | 'direct-message'
+    | 'later' => {
+    if (pathName.includes('/later')) {
+      return 'later';
+    }
     if (pathName.includes('/activity')) {
       return 'activity';
     }

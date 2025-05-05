@@ -32,7 +32,7 @@ const DirectMessagePage = () => {
         router.push(
           `/workspace/${workspaceId}/direct-message/${firstConversationMemberId}?conversationId=${firstConversationId}`
         );
-      }, 100);
+      }, 0);
       return () => clearTimeout(timeoutId);
     }
   }, [

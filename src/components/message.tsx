@@ -25,6 +25,7 @@ import ForwardMessage from './forward-message';
 import { useUpdateAsLater } from '@/features/later/api/use-update-later';
 import { useWorkspaceId } from '@/hooks/use-workspace-id';
 import { useRemoveSavelater } from '@/features/later/api/use-remove-later';
+import { Bookmark } from 'lucide-react';
 
 const Editor = dynamic(() => import('@/components/editor'), { ssr: false });
 
@@ -64,6 +65,7 @@ interface MessageProps {
   isForward?: boolean;
   forwardMessageId?: Id<'messages'>;
   saveLater?: Doc<'savedLaters'> | null;
+  conversationId?: Id<'conversations'>;
 }
 
 const Message = ({
@@ -92,9 +94,11 @@ const Message = ({
   isForward,
   forwardMessageId,
   saveLater,
+  conversationId,
 }: MessageProps) => {
   const workspaceId = useWorkspaceId();
   const channelId = useChannelId();
+
   const { parentMessageId, onOpenMessage, onClose, onOpenProfileMember } =
     usePanel();
   const [ConfirmDialog, confirm] = useConfirm(
@@ -170,7 +174,14 @@ const Message = ({
   const handleSaveForLater = () => {
     if (!saveLater) {
       updateSaveLater(
-        { messageId: id, workspaceId: workspaceId, status: 'inprogress' },
+        {
+          messageId: id,
+          workspaceId: workspaceId,
+          status: 'inprogress',
+          channelId,
+          parentMessageId: (parentMessageId as Id<'messages'>) || undefined,
+          conversationId: (conversationId as Id<'conversations'>) || undefined,
+        },
         {
           onError: () => {
             toast.error('Failed to toggle save later');
@@ -202,6 +213,7 @@ const Message = ({
             className
           )}
         >
+          {saveLater && <SaveLaterSign />}
           <div className="flex items-start gap-2">
             <Hint label={formatFulltime(new Date(createdAt))}>
               <button className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 w-[40px] leading-[22px] text-center hover:underline">
@@ -298,6 +310,7 @@ const Message = ({
           className
         )}
       >
+        {saveLater && <SaveLaterSign />}
         <div className="flex items-start gap-2">
           <button onClick={() => onOpenProfileMember(memberId)}>
             <UserDetailCard
@@ -417,6 +430,15 @@ const Message = ({
         )}
       </div>
     </>
+  );
+};
+
+const SaveLaterSign = () => {
+  return (
+    <div className="flex items-center gap-2 font-semibold text-sm text-sky-700">
+      <Bookmark className=" fill-sky-700 size-4  stroke-sky-700" />
+      Save later
+    </div>
   );
 };
 

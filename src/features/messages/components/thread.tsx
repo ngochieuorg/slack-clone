@@ -58,16 +58,21 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
     id: messageId,
   });
   const { channelId: channelIdFromQuery } = usePanel();
-  const isActivityPage = path.includes('/activity');
+  const isActivityOrLater =
+    path.includes('/activity') || path.includes('/later');
+
+  console.log();
 
   const { results, status, loadMore } = useGetMessages({
-    channelId: isActivityPage
+    channelId: isActivityOrLater
       ? channelIdFromQuery
         ? (channelIdFromQuery as Id<'channels'>)
         : undefined
       : channelId,
     parentMessageId: messageId,
   });
+
+  console.log(results);
 
   const { mutate: createMessage } = useCreateMessage();
   const { mutate: generateUploadUrl } = useGenerateUploadUrl();
@@ -229,6 +234,7 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
                     threadTimestamp={message.threadTimestamp}
                     threadName={message.threadName}
                     threadUsers={message.usersInThread}
+                    saveLater={message.saveLater}
                   />
                 );
               })}
@@ -279,6 +285,7 @@ const Thread = ({ messageId, onClose }: ThreadProps) => {
             reactions={message.reactions}
             isEditing={editingId === message._id}
             setEditingId={setEditingId}
+            saveLater={message.saveLater}
           />
         </div>
         <div className="px-4">

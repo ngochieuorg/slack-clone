@@ -268,6 +268,7 @@ const SubThreadView = ({
                       'bg-[#f2c74433] transition duration-1000'
                   )}
                   formatFullDate
+                  saveLater={message.saveLater}
                 />
               );
             })}
@@ -327,6 +328,7 @@ const SubThreadView = ({
           isEditing={editingId === message._id}
           setEditingId={setEditingId}
           formatFullDate
+          saveLater={message.saveLater}
         />
       </div>
     </div>

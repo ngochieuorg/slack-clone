@@ -19,14 +19,15 @@ const LaterIdPage = () => {
           messageId={later.messageId}
         />
       );
+    } else {
+      return (
+        <SubChannelView
+          channelId={later.channelId}
+          parentMessageId={later.parentMessageId}
+          messageId={later.messageId}
+        />
+      );
     }
-    return (
-      <SubChannelView
-        channelId={later.channelId}
-        parentMessageId={later.parentMessageId}
-        messageId={later.messageId}
-      />
-    );
   }
 
   return <></>;

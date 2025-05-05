@@ -5,7 +5,6 @@ import { useAtom } from 'jotai';
 import { activitiesAtom } from '@/store/activity.store';
 
 // Components
-import ActivityThread from '@/features/notifications/components/activity-threads';
 
 // Hooks
 import { usePanel } from '@/hooks/use-panel';
@@ -14,6 +13,7 @@ import { useActivityId } from '@/hooks/use-activity-id';
 // React
 import { useEffect } from 'react';
 import SubChannelView from '@/components/sub-view/sub-channel-view';
+import SubThreadView from '@/components/sub-view/sub-thread-view';
 
 const ActivityIdPage = () => {
   const [{ activities }] = useAtom(activitiesAtom);
@@ -36,7 +36,7 @@ const ActivityIdPage = () => {
         if (activity.newestNoti.parentMessageId) {
           if (activity?.newestNoti.channelId) {
             return (
-              <ActivityThread
+              <SubThreadView
                 channelId={activity?.newestNoti.channelId}
                 parentMessageId={activity?.newestNoti.parentMessageId}
                 messageId={activity.newestNoti.messageId}
@@ -60,7 +60,7 @@ const ActivityIdPage = () => {
         activity?.newestNoti.parentMessageId
       ) {
         return (
-          <ActivityThread
+          <SubThreadView
             channelId={activity?.newestNoti.channelId}
             parentMessageId={activity?.newestNoti.parentMessageId}
             messageId={activity.newestNoti.messageId}

@@ -237,6 +237,7 @@ const SubChannelView = ({ channelId, messageId }: ActivityChannelProps) => {
                       hightLight &&
                       'bg-[#f2c74433] transition duration-2000 ease-in-out'
                   )}
+                  saveLater={message.saveLater}
                 />
               );
             })}
@@ -293,6 +294,7 @@ const SubChannelView = ({ channelId, messageId }: ActivityChannelProps) => {
           reactions={message.reactions}
           isEditing={editingId === message._id}
           setEditingId={setEditingId}
+          saveLater={message.saveLater}
         />
       </div>
     </div>

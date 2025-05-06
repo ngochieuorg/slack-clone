@@ -23,6 +23,8 @@ const ConvertJsonToHtml: React.FC<ConvertJsonToHtmlProps> = ({
           if (typeof op.insert === 'string') {
             // Replace newlines with <br /> and set HTML directly
             const htmlString = op.insert.replace(/\n/g, '<br />');
+
+            if (htmlString === '<br />') return null;
             return (
               <span
                 key={index}

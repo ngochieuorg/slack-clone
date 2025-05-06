@@ -8,7 +8,6 @@ import { useGetMessages } from '@/features/messages/api/use-get-messages';
 import { useCurrentMember } from '@/features/members/api/use-current-member';
 import { useCreateMessage } from '@/features/messages/api/use-create-message';
 import { useGenerateUploadUrl } from '@/features/upload/api/use-generate-upload-url';
-import { usePanel } from '@/hooks/use-panel';
 import { useCreateFile } from '@/features/upload/api/use-create-file';
 
 // Utilities
@@ -18,43 +17,34 @@ import { cn } from '@/lib/utils';
 // Components
 import Message from '@/components/message';
 import { Button } from '@/components/ui/button';
-import ChannelIcon from '@/asset/svg/channel-icon';
 
 // Icons
 import { Loader, XIcon } from 'lucide-react';
 
 // Libraries
 import Quill from 'quill';
+import { toast } from 'sonner';
 
 // React
 import { useEffect, useRef, useState } from 'react';
 
-// Notifications
-import { toast } from 'sonner';
-
 // Types
-import { Id } from '../../../../convex/_generated/dataModel';
+import { Id } from '../../../convex/_generated/dataModel';
 import { renderDisplayName } from '@/utils/label';
 import { CreateMessageValues } from '@/models';
-import ChannelDetailPage from '@/app/workspace/[workspaceId]/channel/[channelId]/channel-detail';
 
 // Dynamic Component
 const Editor = dynamic(() => import('@/components/editor'), { ssr: false });
 
 const TIME_THRESHHOLD = 5;
 
-interface ActivityThreadProps {
-  channelId: Id<'channels'>;
-  conversationId?: string;
-  parentMessageId: Id<'messages'>;
-  messageId?: Id<'messages'>;
+interface ActivityChannelProps {
+  channelId?: string;
+  parentMessageId?: string;
+  messageId: string;
 }
 
-const ActivityThread = ({
-  channelId,
-  parentMessageId,
-  messageId,
-}: ActivityThreadProps) => {
+const SubChannelView = ({ channelId, messageId }: ActivityChannelProps) => {
   const workspaceId = useWorkspaceId();
 
   const editorRef = useRef<Quill | null>(null);
@@ -66,19 +56,16 @@ const ActivityThread = ({
   const { data: currentMember } = useCurrentMember({ workspaceId });
 
   const { data: message, isLoading: loadingMessage } = useGetMessage({
-    id: parentMessageId,
+    id: messageId as Id<'messages'>,
   });
 
   const { results, status, loadMore } = useGetMessages({
-    channelId,
-    parentMessageId: parentMessageId,
+    channelId: channelId as Id<'channels'>,
   });
 
   const { mutate: createMessage } = useCreateMessage();
   const { mutate: generateUploadUrl } = useGenerateUploadUrl();
   const { mutate: createFile } = useCreateFile();
-
-  const { onOpenMessage, channelId: channelIdFromQuery } = usePanel();
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -119,11 +106,10 @@ const ActivityThread = ({
       editorRef?.current?.enable(false);
 
       const values: CreateMessageValues = {
-        channelId,
+        channelId: channelId as Id<'channels'>,
         workspaceId,
         body,
         files: [],
-        parentMessageId: parentMessageId,
       };
 
       await Promise.all(
@@ -186,25 +172,10 @@ const ActivityThread = ({
     );
   }
 
-  if (channelIdFromQuery) {
-    return <ChannelDetailPage channelId={channelIdFromQuery} />;
-  }
-
   return (
     <div className="flex flex-col max-h-full overflow-y-auto">
-      <div className="h-[49px] flex items-center px-4 border-b gap-2">
-        <div
-          className="group cursor-pointer hover:bg-slate-100 p-2 rounded-lg"
-          onClick={() => {
-            onOpenMessage(parentMessageId, channelId);
-          }}
-        >
-          <ChannelIcon className="text-muted-foreground group-hover:text-slate-900" />
-        </div>
-        <p className="text-lg font-bold ">Thread</p>
-        <p className="text-muted-foreground text-sm">
-          # {message.channel?.name}
-        </p>
+      <div className="min-h-[49px] flex items-center px-4 border-b gap-2">
+        <p className="text-lg font-bold"># {message.channel?.name}</p>
         <Button
           onClick={() => {}}
           size={'iconSm'}
@@ -240,9 +211,7 @@ const ActivityThread = ({
                   key={message._id}
                   id={message._id}
                   memberId={message.memberId}
-                  authorImage={
-                    message.user.memberPreference.image || message.user.image
-                  }
+                  authorImage={message.user.image}
                   authorName={renderDisplayName(
                     message.user.name,
                     message.user.memberPreference
@@ -263,11 +232,12 @@ const ActivityThread = ({
                   threadName={message.threadName}
                   threadUsers={message.usersInThread}
                   className={cn(
+                    message._id === messageId && 'bg-gray-100/60',
                     message._id === messageId &&
                       hightLight &&
-                      'bg-[#f2c74433] transition duration-1000'
+                      'bg-[#f2c74433] transition duration-2000 ease-in-out'
                   )}
-                  formatFullDate
+                  saveLater={message.saveLater}
                 />
               );
             })}
@@ -310,9 +280,7 @@ const ActivityThread = ({
         <Message
           hideThreadButton
           memberId={message.memberId}
-          authorImage={
-            message.user.memberPreference.image || message?.user?.image
-          }
+          authorImage={message?.user?.image}
           authorName={renderDisplayName(
             message.user?.name,
             message.user?.memberPreference
@@ -326,11 +294,11 @@ const ActivityThread = ({
           reactions={message.reactions}
           isEditing={editingId === message._id}
           setEditingId={setEditingId}
-          formatFullDate
+          saveLater={message.saveLater}
         />
       </div>
     </div>
   );
 };
 
-export default ActivityThread;
+export default SubChannelView;

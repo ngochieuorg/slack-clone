@@ -9,7 +9,7 @@ import Image from 'next/image';
 const AuthScreen = () => {
   const [state, setState] = useState<SignInFlow>('signIn');
   return (
-    <div className="h-full flex flex-col items-center justify-start mt-20 gap-2">
+    <div className="h-full flex flex-col items-center justify-start pt-20 gap-2">
       <Image
         src={'/slack-salesforce-black.png'}
         alt="Slack Logo"

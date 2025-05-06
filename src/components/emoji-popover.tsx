@@ -31,7 +31,7 @@ const EmojiPopover = ({
 
     setTimeout(() => {
       setTooltipOpen(false);
-    }, 500);
+    }, 50);
   };
 
   return (

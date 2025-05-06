@@ -22,6 +22,10 @@ import { FileStorage } from '@/models';
 import MessageMedia from './message-media';
 import { convertJsonToString } from '@/utils/label';
 import ForwardMessage from './forward-message';
+import { useUpdateAsLater } from '@/features/later/api/use-update-later';
+import { useWorkspaceId } from '@/hooks/use-workspace-id';
+import { useRemoveSavelater } from '@/features/later/api/use-remove-later';
+import { Bookmark } from 'lucide-react';
 
 const Editor = dynamic(() => import('@/components/editor'), { ssr: false });
 
@@ -60,6 +64,8 @@ interface MessageProps {
   isSmallContainer?: boolean;
   isForward?: boolean;
   forwardMessageId?: Id<'messages'>;
+  saveLater?: Doc<'savedLaters'> | null;
+  conversationId?: Id<'conversations'>;
 }
 
 const Message = ({
@@ -87,8 +93,12 @@ const Message = ({
   isSmallContainer,
   isForward,
   forwardMessageId,
+  saveLater,
+  conversationId,
 }: MessageProps) => {
+  const workspaceId = useWorkspaceId();
   const channelId = useChannelId();
+
   const { parentMessageId, onOpenMessage, onClose, onOpenProfileMember } =
     usePanel();
   const [ConfirmDialog, confirm] = useConfirm(
@@ -102,8 +112,16 @@ const Message = ({
     useRemoveMessage();
   const { mutate: toggleReaction, isPending: isTogglingReaction } =
     useToggleReaction();
+  const { mutate: updateSaveLater, isPending: isUpdateSaveLater } =
+    useUpdateAsLater();
+  const { mutate: removeSaveLater, isPending: isRemoveSaveLater } =
+    useRemoveSavelater();
 
-  const isPending = isUpdatingMessage || isTogglingReaction;
+  const isPending =
+    isUpdatingMessage ||
+    isTogglingReaction ||
+    isUpdateSaveLater ||
+    isRemoveSaveLater;
 
   const handleUpdate = ({ body }: { body: string }) => {
     updateMessage(
@@ -153,6 +171,35 @@ const Message = ({
     );
   };
 
+  const handleSaveForLater = () => {
+    if (!saveLater) {
+      updateSaveLater(
+        {
+          messageId: id,
+          workspaceId: workspaceId,
+          status: 'inprogress',
+          channelId,
+          parentMessageId: (parentMessageId as Id<'messages'>) || undefined,
+          conversationId: (conversationId as Id<'conversations'>) || undefined,
+        },
+        {
+          onError: () => {
+            toast.error('Failed to toggle save later');
+          },
+        }
+      );
+    } else {
+      removeSaveLater(
+        { saveId: saveLater._id, workspaceId },
+        {
+          onError: () => {
+            toast.error('Failed to toggle reaction');
+          },
+        }
+      );
+    }
+  };
+
   if (isCompact) {
     return (
       <>
@@ -166,6 +213,7 @@ const Message = ({
             className
           )}
         >
+          {saveLater && <SaveLaterSign />}
           <div className="flex items-start gap-2">
             <Hint label={formatFulltime(new Date(createdAt))}>
               <button className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 w-[40px] leading-[22px] text-center hover:underline">
@@ -235,8 +283,10 @@ const Message = ({
                 handleThread={() => onOpenMessage(id)}
                 handleDelete={handleRemove}
                 handleReaction={handleReaction}
+                handleSaveForLater={handleSaveForLater}
                 hideThreadButton={hideThreadButton}
                 messageId={id}
+                isSaveLater={saveLater}
               />{' '}
             </div>
           )}
@@ -252,6 +302,7 @@ const Message = ({
         className={cn(
           'flex flex-col gap-2 p-1.5 px-5 hover:bg-gray-100/60 group relative',
           isEditing && 'bg-[#f2c74433] hover:bg-[#f2c74433]',
+          saveLater && 'bg-sky-50 hover:bg-bg-sky-50',
           isRemovingMessage &&
             'bg-rose-500/50 transform transition-all scale-y-0 origin-bottom duration-200',
           isForward &&
@@ -259,6 +310,7 @@ const Message = ({
           className
         )}
       >
+        {saveLater && <SaveLaterSign />}
         <div className="flex items-start gap-2">
           <button onClick={() => onOpenProfileMember(memberId)}>
             <UserDetailCard
@@ -369,13 +421,24 @@ const Message = ({
               handleThread={() => onOpenMessage(id)}
               handleDelete={handleRemove}
               handleReaction={handleReaction}
+              handleSaveForLater={handleSaveForLater}
               hideThreadButton={hideThreadButton}
               messageId={id}
+              isSaveLater={saveLater}
             />
           </div>
         )}
       </div>
     </>
+  );
+};
+
+const SaveLaterSign = () => {
+  return (
+    <div className="flex items-center gap-2 font-semibold text-sm text-sky-700">
+      <Bookmark className=" fill-sky-700 size-4  stroke-sky-700" />
+      Save later
+    </div>
   );
 };
 

@@ -116,8 +116,28 @@ export const populateUser = async (
   return returnUser;
 };
 
-export const populateMember = (ctx: QueryCtx, memberId: Id<'members'>) => {
-  return ctx.db.get(memberId);
+export const populateMember = async (
+  ctx: QueryCtx,
+  memberId: Id<'members'>
+) => {
+  let memberPreference;
+  const member = await ctx.db.get(memberId);
+  if (member) {
+    memberPreference = await ctx.db
+      .query('memberPreferences')
+      .withIndex('by_member_id_user_id', (q) =>
+        q.eq('memberId', member._id).eq('userId', member?.userId)
+      )
+      .unique();
+
+    const image = memberPreference?.image
+      ? await ctx.storage.getUrl(memberPreference.image)
+      : undefined;
+
+    memberPreference = { ...memberPreference, image };
+  }
+
+  return member ? { ...member, memberPreference } : null;
 };
 
 export const populateMesssage = (ctx: QueryCtx, messageId: Id<'messages'>) => {

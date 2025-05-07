@@ -450,7 +450,9 @@ export const directMessages = query({
     );
 
     const groupByConversationId = groupBy(
-      notificationWithPopulate.filter((noti) => noti.conversationId) || [],
+      notificationWithPopulate.filter(
+        (noti) => noti.conversationId && noti.conversationWith
+      ) || [],
       'conversationId'
     );
 

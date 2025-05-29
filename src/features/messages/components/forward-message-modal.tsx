@@ -248,7 +248,7 @@ const ForwardMessageContent = ({
           //   handleSubmit({ body: editorRef.current?.root.innerHTML || '' })
           // }
         >
-          Forwardd
+          Forwardddd
         </Button>
       </DialogFooter>
     </div>
